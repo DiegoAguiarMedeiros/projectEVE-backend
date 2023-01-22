@@ -1,20 +1,21 @@
 
-import { RedisClient } from 'redis'
+import { RedisClientType } from '@redis/client';
+import { RedisCommandArgument } from '@redis/client/dist/lib/commands';
 
 export abstract class AbstractRedisClient {
   private tokenExpiryTime: number = 604800;
-  protected client: RedisClient;
+  protected client: RedisClientType;
 
-  constructor (client: RedisClient) {
+  constructor(client: RedisClientType) {
     this.client = client;
   }
 
-  public async count (key: string): Promise<number> {
+  public async count(key: RedisCommandArgument): Promise<number> {
     const allKeys = await this.getAllKeys(key);
     return allKeys.length;
   }
 
-  public exists (key: string): Promise<boolean> {
+  public exists(key: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       return this.count(key)
         .then((count) => {
@@ -26,88 +27,84 @@ export abstract class AbstractRedisClient {
     })
   }
 
-  public getOne<T> (key: string): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.client.get(key,
-         (error: Error, reply: unknown) => {
-          if (error) {
-            return reject(error)
-          } else {
-            return resolve(<T>reply);
-          }
-      });
+  public getOne<T>(key: RedisCommandArgument): Promise<T> {
+    return new Promise(async (resolve, reject) => {
+      const data = await this.client.get(key)
+        .catch((err) => reject(err));
+      if (data != null) {
+        return resolve(<T>data);
+      } else {
+        return reject('error')
+      }
     })
   }
 
-  public getAllKeys(wildcard: string): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      this.client.keys(wildcard,
-        async (error: Error, results: string[]) => {
-          if (error) {
-            return reject(error)
-          } else {
-            return resolve(results);
-          }
-        })
-    })
-  } 
-
-  public getAllKeyValue (wildcard: string): Promise<any[]> {
-    return new Promise((resolve, reject) => {
-      this.client.keys(wildcard,
-        async (error: Error, results: string[]) => {
-          if (error) {
-            return reject(error)
-          } else {
-            const allResults = await Promise.all(
-              results.map( async (key) => {
-                const value = await this.getOne(key);
-                return { key, value }
-              })
-            );
-            return resolve(allResults);
-          }
-        })
+  public getAllKeys(wildcard: RedisCommandArgument): Promise<string[]> {
+    return new Promise(async (resolve, reject) => {
+      const data = await this.client.keys(wildcard)
+        .catch((err) => reject(err)) || null;
+      if (data != null) {
+        return resolve(data);
+      } else {
+        return reject('error')
+      }
     })
   }
 
-  public set(key: string, value: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.client.set(key, value, 
-         (error, reply) => {
-          if (error) {
-            return reject(error)
-          } else {
-            this.client.expire(key, this.tokenExpiryTime)
-            return resolve(reply)
-          }
-      });
+  public getAllKeyValue(wildcard: RedisCommandArgument): Promise<any[]> {
+    return new Promise(async (resolve, reject) => {
+
+      const data = await this.client.keys(wildcard)
+        .catch((err) => reject(err)) || null;
+      if (data !== null) {
+        const allResults = await Promise.all(
+          data?.map(async (key) => {
+            const value = await this.getOne(key);
+            return { key, value }
+          })
+        );
+        return resolve(allResults);
+      } else {
+        return reject('error')
+      }
     })
   }
 
-  public deleteOne (key: string): Promise<number> {
-    return new Promise((resolve, reject) => {
-      this.client.del(key,
-        (error, reply) => {
-          if (error) {
-            return reject(error)
-          } else {
-            return resolve(reply)
-          }
-      });
+  public set(key: RedisCommandArgument, value: any): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      const data = await this.client.set(key, value)
+        .catch((err) => reject(err)) || null;
+      if (data != null) {
+        this.client.expire(key, this.tokenExpiryTime)
+        return resolve(data);
+      } else {
+        return reject('error')
+      }
     })
   }
 
-  public testConnection (): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.client.set('test', 'connected', 
-        (err) => {
-          if (err) {
-            reject();
-          } else {
-            resolve(true);
-          }
-      })
+  public deleteOne(key: RedisCommandArgument): Promise<number> {
+    return new Promise(async (resolve, reject) => {
+      const data = await this.client.del(key)
+        .catch((err) => reject(err)) || null;
+      if (data != null) {
+        this.client.expire(key, this.tokenExpiryTime)
+        return resolve(data);
+      } else {
+        return reject('error')
+      }
+    })
+  }
+
+  public testConnection(): Promise<any> {
+    return new Promise(async (resolve, reject) => {
+      const data = await this.client.set('test', 'connected')
+        .catch((err) => reject(err)) || null;
+      if (data != null) {
+        return resolve(data);
+      } else {
+        return reject('error')
+      }
     })
   }
 }
