@@ -1,8 +1,8 @@
 
 // Infra
 import "./shared/infra/http/app"
-import "./shared/infra/database/sequelize"
+import "./shared/infra/database/mongoDB"
 
 // Subscriptions
-import "./modules/forum/subscriptions";
+// import "./modules/forum/subscriptions";
 
