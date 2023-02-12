@@ -1,7 +1,7 @@
 
-import { SequelizeUserRepo } from "./implementations/sequelizeUserRepo";
+import { MongoUserRepo } from "./implementations/mongoUserRepo";
 import models from "../../../shared/infra/database/mongoDB/models";
 
-const userRepo = new SequelizeUserRepo(models);
+const userRepo = new MongoUserRepo(models);
 
 export { userRepo }

@@ -5,6 +5,13 @@ import { UserMap } from "../../mappers/userMap";
 import { UserEmail } from "../../domain/userEmail";
 
 export class MongoUserRepo implements IUserRepo {
+
+    private models: any;
+
+    constructor (models: any) {
+        this.models = models;
+      }
+
     exists(userEmail: UserEmail): Promise<boolean> {
         throw new Error("Method not implemented.");
     }

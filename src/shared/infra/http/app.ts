@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
+import 'dotenv/config';
 import { v1Router } from './api/v1';
 import { isProduction } from '../../../config';
 

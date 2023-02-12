@@ -6,28 +6,21 @@ const MONGO_DB_URL = MONGO_URL
   ? MONGO_URL
   : `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}`;
 
-const mongooseOptions = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-  useCreateIndex: true,
-};
-
 const initDB = async () => {
-  mongoose.connect(MONGO_DB_URL, mongooseOptions);
-
+  mongoose.set('strictQuery', false);
+  mongoose.connect(MONGO_DB_URL);
   const { connection } = mongoose;
 
   connection.on('connected', () => {
-    logger.info('Mongoose conectado.');
+    console.info('Mongoose conectado.');
   });
 
   connection.on('error', (err) => {
-    logger.error(`Mongoose com error ${err}`);
+    console.error(`Mongoose com error ${err}`);
   });
 
   connection.on('disconnected', () => {
-    logger.info('Mongoose desconectado');
+    console.info('Mongoose desconectado');
   });
 };
 
