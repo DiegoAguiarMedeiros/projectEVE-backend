@@ -19,4 +19,8 @@ describe('User', () => {
     const userPasswordOrError = UserPassword.create({ value: '12345678' });
     expect(await userPasswordOrError.getValue().comparePassword('1234567')).toBe(false);
   });
+  test('should return false on isAlreadyHashed', async () => {
+    const userPasswordOrError = UserPassword.create({ value: '12345678' });
+    expect(await userPasswordOrError.getValue().isAlreadyHashed()).toBe(false);
+  });
 })
