@@ -11,7 +11,7 @@ export interface IUserPasswordProps {
 
 export class UserPassword extends ValueObject<IUserPasswordProps> {
 
-  public static minLength: number = 6;
+  public static minLength: number = 8;
   
   get value () : string {
     return this.props.value;
