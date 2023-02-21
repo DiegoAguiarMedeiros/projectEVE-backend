@@ -10,4 +10,8 @@ describe('User', () => {
     const userEmailOrError = UserEmail.create('test@testcom');
     expect(userEmailOrError.getErrorValue()).toBe('Email address not valid');
   });
+  test('should return UserEmail', () => {
+    const userNameOrError = UserEmail.create('test@test.com');
+    expect(userNameOrError.getValue().props.value).toBe('test@test.com');
+  });
 })
