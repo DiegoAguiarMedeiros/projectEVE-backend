@@ -7,6 +7,7 @@ import compression from 'compression';
 import 'dotenv/config';
 import { v1Router } from './api/v1';
 import { isProduction } from '../../../config';
+import "../database/mongoDB";
 
 const origin = {
   // origin: isProduction ? 'https://dddforum.com' : '*',

@@ -12,15 +12,15 @@ const initDB = async () => {
   const { connection } = mongoose;
 
   connection.on('connected', () => {
-    console.info('Mongoose conectado.');
+    console.log('Mongoose conectado.');
   });
 
   connection.on('error', (err) => {
-    console.error(`Mongoose com error ${err}`);
+    console.log(`Mongoose com error ${err}`);
   });
 
   connection.on('disconnected', () => {
-    console.info('Mongoose desconectado');
+    console.log('Mongoose desconectado');
   });
 };
 

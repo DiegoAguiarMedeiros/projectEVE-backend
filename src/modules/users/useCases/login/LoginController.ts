@@ -16,20 +16,20 @@ export class LoginController extends BaseController {
 
   async executeImpl (req: DecodedExpressRequest, res: express.Response): Promise<any> {
     const dto: LoginDTO = req.body as LoginDTO;
-
+    
     try {
       const result = await this.useCase.execute(dto);
 
       if (result.isLeft()) {
         const error = result.value;
-  
+        
         switch (error.constructor) {
           case LoginUseCaseErrors.UserNameDoesntExistError:
             return this.notFound(res, error.getErrorValue().message)
           case LoginUseCaseErrors.PasswordDoesntMatchError:
             return this.clientError(res, error.getErrorValue().message)
           default:
-            return this.fail(res, error.getErrorValue().message);
+            return this.fail(res, error.getErrorValue() === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
         }
       } else {
         const dto: LoginDTOResponse = result.value.getValue() as LoginDTOResponse;
