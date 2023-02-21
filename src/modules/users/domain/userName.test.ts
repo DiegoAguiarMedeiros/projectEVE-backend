@@ -12,7 +12,6 @@ describe('User', () => {
   });
   test('should return UserName', () => {
     const userNameOrError = UserName.create({ name: 'test' });
-    console.log('userNameOrError',userNameOrError)
     expect(userNameOrError.getValue().props.name).toBe('test');
   });
   test('should give error: Text is greater than 15 chars', () => {
