@@ -10,9 +10,13 @@ describe('User', () => {
     const userNameOrError = UserName.create({ name: 't' });
     expect(userNameOrError.getErrorValue()).toBe('Text is not at least 2 chars.');
   });
+  test('should return UserName', () => {
+    const userNameOrError = UserName.create({ name: 'test' });
+    console.log('userNameOrError',userNameOrError)
+    expect(userNameOrError.getValue().props.name).toBe('test');
+  });
   test('should give error: Text is greater than 15 chars', () => {
     const userNameOrError = UserName.create({ name: 'qwertyuiopasdfgs' });
-    console.log('userNameOrError',userNameOrError)
     expect(userNameOrError.getErrorValue()).toBe('Text is greater than 15 chars.');
   });
 })
