@@ -32,7 +32,7 @@ export class UserName extends ValueObject<UserNameProps> {
 
     const maxLengthResult = Guard.againstAtMost(this.maxLength, props.name);
     if (maxLengthResult.isFailure) {
-      return Result.fail<UserName>(minLengthResult.getErrorValue())
+      return Result.fail<UserName>(maxLengthResult.getErrorValue())
     }
 
     return Result.ok<UserName>(new UserName(props));
