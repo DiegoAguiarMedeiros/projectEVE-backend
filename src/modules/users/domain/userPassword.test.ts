@@ -23,4 +23,8 @@ describe('User', () => {
     const userPasswordOrError = UserPassword.create({ value: '12345678' });
     expect(await userPasswordOrError.getValue().isAlreadyHashed()).toBe(false);
   });
+  test('should return hash of password', async () => {
+    const userPasswordOrError = UserPassword.create({ value: '12345678' });
+    expect(await userPasswordOrError.getValue().getHashedValue()).toMatch(/^\$2[ayb]\$.{56}$/);
+  });
 })
