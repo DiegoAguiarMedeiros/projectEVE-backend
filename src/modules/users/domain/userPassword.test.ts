@@ -15,4 +15,8 @@ describe('User', () => {
     const userPasswordOrError = UserPassword.create({ value: '12345678' });
     expect(await userPasswordOrError.getValue().comparePassword('12345678')).toBe(true);
   });
+  test('should return false on comparePassword', async () => {
+    const userPasswordOrError = UserPassword.create({ value: '12345678' });
+    expect(await userPasswordOrError.getValue().comparePassword('1234567')).toBe(false);
+  });
 })
