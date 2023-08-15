@@ -18,12 +18,21 @@ export class UserMap implements Mapper<User> {
 
   public static toDomain(raw: any): User {
     const userNameOrError = UserName.create({ name: raw.username });
-    
+    if (userNameOrError.isFailure) {
+      return null;
+    }
     const userPasswordOrError = UserPassword.create({
       value: raw.user_password,
       hashed: true,
     });
+    if (userPasswordOrError.isFailure) {
+      return null;
+    }
     const userEmailOrError = UserEmail.create(raw.user_email);
+    if (userEmailOrError.isFailure) {
+      return null;
+    }
+
     
     const userOrError = User.create(
       {
@@ -36,7 +45,7 @@ export class UserMap implements Mapper<User> {
       },
       new UniqueEntityID(raw.base_user_id)
     );
-
+    
     return userOrError.isSuccess ? userOrError.getValue() : null;
   }
 

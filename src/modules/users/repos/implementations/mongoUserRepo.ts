@@ -38,8 +38,6 @@ export class MongoUserRepo implements IUserRepo {
             const rawUser = await UserMap.toPersistence(user);
             await UserModel.create(rawUser);
         }
-
-        return;
     }
 
 }
