@@ -78,4 +78,52 @@ describe("UserMap", () => {
       expect(user).toBe(null);
     });
   });
+
+  describe("toPersistence", () => {
+    test("should correctly map a User object to persistence format", async () => {
+      const userNameOrError = UserName.create({ name: "test" });
+      const userPasswordOrError = UserPassword.create({
+        value: "1234",
+        hashed: true,
+      });
+      const userEmailOrError = UserEmail.create("test@test.com");
+
+      const userOrError = User.create({
+        username: userNameOrError.getValue(),
+        password: userPasswordOrError.getValue(),
+        email: userEmailOrError.getValue(),
+      });
+      const persistenceData = await UserMap.toPersistence(
+        userOrError.getValue()
+      );
+
+      expect(persistenceData).toStrictEqual({
+        id: userOrError.getValue().userId.id.toString(),
+        user_email: userOrError.getValue().email.value,
+        is_email_verified: userOrError.getValue().isEmailVerified,
+        username: userOrError.getValue().username.value,
+        user_password: userOrError.getValue().password.value,
+        is_admin_user: userOrError.getValue().isAdminUser,
+        is_deleted: userOrError.getValue().isDeleted,
+      });
+    });
+
+    test("should handle null password when mapping to persistence", async () => {
+      const userNameOrError = UserName.create({ name: "bob" });
+
+      const userEmailOrError = UserEmail.create("bob@example.com");
+
+      const userOrError = User.create({
+        username: userNameOrError.getValue(),
+        password: null,
+        email: userEmailOrError.getValue(),
+      });
+
+      const persistenceData = await UserMap.toPersistence(
+        userOrError.getValue()
+      );
+
+      expect(persistenceData.user_password).toBe(null);
+    });
+  });
 });
