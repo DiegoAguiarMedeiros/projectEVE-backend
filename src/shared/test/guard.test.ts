@@ -69,7 +69,6 @@ describe("Guard", () => {
       const actualValue = 5;
 
       const validationResult = Guard.greaterThan(minValue, actualValue);
-      console.log("validationResult", validationResult);
       expect(validationResult.isFailure).toBe(true);
       expect(validationResult.error).toBe(
         `Number given {${actualValue}} is not greater than {${minValue}}`

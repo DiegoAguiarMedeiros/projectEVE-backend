@@ -22,7 +22,6 @@ export class LoginController extends BaseController {
 
       if (result.isLeft()) {
         const error = result.value;
-        console.log('error.getErrorValue() === undefined',error.getErrorValue())
         switch (error.constructor) {
           case LoginUseCaseErrors.UserNameDoesntExistError:
             return this.notFound(res, error.getErrorValue().message)
