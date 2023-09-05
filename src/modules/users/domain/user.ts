@@ -87,6 +87,7 @@ export class User extends AggregateRoot<UserProps> {
   }
 
   public static create(props: UserProps, id?: UniqueEntityID): Result<User> {
+    console.log("props", props);
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.username, argumentName: "username" },
       { argument: props.email, argumentName: "email" },
