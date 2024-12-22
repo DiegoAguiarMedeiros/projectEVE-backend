@@ -19,18 +19,18 @@ export class UserMap implements Mapper<User> {
   public static toDomain(raw: any): User {
     const userNameOrError = UserName.create({ name: raw.username });
     if (userNameOrError.isFailure) {
-      return null;
+      throw new Error('Invalid username');
     }
     const userPasswordOrError = UserPassword.create({
       value: raw.user_password,
       hashed: true,
     });
     if (userPasswordOrError.isFailure) {
-      return null;
+      throw new Error('Invalid user password');
     }
     const userEmailOrError = UserEmail.create(raw.user_email);
     if (userEmailOrError.isFailure) {
-      return null;
+      throw new Error('Invalid user email');
     }
 
     
@@ -46,11 +46,14 @@ export class UserMap implements Mapper<User> {
       new UniqueEntityID(raw.base_user_id)
     );
     
-    return userOrError.isSuccess ? userOrError.getValue() : null;
+    if (userOrError.isFailure) {
+      throw new Error('Failed to create user');
+    }
+    return userOrError.getValue();
   }
 
   public static async toPersistence(user: User): Promise<any> {
-    let password: string = null;
+    let password: string = '';
     if (!!user.password === true) {
       if (user.password.isAlreadyHashed()) {
         password = user.password.value;

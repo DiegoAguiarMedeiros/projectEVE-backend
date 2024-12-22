@@ -4,7 +4,7 @@ import { AggregateRoot } from "../AggregateRoot";
 import { UniqueEntityID } from "../UniqueEntityID";
 
 export class DomainEvents {
-  private static handlersMap = {};
+  private static handlersMap: { [key: string]: Array<(event: IDomainEvent) => void> } = {};
   private static markedAggregates: AggregateRoot<any>[] = [];
 
   /**
@@ -32,8 +32,8 @@ export class DomainEvents {
     this.markedAggregates.splice(index, 1);
   }
 
-  private static findMarkedAggregateByID (id: UniqueEntityID): AggregateRoot<any> {
-    let found: AggregateRoot<any> = null;
+  private static findMarkedAggregateByID (id: UniqueEntityID): AggregateRoot<any> | null {
+    let found: AggregateRoot<any> | null = null;
     for (let aggregate of this.markedAggregates) {
       if (aggregate.id.equals(id)) {
         found = aggregate;

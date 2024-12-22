@@ -23,12 +23,12 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
   private userRepo: IUserRepo;
   private authService: IAuthService;
 
-  constructor (userRepo: IUserRepo, authService: IAuthService) {
+  constructor(userRepo: IUserRepo, authService: IAuthService) {
     this.userRepo = userRepo;
     this.authService = authService
   }
 
-  public async execute (request: LoginDTO): Promise<Response> {
+  public async execute(request: LoginDTO): Promise<Response> {
     let user: User;
     let userName: UserName;
     let password: UserPassword;
@@ -37,12 +37,12 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
 
       const usernameOrError = UserName.create({ name: request.username });
       const passwordOrError = UserPassword.create({ value: request.password });
-      const payloadResult = Result.combine([ usernameOrError, passwordOrError ]);
+      const payloadResult = Result.combine([usernameOrError, passwordOrError]);
 
       if (payloadResult.isFailure) {
         return left(Result.fail<any>(payloadResult.getErrorValue()))
       }
-      
+
       userName = usernameOrError.getValue();
       password = passwordOrError.getValue();
 
@@ -71,15 +71,18 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
         .createRefreshToken();
 
       user.setAccessToken(accessToken, refreshToken);
-      
+
       await this.authService.saveAuthenticatedUser(user);
 
       return right(Result.ok<LoginDTOResponse>({
         accessToken,
         refreshToken
-      })); 
+      }));
     } catch (err) {
-      return left(new AppError.UnexpectedError(err.toString()))
+      if (err instanceof Error) {
+        return left(new AppError.UnexpectedError("LoginUserUseCase: " + err.message));
+      }
+      return left(new AppError.UnexpectedError('LoginUserUseCase An unexpected error occurred'));
     }
   }
 }

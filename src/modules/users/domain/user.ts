@@ -41,27 +41,27 @@ export class User extends AggregateRoot<UserProps> {
   }
 
   get accessToken(): string {
-    return this.props.accessToken;
+    return this.props.accessToken ?? '';
   }
 
   get isDeleted(): boolean {
-    return this.props.isDeleted;
+    return this.props.isDeleted ?? false;
   }
 
   get isEmailVerified(): boolean {
-    return this.props.isEmailVerified;
+    return this.props.isEmailVerified ?? false;
   }
 
   get isAdminUser(): boolean {
-    return this.props.isAdminUser;
+    return this.props.isAdminUser ?? false;
   }
 
   get lastLogin(): Date {
-    return this.props.lastLogin;
+    return this.props.lastLogin ?? new Date('1900-01-01T00:00:00Z');
   }
 
   get refreshToken(): RefreshToken {
-    return this.props.refreshToken;
+    return this.props.refreshToken ?? '';
   }
 
   public isLoggedIn(): boolean {

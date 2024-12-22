@@ -117,7 +117,7 @@ export class Guard {
     max: number,
     argumentName: string
   ): Result<GuardResponse> {
-    let failingResult: Result<GuardResponse> = null;
+    let failingResult: Result<GuardResponse> = Result.ok<GuardResponse>();
 
     for (let num of numbers) {
       const numIsInRangeResult = this.inRange(num, min, max, argumentName);

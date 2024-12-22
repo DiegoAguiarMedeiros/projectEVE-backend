@@ -9,14 +9,14 @@ import { DecodedExpressRequest } from "../../infra/http/models/decodedRequest";
 export class LoginController extends BaseController {
   private useCase: LoginUserUseCase;
 
-  constructor (useCase: LoginUserUseCase) {
+  constructor(useCase: LoginUserUseCase) {
     super();
     this.useCase = useCase;
   }
 
-  async executeImpl (req: DecodedExpressRequest, res: express.Response): Promise<any> {
+  async executeImpl(req: DecodedExpressRequest, res: express.Response): Promise<any> {
     const dto: LoginDTO = req.body as LoginDTO;
-    
+
     try {
       const result = await this.useCase.execute(dto);
 
@@ -28,10 +28,10 @@ export class LoginController extends BaseController {
           case LoginUseCaseErrors.PasswordDoesntMatchError:
             return this.clientError(res, error.getErrorValue().message)
           default:
-            return this.fail(res, 
-              error.getErrorValue() === undefined ? 
-              String(error.getErrorValue()) : 
-              error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
+            return this.fail(res,
+              error.getErrorValue() === undefined ?
+                String(error.getErrorValue()) :
+                error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
         }
       } else {
         const dto: LoginDTOResponse = result.value.getValue() as LoginDTOResponse;
@@ -39,7 +39,7 @@ export class LoginController extends BaseController {
       }
 
     } catch (err) {
-      return this.fail(res, err)
+      return this.fail(res, err as string | Error)
     }
   }
 }

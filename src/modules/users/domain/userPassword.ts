@@ -1,4 +1,4 @@
-import * as bcrypt from "bcrypt-nodejs";
+import bcrypt from 'bcryptjs';
 import { ValueObject } from "../../../shared/domain/ValueObject";
 import { Guard } from "../../../shared/core/Guard";
 import { Result } from "../../../shared/core/Result";
@@ -47,18 +47,26 @@ export class UserPassword extends ValueObject<IUserPasswordProps> {
     });
   }
 
+
   public isAlreadyHashed(): boolean {
-    return this.props.hashed;
+    return this.props.hashed === true;
   }
 
-  private hashPassword(password: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      bcrypt.hash(password, null, null, (err, hash) => {
-        if (err) return reject(err);
+  private async hashPassword(password: string): Promise<string> {
+    const salt = await new Promise<string>((resolve, reject) => {
+      bcrypt.genSalt(10, (err, salt) => {
+        if (err) reject(err);
+        resolve(salt);
+      });
+    }); // Generate salt with cost factor 10
+    return new Promise<string>((resolve, reject) => {
+      bcrypt.hash(password, salt, (err, hash) => {
+        if (err) reject(err);
         resolve(hash);
       });
-    });
+    }); // Hash the password with the generated salt
   }
+
 
   public getHashedValue(): Promise<string> {
     return new Promise((resolve) => {

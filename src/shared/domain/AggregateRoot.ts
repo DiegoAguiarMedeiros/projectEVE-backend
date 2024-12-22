@@ -32,6 +32,12 @@ export abstract class AggregateRoot<T> extends Entity<T> {
   private logDomainEventAdded (domainEvent: IDomainEvent): void {
     const thisClass = Reflect.getPrototypeOf(this);
     const domainEventClass = Reflect.getPrototypeOf(domainEvent);
-    console.info(`[Domain Event Created]:`, thisClass.constructor.name, '==>', domainEventClass.constructor.name)
+    if (thisClass && domainEventClass) {
+      console.info(`[Domain Event Created]:`, thisClass.constructor.name, '==>', domainEventClass.constructor.name);
+    } else if (thisClass) {
+      console.info(`[Domain Event Created]:`, thisClass.constructor.name, '==>', 'Unknown');
+    } else {
+      console.info(`[Domain Event Created]:`, 'Unknown', '==>', domainEventClass ? domainEventClass.constructor.name : 'Unknown');
+    }
   }
 }

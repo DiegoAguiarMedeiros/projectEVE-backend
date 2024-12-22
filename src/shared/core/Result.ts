@@ -2,7 +2,7 @@ export class Result<T> {
   public isSuccess: boolean;
   public isFailure: boolean;
   private error: T | string;
-  private _value: T;
+  private _value: T | undefined;
 
   public constructor(isSuccess: boolean, error?: T | string, value?: T) {
     if (isSuccess && error) {
@@ -18,7 +18,7 @@ export class Result<T> {
 
     this.isSuccess = isSuccess;
     this.isFailure = !isSuccess;
-    this.error = error;
+    this.error = error as T | string;
     this._value = value;
 
     Object.freeze(this);
@@ -31,7 +31,7 @@ export class Result<T> {
       );
     }
 
-    return this._value;
+    return this._value as T;
   }
 
   public getErrorValue(): T {
@@ -39,7 +39,7 @@ export class Result<T> {
   }
 
   public static ok<U>(value?: U): Result<U> {
-    return new Result<U>(true, null, value);
+    return new Result<U>(true, undefined, value);
   }
 
   public static fail<U>(error: string): Result<U> {
