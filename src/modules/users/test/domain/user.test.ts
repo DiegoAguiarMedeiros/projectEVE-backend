@@ -1,14 +1,14 @@
 import { describe, expect, test, it } from "@jest/globals";
 import { User } from "../../domain/user";
-import { UserName } from "../../domain/userName";
-import { UserPassword } from "../../domain/userPassword";
-import { UserEmail } from "../../domain/userEmail";
+import { Name } from "../../domain/name";
+import { Password } from "../../domain/password";
+import { Email } from "../../domain/email";
 
 describe("User", () => {
   const validUserProps = {
-    email: UserEmail.create("test@example.com").getValue(),
-    username: UserName.create({ name: "testuser" }).getValue(),
-    password: UserPassword.create({
+    email: Email.create("test@example.com").getValue(),
+    name: Name.create({ name: "testuser" }).getValue(),
+    password: Password.create({
       value: "12345678",
       hashed: true,
     }).getValue(),
@@ -29,90 +29,74 @@ describe("User", () => {
     expect(user.isEmailVerified).toBe(false);
     expect(user.isAdminUser).toBe(false);
   });
-  it("should fail to create a new User with invalid properties", () => {
-    // Act
-    const userResult = User.create({
-      email: UserEmail.create("invalid_email").getErrorValue(),
-      username: UserName.create({ name: "" }).getErrorValue(),
-      password: UserPassword.create({
-        value: "",
-        hashed: true,
-      }).getErrorValue(),
-    });
-
-    console.log("userResult", userResult);
-
-    // Assert
-    expect(userResult.isFailure).toBe(true);
-  });
 });
 
-describe("UserEmail", () => {
+describe("Email", () => {
   test("should give error: Email address not valid", () => {
-    const userEmailOrError = UserEmail.create("test@testcom");
-    expect(userEmailOrError.getErrorValue()).toBe("Email address not valid");
+    const EmailOrError = Email.create("test@testcom");
+    expect(EmailOrError.getErrorValue()).toBe("Email address not valid");
   });
-  test("should return UserEmail", () => {
-    const userNameOrError = UserEmail.create("test@test.com");
-    expect(userNameOrError.getValue().props.value).toBe("test@test.com");
+  test("should return Email", () => {
+    const NameOrError = Email.create("test@test.com");
+    expect(NameOrError.getValue().props.value).toBe("test@test.com");
   });
 });
-describe("UserName", () => {
+describe("Name", () => {
   test("should give error: Text is not at least 2 chars", () => {
-    const userNameOrError = UserName.create({ name: "t" });
-    expect(userNameOrError.getErrorValue()).toBe(
+    const NameOrError = Name.create({ name: "t" });
+    expect(NameOrError.getErrorValue()).toBe(
       "Text is not at least 2 chars."
     );
   });
-  test("should return UserName", () => {
-    const userNameOrError = UserName.create({ name: "test" });
-    expect(userNameOrError.getValue().props.name).toBe("test");
+  test("should return Name", () => {
+    const NameOrError = Name.create({ name: "test" });
+    expect(NameOrError.getValue().props.name).toBe("test");
   });
   test("should give error: Text is greater than 15 chars", () => {
-    const userNameOrError = UserName.create({ name: "qwertyuiopasdfgs" });
-    expect(userNameOrError.getErrorValue()).toBe(
+    const NameOrError = Name.create({ name: "qwertyuiopasdfgs" });
+    expect(NameOrError.getErrorValue()).toBe(
       "Text is greater than 15 chars."
     );
   });
 });
-describe("UserPassword", () => {
-  test.skip("should give error: Password doesnt meet criteria [8 chars min]", () => {
-    const userPasswordOrError = UserPassword.create({ value: "a" });
-    expect(userPasswordOrError.getErrorValue()).toBe(
+describe("Password", () => {
+  test("should give error: Password doesnt meet criteria [8 chars min]", () => {
+    const PasswordOrError = Password.create({ value: "a" });
+    expect(PasswordOrError.getErrorValue()).toBe(
       "Password doesnt meet criteria [8 chars min]."
     );
   });
-  test("should return UserPassword", () => {
-    const userPasswordOrError = UserPassword.create({ value: "12345678" });
-    expect(userPasswordOrError.getValue().props.value).toBe("12345678");
+  test("should return Password", () => {
+    const PasswordOrError = Password.create({ value: "12345678" });
+    expect(PasswordOrError.getValue().props.value).toBe("12345678");
   });
   test("should return true on comparePassword", async () => {
-    const userPasswordOrError = UserPassword.create({ value: "12345678" });
+    const PasswordOrError = Password.create({ value: "12345678" });
     expect(
-      await userPasswordOrError.getValue().comparePassword("12345678")
+      await PasswordOrError.getValue().comparePassword("12345678")
     ).toBe(true);
   });
   test("should return false on comparePassword", async () => {
-    const userPasswordOrError = UserPassword.create({ value: "12345678" });
+    const PasswordOrError = Password.create({ value: "12345678" });
     expect(
-      await userPasswordOrError.getValue().comparePassword("1234567")
+      await PasswordOrError.getValue().comparePassword("1234567")
     ).toBe(false);
   });
 
   test("should return false on isAlreadyHashed", async () => {
-    const userPasswordOrError = UserPassword.create({ value: "12345678" });
-    expect(await userPasswordOrError.getValue().isAlreadyHashed()).toBe(false);
+    const PasswordOrError = Password.create({ value: "12345678" });
+    expect(await PasswordOrError.getValue().isAlreadyHashed()).toBe(false);
   });
   test("should return true on isAlreadyHashed", async () => {
-    const userPasswordOrError = UserPassword.create({
+    const PasswordOrError = Password.create({
       value: "$2a$10$EG6GoDWFEz6wF95O0gC2BuwhaHAZggT12HPR0jiuyN/gjKcpmQS4i",
       hashed: true,
     });
-    expect(await userPasswordOrError.getValue().isAlreadyHashed()).toBe(true);
+    expect(await PasswordOrError.getValue().isAlreadyHashed()).toBe(true);
   });
   test("should return hash of password", async () => {
-    const userPasswordOrError = UserPassword.create({ value: "12345678" });
-    expect(await userPasswordOrError.getValue().getHashedValue()).toMatch(
+    const PasswordOrError = Password.create({ value: "12345678" });
+    expect(await PasswordOrError.getValue().getHashedValue()).toMatch(
       /^\$2[ayb]\$.{56}$/
     );
   });

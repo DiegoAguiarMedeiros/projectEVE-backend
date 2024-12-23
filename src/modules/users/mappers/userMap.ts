@@ -2,14 +2,14 @@ import { Mapper } from "../../../shared/infra/Mapper";
 import { User } from "../domain/user";
 import { UserDTO } from "../dtos/userDTO";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
-import { UserName } from "../domain/userName";
-import { UserPassword } from "../domain/userPassword";
-import { UserEmail } from "../domain/userEmail";
+import { Name } from "../domain/name";
+import { Password } from "../domain/password";
+import { Email } from "../domain/email";
 
 export class UserMap implements Mapper<User> {
   public static toDTO(user: User): UserDTO {
     return {
-      username: user.username.value,
+      name: user.name.value,
       isEmailVerified: user.isEmailVerified,
       isAdminUser: user.isAdminUser,
       isDeleted: user.isDeleted,
@@ -17,35 +17,35 @@ export class UserMap implements Mapper<User> {
   }
 
   public static toDomain(raw: any): User {
-    const userNameOrError = UserName.create({ name: raw.username });
-    if (userNameOrError.isFailure) {
-      throw new Error('Invalid username');
+    const NameOrError = Name.create({ name: raw.name });
+    if (NameOrError.isFailure) {
+      throw new Error('Invalid use name');
     }
-    const userPasswordOrError = UserPassword.create({
-      value: raw.user_password,
+    const PasswordOrError = Password.create({
+      value: raw.password,
       hashed: true,
     });
-    if (userPasswordOrError.isFailure) {
+    if (PasswordOrError.isFailure) {
       throw new Error('Invalid user password');
     }
-    const userEmailOrError = UserEmail.create(raw.user_email);
-    if (userEmailOrError.isFailure) {
+    const EmailOrError = Email.create(raw.email);
+    if (EmailOrError.isFailure) {
       throw new Error('Invalid user email');
     }
 
-    
+
     const userOrError = User.create(
       {
-        username: userNameOrError.getValue(),
+        name: NameOrError.getValue(),
         isAdminUser: raw.is_admin_user,
         isDeleted: raw.is_deleted,
         isEmailVerified: raw.is_email_verified,
-        password: userPasswordOrError.getValue(),
-        email: userEmailOrError.getValue(),
+        password: PasswordOrError.getValue(),
+        email: EmailOrError.getValue(),
       },
       new UniqueEntityID(raw.base_user_id)
     );
-    
+
     if (userOrError.isFailure) {
       throw new Error('Failed to create user');
     }
@@ -63,11 +63,11 @@ export class UserMap implements Mapper<User> {
     }
 
     return {
-      id: user.userId.id.toString(),
-      user_email: user.email.value,
+      id: user.id.toString(),
+      email: user.email.value,
       is_email_verified: user.isEmailVerified,
-      username: user.username.value,
-      user_password: password,
+      name: user.name.value,
+      password: password,
       is_admin_user: user.isAdminUser,
       is_deleted: user.isDeleted,
     };

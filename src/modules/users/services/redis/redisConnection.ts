@@ -14,10 +14,10 @@ const redisConnection: RedisClientType = isProduction
   }); // creates a new client
 
 redisConnection.connect().then(() => {
-  console.log(`[Redis]: Connected to redis server at ${host}:${port}`)
+  console.info(`[Redis]: Connected to redis server at ${host}:${port}`)
 })
 redisConnection.on('connect', () => {
-  console.log(`[Redis]: Connected to redis server at ${host}:${port}`)
+  console.info(`[Redis]: Connected to redis server at ${host}:${port}`)
 });
 
 export { redisConnection }

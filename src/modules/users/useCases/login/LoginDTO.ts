@@ -2,7 +2,7 @@
 import { JWTToken, RefreshToken } from "../../domain/jwt";
 
 export interface LoginDTO {
-  username: string;
+  email: string;
   password: string;
 }
 

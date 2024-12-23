@@ -10,7 +10,8 @@
     "test": "jest --watch",
     "test:coverage": "jest --coverage",
     "docker:up": "docker-compose up -d",
-    "docker:build": "docker-compose up --build -d"
+    "docker:build": "docker-compose up --build -d",
+    "docker:run": "docker-compose up --build"
   },
   "repository": {
     "type": "git",

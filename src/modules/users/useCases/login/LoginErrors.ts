@@ -4,16 +4,16 @@ import { Result } from "../../../../shared/core/Result"
 
 export namespace LoginUseCaseErrors {
 
-  export class UserNameDoesntExistError extends Result<UseCaseError> {
-    constructor () {
+  export class NameDoesntExistError extends Result<UseCaseError> {
+    constructor() {
       super(false, {
-        message: `Username or password incorrect.`
+        message: `Name or password incorrect.`
       } as UseCaseError)
     }
   }
 
   export class PasswordDoesntMatchError extends Result<UseCaseError> {
-    constructor () {
+    constructor() {
       super(false, {
         message: `Password doesnt match error.`
       } as UseCaseError)

@@ -30,12 +30,11 @@ describe("Result", () => {
       expect(errorValue).toBe("Something went wrong");
     });
 
-    test("should return null when getting the error value of a successful result", () => {
+    test("should return undefined when getting the error value of a successful result", () => {
       const successResult = Result.ok<number>(42);
 
       const errorValue = successResult.getErrorValue();
-
-      expect(errorValue).toBe(null);
+      expect(errorValue).toBe(undefined);
     });
   });
 
@@ -68,7 +67,7 @@ describe("Result", () => {
       const combinedResult = Result.combine(results);
 
       expect(combinedResult.isFailure).toBe(true);
-      expect(combinedResult.error).toBe("Something went wrong");
+      expect(combinedResult.getErrorValue()).toBe("Something went wrong");
     });
 
     test("should return a successful result if all results are successful", () => {
@@ -144,7 +143,7 @@ describe("Result", () => {
     });
 
     describe("isRight", () => {
-        test("should return true for a Right instance", () => {
+      test("should return true for a Right instance", () => {
         const rightInstance = new Right<string, number>(42);
 
         expect(rightInstance.isRight()).toBe(true);

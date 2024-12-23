@@ -3,19 +3,19 @@ import { ValueObject } from "../../../shared/domain/ValueObject";
 import { Guard } from "../../../shared/core/Guard";
 import { Result } from "../../../shared/core/Result";
 
-export interface IUserPasswordProps {
+export interface IPasswordProps {
   value: string;
   hashed?: boolean;
 }
 
-export class UserPassword extends ValueObject<IUserPasswordProps> {
+export class Password extends ValueObject<IPasswordProps> {
   public static minLength: number = 8;
 
   get value(): string {
     return this.props.value;
   }
 
-  private constructor(props: IUserPasswordProps) {
+  private constructor(props: IPasswordProps) {
     super(props);
   }
 
@@ -78,23 +78,22 @@ export class UserPassword extends ValueObject<IUserPasswordProps> {
     });
   }
 
-  public static create(props: IUserPasswordProps): Result<UserPassword> {
+  public static create(props: IPasswordProps): Result<Password> {
     const propsResult = Guard.againstNullOrUndefined(props.value, "password");
-    console.log("propsResult", propsResult);
 
     if (propsResult.isFailure) {
-      return Result.fail<UserPassword>(propsResult.getErrorValue());
+      return Result.fail<Password>(propsResult.getErrorValue());
     } else {
       if (!props.hashed) {
         if (!this.isAppropriateLength(props.value)) {
-          return Result.fail<UserPassword>(
+          return Result.fail<Password>(
             "Password doesnt meet criteria [8 chars min]."
           );
         }
       }
 
-      return Result.ok<UserPassword>(
-        new UserPassword({
+      return Result.ok<Password>(
+        new Password({
           value: props.value,
           hashed: !!props.hashed === true,
         })

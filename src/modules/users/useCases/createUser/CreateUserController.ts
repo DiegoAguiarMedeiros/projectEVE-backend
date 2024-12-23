@@ -10,16 +10,16 @@ import * as express from 'express'
 export class CreateUserController extends BaseController {
   private useCase: CreateUserUseCase;
 
-  constructor (useCase: CreateUserUseCase) {
+  constructor(useCase: CreateUserUseCase) {
     super();
     this.useCase = useCase;
   }
 
-  async executeImpl (req: DecodedExpressRequest, res: express.Response): Promise<any> {
+  async executeImpl(req: DecodedExpressRequest, res: express.Response): Promise<any> {
     let dto: CreateUserDTO = req.body as CreateUserDTO;
 
     dto = {
-      username: TextUtils.sanitize(dto.username),
+      name: TextUtils.sanitize(dto.name),
       email: TextUtils.sanitize(dto.email),
       password: dto.password
     }
@@ -29,16 +29,16 @@ export class CreateUserController extends BaseController {
 
       if (result.isLeft()) {
         const error = result.value;
-  
+
         switch (error.constructor) {
-          case CreateUserErrors.UsernameTakenError:
+          case CreateUserErrors.NameTakenError:
             return this.conflict(res, error.getErrorValue().message)
           case CreateUserErrors.EmailAlreadyExistsError:
             return this.conflict(res, error.getErrorValue().message)
           default:
             return this.fail(res, error.getErrorValue().message);
         }
-        
+
       } else {
         return this.ok(res);
       }

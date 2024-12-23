@@ -1,8 +1,7 @@
 import { IUserRepo } from "../userRepo";
-import { UserName } from "../../domain/userName";
 import { User } from "../../domain/user";
 import { UserMap } from "../../mappers/userMap";
-import { UserEmail } from "../../domain/userEmail";
+import { Email } from "../../domain/email";
 
 export class MongoUserRepo implements IUserRepo {
 
@@ -12,20 +11,20 @@ export class MongoUserRepo implements IUserRepo {
         this.models = models;
     }
 
-    async exists(userEmail: UserEmail): Promise<boolean> {
+    async exists(email: Email): Promise<boolean> {
         const UserModel = this.models.userModel;
-        const userModel = await UserModel.findOne({ user_email: userEmail.value });
+        const userModel = await UserModel.findOne({ email: email.value });
         return !!userModel === true;
     }
     getUserByUserId(userId: string): Promise<User> {
         throw new Error("Method not implemented.");
     }
-    async getUserByUserName(userName: string | UserName): Promise<User> {
+    async getUserByEmail(email: string | Email): Promise<User> {
         const UserModel = this.models.userModel;
         const baseUser = await UserModel.findOne({
-            username: userName instanceof UserName
-                ? (<UserName>userName).value
-                : userName
+            email: email instanceof Email
+                ? (<Email>email).value
+                : email
         });
         if (!!baseUser === false) throw new Error("User not found.")
         return UserMap.toDomain(baseUser);

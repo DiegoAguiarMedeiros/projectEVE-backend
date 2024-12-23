@@ -28,7 +28,7 @@ describe("Guard", () => {
       const combinedResult = Guard.combine(guardResults);
 
       expect(combinedResult.isFailure).toBe(true);
-      expect(combinedResult.error).toBe(failureResult.error);
+      expect(combinedResult.getErrorValue()).toBe(failureResult.getErrorValue());
     });
 
     test("should return a successful result if guardResults array is empty", () => {
@@ -59,7 +59,7 @@ describe("Guard", () => {
       const validationResult = Guard.greaterThan(minValue, actualValue);
 
       expect(validationResult.isFailure).toBe(true);
-      expect(validationResult.error).toBe(
+      expect(validationResult.getErrorValue()).toBe(
         `Number given {${actualValue}} is not greater than {${minValue}}`
       );
     });
@@ -70,7 +70,7 @@ describe("Guard", () => {
 
       const validationResult = Guard.greaterThan(minValue, actualValue);
       expect(validationResult.isFailure).toBe(true);
-      expect(validationResult.error).toBe(
+      expect(validationResult.getErrorValue()).toBe(
         `Number given {${actualValue}} is not greater than {${minValue}}`
       );
     });
@@ -94,7 +94,7 @@ describe("Guard", () => {
       const validationResult = Guard.againstAtLeast(numChars, text);
 
       expect(validationResult.isFailure).toBe(true);
-      expect(validationResult.error).toBe(
+      expect(validationResult.getErrorValue()).toBe(
         `Text is not at least ${numChars} chars.`
       );
     });
@@ -126,7 +126,7 @@ describe("Guard", () => {
       const validationResult = Guard.againstAtMost(numChars, text);
 
       expect(validationResult.isFailure).toBe(true);
-      expect(validationResult.error).toBe(
+      expect(validationResult.getErrorValue()).toBe(
         `Text is greater than ${numChars} chars.`
       );
     });
@@ -153,7 +153,7 @@ describe("Guard", () => {
       );
 
       expect(validationResult.isFailure).toBe(true);
-      expect(validationResult.error).toBe(
+      expect(validationResult.getErrorValue()).toBe(
         `${argumentName} is null or undefined`
       );
     });
@@ -168,7 +168,7 @@ describe("Guard", () => {
       );
 
       expect(validationResult.isFailure).toBe(true);
-      expect(validationResult.error).toBe(
+      expect(validationResult.getErrorValue()).toBe(
         `${argumentName} is null or undefined`
       );
     });
@@ -191,7 +191,7 @@ describe("Guard", () => {
     test("should return a successful result if value is one of the valid values", () => {
       const value = "apple";
       const validValues = ["apple", "banana", "orange"];
-      const argumentName = "myValue";
+      const argumentName = "myValue 1";
 
       const validationResult = Guard.isOneOf(value, validValues, argumentName);
 
@@ -202,12 +202,12 @@ describe("Guard", () => {
     test("should return a failure result if value is not one of the valid values", () => {
       const value = "grape";
       const validValues = ["apple", "banana", "orange"];
-      const argumentName = "myValue";
+      const argumentName = "myValue 2";
 
       const validationResult = Guard.isOneOf(value, validValues, argumentName);
 
       expect(validationResult.isFailure).toBe(true);
-      expect(validationResult.error).toBe(
+      expect(validationResult.getErrorValue()).toBe(
         `${argumentName} isn't oneOf the correct types in ${JSON.stringify(
           validValues
         )}. Got "${value}".`
@@ -219,7 +219,7 @@ describe("Guard", () => {
         const num = 5;
         const min = 1;
         const max = 10;
-        const argumentName = "myNum";
+        const argumentName = "myNum 1";
 
         const validationResult = Guard.inRange(num, min, max, argumentName);
 
@@ -231,12 +231,12 @@ describe("Guard", () => {
         const num = -5;
         const min = 1;
         const max = 10;
-        const argumentName = "myNum";
+        const argumentName = "myNum 2";
 
         const validationResult = Guard.inRange(num, min, max, argumentName);
 
         expect(validationResult.isFailure).toBe(true);
-        expect(validationResult.error).toBe(
+        expect(validationResult.getErrorValue()).toBe(
           `${argumentName} is not within range ${min} to ${max}.`
         );
       });
@@ -245,12 +245,12 @@ describe("Guard", () => {
         const num = 15;
         const min = 1;
         const max = 10;
-        const argumentName = "myNum";
+        const argumentName = "myNum 3";
 
         const validationResult = Guard.inRange(num, min, max, argumentName);
 
         expect(validationResult.isFailure).toBe(true);
-        expect(validationResult.error).toBe(
+        expect(validationResult.getErrorValue()).toBe(
           `${argumentName} is not within range ${min} to ${max}.`
         );
       });
@@ -259,7 +259,7 @@ describe("Guard", () => {
         const num = 1;
         const min = 1;
         const max = 10;
-        const argumentName = "myNum";
+        const argumentName = "myNum 4";
 
         const validationResult = Guard.inRange(num, min, max, argumentName);
 
@@ -271,7 +271,7 @@ describe("Guard", () => {
         const num = 10;
         const min = 1;
         const max = 10;
-        const argumentName = "myNum";
+        const argumentName = "myNum 5";
 
         const validationResult = Guard.inRange(num, min, max, argumentName);
 
@@ -285,7 +285,7 @@ describe("Guard", () => {
       const numbers = [5, 8, 2, 7];
       const min = 1;
       const max = 10;
-      const argumentName = "myNumbers";
+      const argumentName = "myNumbers 1";
 
       const validationResult = Guard.allInRange(
         numbers,
@@ -301,7 +301,7 @@ describe("Guard", () => {
       const numbers = [5, 15, 2, 7];
       const min = 1;
       const max = 10;
-      const argumentName = "myNumbers";
+      const argumentName = "myNumbers 2";
 
       const validationResult = Guard.allInRange(
         numbers,
@@ -311,7 +311,7 @@ describe("Guard", () => {
       );
 
       expect(validationResult.isFailure).toBe(true);
-      expect(validationResult.error).toBe(
+      expect(validationResult.getErrorValue()).toBe(
         `${argumentName} is not within the range.`
       );
     });
@@ -320,7 +320,7 @@ describe("Guard", () => {
       const numbers = [1, 1, 1, 1];
       const min = 1;
       const max = 10;
-      const argumentName = "myNumbers";
+      const argumentName = "myNumbers 3";
 
       const validationResult = Guard.allInRange(
         numbers,
@@ -337,7 +337,7 @@ describe("Guard", () => {
       const numbers = [10, 10, 10, 10];
       const min = 1;
       const max = 10;
-      const argumentName = "myNumbers";
+      const argumentName = "myNumbers 4";
 
       const validationResult = Guard.allInRange(
         numbers,
@@ -345,6 +345,7 @@ describe("Guard", () => {
         max,
         argumentName
       );
+
       expect(validationResult.isSuccess).toBe(true);
       expect(validationResult.isFailure).toBe(false);
     });

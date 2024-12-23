@@ -5,7 +5,7 @@ import { AppError } from "../../../../shared/core/AppError";
 
 export type CreateUserResponse = Either<
   CreateUserErrors.EmailAlreadyExistsError |
-  CreateUserErrors.UsernameTakenError |
+  CreateUserErrors.NameTakenError |
   AppError.UnexpectedError |
   Result<any>,
   Result<void>

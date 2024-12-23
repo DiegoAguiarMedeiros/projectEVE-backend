@@ -9,7 +9,7 @@ export namespace AppError {
         message: `An unexpected error occurred.`,
         error: err
       } as UseCaseError)
-      console.log(`[AppError]: An unexpected error occurred`);
+      console.error(`[AppError]: An unexpected error occurred`);
       console.error(err);
     }
 

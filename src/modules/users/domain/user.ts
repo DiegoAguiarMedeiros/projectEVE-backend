@@ -1,8 +1,8 @@
-import { UserEmail } from "./userEmail";
-import { UserName } from "./userName";
-import { UserId } from "./userId";
+import { Email } from "./email";
+import { Name } from "./name";
+import { Id } from "./Id";
 import { UserCreated } from "./events/userCreated";
-import { UserPassword } from "./userPassword";
+import { Password } from "./password";
 import { JWTToken, RefreshToken } from "./jwt";
 import { UserLoggedIn } from "./events/userLoggedIn";
 import { UserDeleted } from "./events/userDeleted";
@@ -12,9 +12,9 @@ import { Guard } from "../../../shared/core/Guard";
 import { AggregateRoot } from "../../../shared/domain/AggregateRoot";
 
 interface UserProps {
-  email: UserEmail;
-  username: UserName;
-  password: UserPassword;
+  email: Email;
+  name: Name;
+  password: Password;
   isEmailVerified?: boolean;
   isAdminUser?: boolean;
   accessToken?: JWTToken;
@@ -24,19 +24,15 @@ interface UserProps {
 }
 
 export class User extends AggregateRoot<UserProps> {
-  get userId(): UserId {
-    return UserId.create(this._id).getValue();
-  }
-
-  get email(): UserEmail {
+  get email(): Email {
     return this.props.email;
   }
 
-  get username(): UserName {
-    return this.props.username;
+  get name(): Name {
+    return this.props.name;
   }
 
-  get password(): UserPassword {
+  get password(): Password {
     return this.props.password;
   }
 
@@ -87,9 +83,9 @@ export class User extends AggregateRoot<UserProps> {
   }
 
   public static create(props: UserProps, id?: UniqueEntityID): Result<User> {
-    console.log("props", props);
+
     const guardResult = Guard.againstNullOrUndefinedBulk([
-      { argument: props.username, argumentName: "username" },
+      { argument: props.name, argumentName: "name" },
       { argument: props.email, argumentName: "email" },
     ]);
 

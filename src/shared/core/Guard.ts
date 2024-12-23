@@ -25,8 +25,8 @@ export class Guard {
     return actualValue > minValue
       ? Result.ok<GuardResponse>()
       : Result.fail<GuardResponse>(
-          `Number given {${actualValue}} is not greater than {${minValue}}`
-        );
+        `Number given {${actualValue}} is not greater than {${minValue}}`
+      );
   }
 
   public static againstAtLeast(
@@ -106,9 +106,9 @@ export class Guard {
       return Result.fail<GuardResponse>(
         `${argumentName} is not within range ${min} to ${max}.`
       );
-    } else {
-      return Result.ok<GuardResponse>();
     }
+    return Result.ok<GuardResponse>();
+
   }
 
   public static allInRange(
@@ -124,12 +124,12 @@ export class Guard {
       if (numIsInRangeResult.isFailure) failingResult = numIsInRangeResult;
     }
 
-    if (failingResult) {
+    if (failingResult.isFailure) {
       return Result.fail<GuardResponse>(
         `${argumentName} is not within the range.`
       );
-    } else {
-      return Result.ok<GuardResponse>();
     }
+    return Result.ok<GuardResponse>();
+
   }
 }

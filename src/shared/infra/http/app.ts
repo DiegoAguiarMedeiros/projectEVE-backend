@@ -41,7 +41,6 @@ const swaggerDefinition = {
     },
   ],
 };
-console.log("path", path.resolve(__dirname, '../../../modules/users/infra/http/routes/*.ts'))
 const options = {
   swaggerDefinition,
   apis: [
@@ -59,5 +58,5 @@ app.use('/api/', v1Router)
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log(`[App]: Listening on port ${port}`)
+  console.info(`[App]: Listening on port ${port}`)
 })

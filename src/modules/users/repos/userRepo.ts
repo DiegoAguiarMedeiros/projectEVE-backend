@@ -1,11 +1,10 @@
 
 import { User } from "../domain/user";
-import { UserEmail } from "../domain/userEmail";
-import { UserName } from "../domain/userName";
+import { Email } from "../domain/email";
 
 export interface IUserRepo {
-  exists (userEmail: UserEmail): Promise<boolean>;
-  getUserByUserId (userId: string): Promise<User>;
-  getUserByUserName (userName: UserName | string): Promise<User>;
-  save (user: User): Promise<void>;
+  exists(userEmail: Email): Promise<boolean>;
+  getUserByUserId(userId: string): Promise<User>;
+  getUserByEmail(email: Email | string): Promise<User>;
+  save(user: User): Promise<void>;
 }

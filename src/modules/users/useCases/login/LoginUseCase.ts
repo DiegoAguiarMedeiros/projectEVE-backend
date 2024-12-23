@@ -8,13 +8,13 @@ import { UseCase } from "../../../../shared/core/UseCase";
 import { IUserRepo } from "../../repos/userRepo";
 import { IAuthService } from "../../services/authService";
 import { User } from "../../domain/user";
-import { UserName } from "../../domain/userName";
-import { UserPassword } from "../../domain/userPassword";
+import { Email } from "../../domain/email";
+import { Password } from "../../domain/password";
 import { JWTToken, RefreshToken } from "../../domain/jwt";
 
 type Response = Either<
   LoginUseCaseErrors.PasswordDoesntMatchError |
-  LoginUseCaseErrors.UserNameDoesntExistError |
+  LoginUseCaseErrors.NameDoesntExistError |
   AppError.UnexpectedError,
   Result<LoginDTOResponse>
 >
@@ -30,27 +30,27 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
 
   public async execute(request: LoginDTO): Promise<Response> {
     let user: User;
-    let userName: UserName;
-    let password: UserPassword;
+    let email: Email;
+    let password: Password;
 
     try {
 
-      const usernameOrError = UserName.create({ name: request.username });
-      const passwordOrError = UserPassword.create({ value: request.password });
-      const payloadResult = Result.combine([usernameOrError, passwordOrError]);
+      const emailOrError = Email.create(request.email);
+      const passwordOrError = Password.create({ value: request.password });
+      const payloadResult = Result.combine([emailOrError, passwordOrError]);
 
       if (payloadResult.isFailure) {
         return left(Result.fail<any>(payloadResult.getErrorValue()))
       }
 
-      userName = usernameOrError.getValue();
+      email = emailOrError.getValue();
       password = passwordOrError.getValue();
 
-      user = await this.userRepo.getUserByUserName(userName);
+      user = await this.userRepo.getUserByEmail(email);
       const userFound = !!user;
 
       if (!userFound) {
-        return left(new LoginUseCaseErrors.UserNameDoesntExistError())
+        return left(new LoginUseCaseErrors.NameDoesntExistError())
       }
 
       const passwordValid = await user.password.comparePassword(password.value);
@@ -60,10 +60,10 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
       }
 
       const accessToken: JWTToken = this.authService.signJWT({
-        username: user.username.value,
+        name: user.name.value,
         email: user.email.value,
         isEmailVerified: user.isEmailVerified,
-        userId: user.userId.id.toString(),
+        userId: user.id.toString(),
         adminUser: user.isAdminUser,
       });
 
