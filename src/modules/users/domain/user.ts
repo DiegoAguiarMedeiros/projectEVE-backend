@@ -90,7 +90,7 @@ export class User extends AggregateRoot<UserProps> {
     ]);
 
     if (guardResult.isFailure) {
-      return Result.fail<User>(guardResult.getErrorValue());
+      return Result.fail<User>('User :' + guardResult.getErrorValue());
     }
 
     const isNewUser = !!id === false;

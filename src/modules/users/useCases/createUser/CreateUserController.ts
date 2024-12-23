@@ -30,13 +30,14 @@ export class CreateUserController extends BaseController {
       if (result.isLeft()) {
         const error = result.value;
 
+        console.log("error", error)
         switch (error.constructor) {
           case CreateUserErrors.NameTakenError:
-            return this.conflict(res, error.getErrorValue().message)
+            return this.conflict(res, error.getErrorValue())
           case CreateUserErrors.EmailAlreadyExistsError:
-            return this.conflict(res, error.getErrorValue().message)
+            return this.conflict(res, error.getErrorValue())
           default:
-            return this.fail(res, error.getErrorValue().message);
+            return this.fail(res, error.getErrorValue());
         }
 
       } else {

@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    user_email: {
+    email: {
         type: String,
         required: true,
     },
@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
-    user_password: {
+    password: {
         type: String,
         required: true,
     },

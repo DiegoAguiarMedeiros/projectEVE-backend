@@ -27,7 +27,7 @@ export class Email extends ValueObject<EmailProps> {
 
   public static create(email: string): Result<Email> {
     if (email == undefined || email == null) {
-      return Result.fail<Email>('User email cannot be null');
+      return Result.fail<Email>('Email cannot be null');
     }
     if (!this.isValidEmail(email)) {
       return Result.fail<Email>('Email address not valid');

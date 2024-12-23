@@ -45,17 +45,17 @@ describe("Name", () => {
   test("should give error: Text is not at least 2 chars", () => {
     const NameOrError = Name.create({ name: "t" });
     expect(NameOrError.getErrorValue()).toBe(
-      "Text is not at least 2 chars."
+      "Name: Text is not at least 2 chars."
     );
   });
   test("should return Name", () => {
     const NameOrError = Name.create({ name: "test" });
     expect(NameOrError.getValue().props.name).toBe("test");
   });
-  test("should give error: Text is greater than 15 chars", () => {
-    const NameOrError = Name.create({ name: "qwertyuiopasdfgs" });
+  test("should give error: Text is greater than 30 chars", () => {
+    const NameOrError = Name.create({ name: "qwertyuiopoiuytrewqwertyuiopoiq" });
     expect(NameOrError.getErrorValue()).toBe(
-      "Text is greater than 15 chars."
+      "Name: Text is greater than 30 chars."
     );
   });
 });
