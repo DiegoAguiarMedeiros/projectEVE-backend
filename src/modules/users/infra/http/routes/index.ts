@@ -2,14 +2,14 @@ import express from 'express'
 import { createUserController } from '../../../useCases/createUser';
 import { loginController } from '../../../useCases/login';
 
-const userRouter = express.Router();
+const authRouter = express.Router();
 
 /**
  * @swagger
- * /users:
+ * /auth:
  *   post:
  *     summary: Create a new user
- *     tags: [Users]
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -29,16 +29,16 @@ const userRouter = express.Router();
  *       400:
  *         description: Bad request
  */
-userRouter.post('/',
+authRouter.post('/register',
   (req, res) => createUserController.execute(req, res)
 );
 
 /**
  * @swagger
- * /users/login:
+ * /auth/login:
  *   post:
  *     summary: Login a user
- *     tags: [Users]
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -56,8 +56,8 @@ userRouter.post('/',
  *       401:
  *         description: Unauthorized
  */
-userRouter.post('/login',
+authRouter.post('/login',
   (req, res) => loginController.execute(req, res)
 )
 
-export { userRouter };
+export { authRouter };
