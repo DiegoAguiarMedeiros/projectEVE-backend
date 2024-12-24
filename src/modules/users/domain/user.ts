@@ -1,6 +1,5 @@
 import { Email } from "./email";
 import { Name } from "./name";
-import { Id } from "./Id";
 import { UserCreated } from "./events/userCreated";
 import { Password } from "./password";
 import { JWTToken, RefreshToken } from "./jwt";
@@ -10,6 +9,7 @@ import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Result } from "../../../shared/core/Result";
 import { Guard } from "../../../shared/core/Guard";
 import { AggregateRoot } from "../../../shared/domain/AggregateRoot";
+import { createEnvelopeUseCase } from "../../envelopes/useCases/createEnvelope";
 
 interface UserProps {
   email: Email;
@@ -103,9 +103,9 @@ export class User extends AggregateRoot<UserProps> {
       },
       id
     );
-
+    console.log("User create user", user)
     if (isNewUser) {
-      user.addDomainEvent(new UserCreated(user));
+      user.addDomainEvent(new UserCreated(user, createEnvelopeUseCase));
     }
 
     return Result.ok<User>(user);

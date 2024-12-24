@@ -1,7 +1,7 @@
 
 import { createClient } from 'redis';
 import { RedisClientType } from '@redis/client';
-import { authConfig, isProduction } from '../../../../config';
+import { authConfig, isProduction } from '../../../config';
 
 const port = authConfig.redisServerPort;
 const host = authConfig.redisServerURL;
