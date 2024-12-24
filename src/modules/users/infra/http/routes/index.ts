@@ -6,7 +6,7 @@ const authRouter = express.Router();
 
 /**
  * @swagger
- * /auth:
+ * /auth/register:
  *   post:
  *     summary: Create a new user
  *     tags: [Auth]

@@ -1,3 +1,1 @@
-import initDB from './config/config';
-
-initDB();
+import "./hooks"

@@ -7,7 +7,6 @@ import compression from 'compression';
 import 'dotenv/config';
 import { v1Router } from './api/v1';
 import { isProduction } from '../../../config';
-import "../database/mongoDB";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import path from 'path';
