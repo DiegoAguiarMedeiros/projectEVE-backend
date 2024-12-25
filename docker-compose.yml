@@ -1,27 +1,42 @@
+version: '3.8'
+
 services:
   app:
     build: .
     ports:
-      - "3000:3000"
+      - "${PORT}:${PORT}" # Usando a variável PORT do .env
     depends_on:
-      - mongo
+      - postgres
       - redis
+    env_file:
+      - .env # Arquivo contendo as variáveis de ambiente
     environment:
-      MONGO_URI: mongodb://mongo:27017/yourdbname
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      PROJECT_EVE_IS_PRODUCTION: ${PROJECT_EVE_IS_PRODUCTION}
+      PROJECT_EVE_APP_SECRET: ${PROJECT_EVE_APP_SECRET}
+      PROJECT_EVE_REDIS_URL: ${PROJECT_EVE_REDIS_URL}
+      PROJECT_EVE_REDIS_PORT: ${PROJECT_EVE_REDIS_PORT}
+      PROJECT_EVE_DB_USER: ${PROJECT_EVE_DB_USER}
+      PROJECT_EVE_DB_PASS: ${PROJECT_EVE_DB_PASS}
+      PROJECT_EVE_DB_HOST: ${PROJECT_EVE_DB_HOST}
+      PROJECT_EVE_DB_DEV_DB_NAME: ${PROJECT_EVE_DB_DEV_DB_NAME}
+      PROJECT_EVE_DB_TEST_DB_NAME: ${PROJECT_EVE_DB_TEST_DB_NAME}
+      PROJECT_EVE_DB_PROD_DB_NAME: ${PROJECT_EVE_DB_PROD_DB_NAME}
 
-  mongo:
-    image: mongo:5.0
+  postgres:
+    image: postgres:15
     ports:
-      - "27017:27017"
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${PROJECT_EVE_DB_USER}
+      POSTGRES_PASSWORD: ${PROJECT_EVE_DB_PASS}
+      POSTGRES_DB: ${PROJECT_EVE_DB_DEV_DB_NAME}
     volumes:
-      - mongo-data:/data/project_eve
+      - postgres-data:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
     ports:
-      - "6379:6379"
+      - "${PROJECT_EVE_REDIS_PORT}:${PROJECT_EVE_REDIS_PORT}"
 
 volumes:
-  mongo-data:
+  postgres-data:
