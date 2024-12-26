@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     build: .
@@ -18,20 +16,19 @@ services:
       PROJECT_EVE_DB_USER: ${PROJECT_EVE_DB_USER}
       PROJECT_EVE_DB_PASS: ${PROJECT_EVE_DB_PASS}
       PROJECT_EVE_DB_HOST: ${PROJECT_EVE_DB_HOST}
-      PROJECT_EVE_DB_DEV_DB_NAME: ${PROJECT_EVE_DB_DEV_DB_NAME}
-      PROJECT_EVE_DB_TEST_DB_NAME: ${PROJECT_EVE_DB_TEST_DB_NAME}
-      PROJECT_EVE_DB_PROD_DB_NAME: ${PROJECT_EVE_DB_PROD_DB_NAME}
+      PROJECT_EVE_DB_NAME: ${PROJECT_EVE_DB_NAME}
+      PROJECT_EVE_DB_PORT: ${PROJECT_EVE_DB_PORT}
 
   postgres:
     image: postgres:15
     ports:
-      - "5432:5432"
+      - "${PROJECT_EVE_DB_PORT}:${PROJECT_EVE_DB_PORT}"
     environment:
       POSTGRES_USER: ${PROJECT_EVE_DB_USER}
       POSTGRES_PASSWORD: ${PROJECT_EVE_DB_PASS}
-      POSTGRES_DB: ${PROJECT_EVE_DB_DEV_DB_NAME}
+      POSTGRES_DB: ${PROJECT_EVE_DB_NAME}
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
@@ -39,4 +36,5 @@ services:
       - "${PROJECT_EVE_REDIS_PORT}:${PROJECT_EVE_REDIS_PORT}"
 
 volumes:
-  postgres-data:
+  postgres_data:
+    driver: local

@@ -1,7 +1,7 @@
 
-import { MongoUserRepo } from "./implementations/mongoUserRepo";
-import models from "../../../shared/infra/database/mongoDB/models";
+import { UserRepo } from "./implementations/userRepo";
+import models from "../../../shared/infra/database/sequelize/models";
 
-const userRepo = new MongoUserRepo(models);
+const userRepo = new UserRepo(models);
 
 export { userRepo }

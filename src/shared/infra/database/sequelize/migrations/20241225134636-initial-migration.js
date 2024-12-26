@@ -5,7 +5,7 @@ const { Sequelize } = require('sequelize');
 const migration = {
   up: async (queryInterface) => {
     const CREATE_USER = () => {
-      return queryInterface.createTable('user', {
+      return queryInterface.createTable('users', {
         id: {
           type: Sequelize.UUID,
           defaultValue: Sequelize.UUIDV4,
@@ -106,7 +106,7 @@ const migration = {
           type: Sequelize.UUID,
           allowNull: false,
           references: {
-            model: 'user',
+            model: 'users',
             key: 'id'
           },
           onDelete: 'cascade',
@@ -200,7 +200,7 @@ const migration = {
           type: Sequelize.UUID,
           allowNull: false,
           references: {
-            model: 'user',
+            model: 'users',
             key: 'id'
           },
           onDelete: 'cascade',
@@ -263,7 +263,7 @@ const migration = {
           type: Sequelize.UUID,
           allowNull: false,
           references: {
-            model: 'user',
+            model: 'users',
             key: 'id'
           },
           onDelete: 'cascade',
@@ -305,7 +305,7 @@ const migration = {
 
   down: (queryInterface) => {
     return runner([
-      () => queryInterface.dropTable('user')
+      () => queryInterface.dropTable('users')
     ])
   }
 };

@@ -30,7 +30,6 @@ export class CreateUserController extends BaseController {
       if (result.isLeft()) {
         const error = result.value;
 
-        console.log("error", error)
         switch (error.constructor) {
           case CreateUserErrors.NameTakenError:
             return this.conflict(res, error.getErrorValue())

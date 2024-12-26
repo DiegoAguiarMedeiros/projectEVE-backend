@@ -24,14 +24,12 @@ export class CreateEnvelopeUseCase implements UseCase<CreateEnvelopeDTO, Promise
   }
 
   async execute(request: CreateEnvelopeDTO): Promise<Response> {
-    console.log("CreateEnvelopeUseCase execute request ", request)
     const nameOrError = Name.create({ name: request.name });
     const userIdOrError = UserId.create({ userId: request.userId });
 
     const dtoResult = Result.combine([
       nameOrError, userIdOrError
     ]);
-    console.log("dtoResult", dtoResult)
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as Response;
     }
@@ -44,7 +42,6 @@ export class CreateEnvelopeUseCase implements UseCase<CreateEnvelopeDTO, Promise
       const EnvelopeOrError: Result<Envelope> = Envelope.create({
         name, userId
       });
-      console.log("EnvelopeOrError", EnvelopeOrError)
       if (EnvelopeOrError.isFailure) {
         return left(
           Result.fail<Envelope>(EnvelopeOrError.getErrorValue().toString())
@@ -52,7 +49,6 @@ export class CreateEnvelopeUseCase implements UseCase<CreateEnvelopeDTO, Promise
       }
 
       const envelope: Envelope = EnvelopeOrError.getValue();
-      console.log("CreateEnvelopeUseCase execute envelope", envelope)
       await this.envelopeRepo.save(envelope);
 
       return right(Result.ok<void>())

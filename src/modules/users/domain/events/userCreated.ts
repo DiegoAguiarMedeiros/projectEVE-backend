@@ -20,7 +20,6 @@ export class UserCreated implements IDomainEvent {
   // Método para gerar o envelope (apenas um console.log neste caso)
   private createEnvelope() {
     envelopes.forEach(envelope => {
-      console.log("createEnvelope", envelope);
       this.createEnvelopeUseCase.execute({ name: envelope, userId: `${this.getAggregateId()}` })
     })
   }

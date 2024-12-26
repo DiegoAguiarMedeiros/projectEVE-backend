@@ -103,7 +103,7 @@ export class User extends AggregateRoot<UserProps> {
       },
       id
     );
-    console.log("User create user", user)
+
     if (isNewUser) {
       user.addDomainEvent(new UserCreated(user, createEnvelopeUseCase));
     }

@@ -28,8 +28,6 @@ export class CreateEnvelopeController extends BaseController {
 
       if (result.isLeft()) {
         const error = result.value;
-
-        console.log("error", error)
         switch (error.constructor) {
           default:
             return this.fail(res, error.getErrorValue());
