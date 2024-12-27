@@ -6,6 +6,7 @@ import { BaseController } from "../../../../shared/infra/http/models/BaseControl
 import { TextUtils } from "../../../../shared/utils/TextUtils";
 import { DecodedExpressRequest } from "../../infra/http/models/decodedRequest";
 import * as express from 'express'
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 
 export class CreateUserController extends BaseController {
   private useCase: CreateUserUseCase;
@@ -19,6 +20,7 @@ export class CreateUserController extends BaseController {
     let dto: CreateUserDTO = req.body as CreateUserDTO;
 
     dto = {
+      id: new UniqueEntityID(),
       name: TextUtils.sanitize(dto.name),
       email: TextUtils.sanitize(dto.email),
       password: dto.password

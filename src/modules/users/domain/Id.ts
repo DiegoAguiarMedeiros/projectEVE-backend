@@ -6,15 +6,15 @@ import { Entity } from "../../../shared/domain/Entity";
 
 export class Id extends Entity<any> {
 
-  get id (): UniqueEntityID {
+  get id(): UniqueEntityID {
     return this._id;
   }
 
-  private constructor (id?: UniqueEntityID) {
+  private constructor(id: UniqueEntityID) {
     super(null, id)
   }
 
-  public static create (id?: UniqueEntityID): Result<Id> {
+  public static create(id: UniqueEntityID): Result<Id> {
     return Result.ok<Id>(new Id(id));
   }
 }

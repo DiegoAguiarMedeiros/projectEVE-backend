@@ -9,6 +9,7 @@ import { Email } from "../../domain/email";
 import { Password } from "../../domain/password";
 import { Name } from "../../domain/name";
 import { User } from "../../domain/user";
+import { Id } from "../../domain/Id";
 
 type Response = Either<
   CreateUserErrors.EmailAlreadyExistsError |
@@ -26,18 +27,20 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
   }
 
   async execute(request: CreateUserDTO): Promise<Response> {
+    const idOrError = Id.create(request.id);
     const emailOrError = Email.create(request.email);
     const passwordOrError = Password.create({ value: request.password });
     const nameOrError = Name.create({ name: request.name });
 
     const dtoResult = Result.combine([
-      emailOrError, passwordOrError, nameOrError
+      emailOrError, passwordOrError, nameOrError, idOrError
     ]);
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as Response;
     }
 
+    const id: Id = idOrError.getValue();
     const email: Email = emailOrError.getValue();
     const password: Password = passwordOrError.getValue();
     const name: Name = nameOrError.getValue();
@@ -52,7 +55,7 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
       }
 
       const userOrError: Result<User> = User.create({
-        email, password, name,
+        email, password, name, id
       });
 
       if (userOrError.isFailure) {

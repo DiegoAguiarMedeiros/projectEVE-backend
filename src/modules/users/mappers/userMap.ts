@@ -5,6 +5,7 @@ import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Name } from "../domain/name";
 import { Password } from "../domain/password";
 import { Email } from "../domain/email";
+import { Id } from "../domain/Id";
 
 export class UserMap implements Mapper<User> {
   public static toDTO(user: User): UserDTO {
@@ -17,6 +18,10 @@ export class UserMap implements Mapper<User> {
   }
 
   public static toDomain(raw: any): User {
+    const IdOrError = Id.create(raw.id);
+    if (IdOrError.isFailure) {
+      throw new Error('Invalid id');
+    }
     const NameOrError = Name.create({ name: raw.name });
     if (NameOrError.isFailure) {
       throw new Error('Invalid use name');
@@ -36,14 +41,14 @@ export class UserMap implements Mapper<User> {
 
     const userOrError = User.create(
       {
+        id: IdOrError.getValue(),
         name: NameOrError.getValue(),
         isAdminUser: raw.is_admin_user,
         isDeleted: raw.is_deleted,
         isEmailVerified: raw.is_email_verified,
         password: PasswordOrError.getValue(),
         email: EmailOrError.getValue(),
-      },
-      new UniqueEntityID(raw.base_user_id)
+      }
     );
 
     if (userOrError.isFailure) {
@@ -63,7 +68,7 @@ export class UserMap implements Mapper<User> {
     }
 
     return {
-      id: user.id.toString(),
+      id: user.id,
       email: user.email.value,
       is_email_verified: user.isEmailVerified,
       name: user.name.value,

@@ -27,8 +27,7 @@ export class EnvelopeMap implements Mapper<Envelope> {
       {
         name: NameOrError.getValue(),
         userId: UserIdOrError.getValue(),
-      },
-      new UniqueEntityID(raw.base_user_id)
+      }
     );
 
     if (userOrError.isFailure) {
