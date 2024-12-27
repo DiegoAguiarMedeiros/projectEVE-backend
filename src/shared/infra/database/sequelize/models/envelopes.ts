@@ -2,9 +2,9 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
 
-class CreditCards extends Model { }
+class Envelopes extends Model { }
 
-CreditCards.init({
+Envelopes.init({
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -12,17 +12,18 @@ CreditCards.init({
     primaryKey: true
   },
   name: {
-    type: DataTypes.STRING(20),
+    type: DataTypes.TEXT,
     allowNull: false
   },
-  flag: {
-    type: DataTypes.STRING(10),
-    allowNull: false
+  is_disable: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, {
   sequelize,
-  modelName: 'CreditCards',
-  tableName: 'credit_cards'
+  modelName: 'Envelopes',
+  tableName: 'envelopes'
 });
 
-export default CreditCards;
+export default Envelopes;

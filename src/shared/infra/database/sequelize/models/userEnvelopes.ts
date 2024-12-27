@@ -2,11 +2,11 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
 import User from './user';
-import Envelope from './envelope';
+import Envelope from './envelopes';
 
-class UserEnvelope extends Model { }
+class UserEnvelopes extends Model { }
 
-UserEnvelope.init({
+UserEnvelopes.init({
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -33,21 +33,19 @@ UserEnvelope.init({
     onDelete: 'cascade',
     onUpdate: 'cascade'
   },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
+  balance: {
+    type: DataTypes.FLOAT,
+    allowNull: true
   },
-  updated_at: {
-    type: DataTypes.DATE,
+  disable: {
+    type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: DataTypes.NOW
+    defaultValue: false
   }
 }, {
   sequelize,
-  modelName: 'UserEnvelope',
-  tableName: 'user_envelope',
-  timestamps: false
+  modelName: 'UserEnvelopes',
+  tableName: 'user_envelopes'
 });
 
-export default UserEnvelope;
+export default UserEnvelopes;

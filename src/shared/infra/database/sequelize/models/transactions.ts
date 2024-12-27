@@ -1,12 +1,12 @@
 
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
-import Envelope from './envelope';
-import UserPaymentMethod from './userPaymentMethod';
+import Envelope from './envelopes';
+import UserPaymentMethod from './userPaymentMethods';
 
-class Transaction extends Model { }
+class Transactions extends Model { }
 
-Transaction.init({
+Transactions.init({
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -44,22 +44,11 @@ Transaction.init({
     payment_date: {
         type: DataTypes.DATE,
         allowNull: false
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
     }
 }, {
     sequelize,
-    modelName: 'Transaction',
-    tableName: 'transation',
-    timestamps: false
+    modelName: 'Transactions',
+    tableName: 'transations'
 });
 
-export default Transaction;
+export default Transactions;

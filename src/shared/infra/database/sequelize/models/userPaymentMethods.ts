@@ -3,9 +3,9 @@ import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
 import User from './user';
 
-class UserPaymentMethod extends Model { }
+class UserPaymentMethods extends Model { }
 
-UserPaymentMethod.init({
+UserPaymentMethods.init({
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
@@ -25,22 +25,11 @@ UserPaymentMethod.init({
   payment_method: {
     type: DataTypes.STRING(10),
     allowNull: false
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
   }
 }, {
   sequelize,
-  modelName: 'UserPaymentMethod',
-  tableName: 'user_payment_method',
-  timestamps: false
+  modelName: 'UserPaymentMethods',
+  tableName: 'user_payment_methods'
 });
 
-export default UserPaymentMethod;
+export default UserPaymentMethods;

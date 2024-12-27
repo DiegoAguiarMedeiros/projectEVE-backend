@@ -6,7 +6,7 @@ import * as Sequelize from 'sequelize'
 
 // turns base_user => BaseUser
 function toCamelCase(str: string) {
-
+  console.log("toCamelCase str", str)
   if (typeof str !== 'string') {
     throw new TypeError('Expected a string');
   }
@@ -35,6 +35,10 @@ const createModels = () => {
     .filter((t) => (~t.indexOf('.ts') || ~t.indexOf('.js')) && !~t.indexOf("index") && !~t.indexOf(".map"))
     .map((model) => {
       const modelImport = require(path.join(__dirname, model));
+      console.log("path.join(__dirname, model)", path.join(__dirname, model))
+      console.log("__dirname", __dirname)
+      console.log("model", model)
+      console.log("modelImport", modelImport)
       return modelImport.default
         ? new modelImport.default(sequelize, Sequelize.DataTypes)
         : new modelImport(sequelize, Sequelize.DataTypes);
@@ -63,7 +67,8 @@ const createModels = () => {
 
 export default createModels();
 
-sequelize.sync({ alter: true })
+sequelize.sync({ force: true }); // Recria as tabelas, apagando as existentes
+
 
 export {
   createModels

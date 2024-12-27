@@ -32,22 +32,11 @@ UserCreditCards.init({
     },
     onDelete: 'cascade',
     onUpdate: 'cascade'
-  },
-  created_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
-  },
-  updated_at: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW
   }
 }, {
   sequelize,
   modelName: 'UserCreditCards',
-  tableName: 'user_credit_cards',
-  timestamps: false
+  tableName: 'user_credit_cards'
 });
 
 export default UserCreditCards;
