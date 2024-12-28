@@ -14,7 +14,7 @@ async function runner(promises) {
          */
 
         if (err.original.code == "ER_DUP_ENTRY") {
-          console.log(`>>> Passable error occurred: ER_DUP_ENTRY`)
+          console.info(`>>> Passable error occurred: ER_DUP_ENTRY`)
         }
 
         /**
@@ -23,7 +23,7 @@ async function runner(promises) {
          */
 
         else if (err.original.code == "ER_DUP_FIELDNAME") {
-          console.log(`>>> Passable error occurred: ER_DUP_FIELDNAME`)
+          console.info(`>>> Passable error occurred: ER_DUP_FIELDNAME`)
         }
 
         /**
@@ -32,11 +32,11 @@ async function runner(promises) {
          */
 
         else if (err.original.code == "ER_CANT_DROP_FIELD_OR_KEY") {
-          console.log(`>>> Passable error occurred: ER_CANT_DROP_FIELD_OR_KEY`)
+          console.info(`>>> Passable error occurred: ER_CANT_DROP_FIELD_OR_KEY`)
         }
 
         else if (err.name == "SequelizeUnknownConstraintError") {
-          console.log(`>>> Passable error. Trying to remove constraint that's already been removed.`)
+          console.info(`>>> Passable error. Trying to remove constraint that's already been removed.`)
         }
 
         /**
@@ -44,13 +44,13 @@ async function runner(promises) {
          */
 
         else {
-          console.log(err)
+          console.info(err)
           throw new Error(err);
         }
       }
 
       else {
-        console.log(err);
+        console.info(err);
         throw new Error(err);
       }
     }

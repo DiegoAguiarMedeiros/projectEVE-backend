@@ -5,7 +5,7 @@ import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Name } from "../domain/name";
 import { Password } from "../domain/password";
 import { Email } from "../domain/email";
-import { Id } from "../domain/Id";
+import { Id } from "../../../shared/domain/Id";
 
 export class UserMap implements Mapper<User> {
   public static toDTO(user: User): UserDTO {
@@ -68,7 +68,7 @@ export class UserMap implements Mapper<User> {
     }
 
     return {
-      id: user.id,
+      id: user.id.value,
       email: user.email.value,
       is_email_verified: user.isEmailVerified,
       name: user.name.value,

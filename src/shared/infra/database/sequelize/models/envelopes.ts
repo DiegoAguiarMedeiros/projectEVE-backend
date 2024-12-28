@@ -1,6 +1,8 @@
 
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
+import User from './user';
+import Envelope from './baseEnvelopes';
 
 class Envelopes extends Model { }
 
@@ -11,11 +13,25 @@ Envelopes.init({
     allowNull: false,
     primaryKey: true
   },
+  user_id: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    },
+    onDelete: 'cascade',
+    onUpdate: 'cascade'
+  },
   name: {
     type: DataTypes.TEXT,
     allowNull: false
   },
-  is_disable: {
+  balance: {
+    type: DataTypes.FLOAT,
+    allowNull: true
+  },
+  disable: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false

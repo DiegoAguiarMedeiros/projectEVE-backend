@@ -7,7 +7,9 @@ import { IEnvelopeRepo } from "../../repos/EnvelopeRepo";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { Name } from "../../domain/name";
 import { Envelope } from "../../domain/envelope";
-import { UserId } from "../../domain/userId";
+import { Id } from "../../../../shared/domain/Id";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
+import { Balance } from "../../domain/balance";
 
 type Response = Either<
   CreateEnvelopeErrors.NameTakenError |
@@ -19,29 +21,39 @@ type Response = Either<
 export class CreateEnvelopeUseCase implements UseCase<CreateEnvelopeDTO, Promise<Response>> {
   private envelopeRepo: IEnvelopeRepo;
 
-  constructor(EnvelopeRepo: IEnvelopeRepo) {
-    this.envelopeRepo = EnvelopeRepo;
+  constructor(envelopeRepo: IEnvelopeRepo) {
+    this.envelopeRepo = envelopeRepo;
   }
 
   async execute(request: CreateEnvelopeDTO): Promise<Response> {
     const nameOrError = Name.create({ name: request.name });
-    const userIdOrError = UserId.create({ userId: request.userId });
+    const balanceOrError = Balance.create({ balance: request.balance });
+    const userIdOrError = Id.create(new UniqueEntityID(request.userId));
+    const idorError = Id.create(new UniqueEntityID());
 
     const dtoResult = Result.combine([
-      nameOrError, userIdOrError
+      nameOrError, userIdOrError, idorError, balanceOrError
     ]);
+
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as Response;
     }
 
+    const id: Id = idorError.getValue();
     const name: Name = nameOrError.getValue();
-    const userId: UserId = userIdOrError.getValue();
+    const balance: Balance = balanceOrError.getValue();
+    const userId: Id = userIdOrError.getValue();
 
     try {
 
       const EnvelopeOrError: Result<Envelope> = Envelope.create({
-        name, userId
+        id,
+        name,
+        userId,
+        balance: balance,
+        disable: request.disable
       });
+
       if (EnvelopeOrError.isFailure) {
         return left(
           Result.fail<Envelope>(EnvelopeOrError.getErrorValue().toString())
@@ -49,6 +61,7 @@ export class CreateEnvelopeUseCase implements UseCase<CreateEnvelopeDTO, Promise
       }
 
       const envelope: Envelope = EnvelopeOrError.getValue();
+
       await this.envelopeRepo.save(envelope);
 
       return right(Result.ok<void>())

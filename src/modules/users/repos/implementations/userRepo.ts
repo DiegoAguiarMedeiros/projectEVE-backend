@@ -13,7 +13,7 @@ export class UserRepo implements IUserRepo {
     }
 
     async exists(email: Email): Promise<boolean> {
-        const userModel = this.models.User;
+        const userModel = this.models.Users;
         const user = await userModel.findOne({
             where: {
                 email: email.value
@@ -23,7 +23,7 @@ export class UserRepo implements IUserRepo {
     }
 
     async getUserByEmail(email: Email): Promise<User> {
-        const userModel = this.models.User;
+        const userModel = this.models.Users;
         const user = await userModel.findOne({
             where: {
                 email: email.value
@@ -34,7 +34,7 @@ export class UserRepo implements IUserRepo {
     }
 
     async getUserByUserId(userId: string): Promise<User> {
-        const userModel = this.models.User;
+        const userModel = this.models.Users;
         const user = await userModel.findOne({
             where: {
                 base_user_id: userId
@@ -45,7 +45,7 @@ export class UserRepo implements IUserRepo {
     }
 
     async save(user: User): Promise<void> {
-        const UserModel = this.models.User;
+        const UserModel = this.models.Users;
         const exists = await this.exists(user.email);
 
         if (!exists) {

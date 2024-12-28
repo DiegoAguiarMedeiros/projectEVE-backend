@@ -3,19 +3,34 @@ import { UserId } from "./userId";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Result } from "../../../shared/core/Result";
 import { Guard } from "../../../shared/core/Guard";
+import { EnvelopeId } from "./envelopeId";
+import { Balance } from "./balance";
+import { Id } from "../../../shared/domain/Id";
 
 interface EnvelopeProps {
+  id: Id;
   name: Name;
-  userId: UserId;
+  balance: Balance;
+  disable: boolean;
+  userId: Id;
 }
 
 export class Envelope {
   private props: EnvelopeProps;
 
+  get id(): Id {
+    return this.props.id;
+  }
+  get balance(): Balance {
+    return this.props.balance;
+  }
+  get disable(): boolean {
+    return this.props.disable;
+  }
   get name(): Name {
     return this.props.name;
   }
-  get userId(): UserId {
+  get userId(): Id {
     return this.props.userId;
   }
 

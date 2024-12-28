@@ -1,7 +1,7 @@
 
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
-import Envelope from './envelopes';
+import Envelope from './baseEnvelopes';
 import UserPaymentMethod from './userPaymentMethods';
 
 class Transactions extends Model { }

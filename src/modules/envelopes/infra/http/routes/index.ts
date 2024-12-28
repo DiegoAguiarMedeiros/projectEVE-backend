@@ -1,5 +1,4 @@
 import express from 'express'
-import { createEnvelopeController } from '../../../useCases/createEnvelope';
 
 const envelopeRouter = express.Router();
 
@@ -29,7 +28,7 @@ const envelopeRouter = express.Router();
  *         description: Bad request
  */
 envelopeRouter.post('/',
-  (req, res) => createEnvelopeController.execute(req, res)
+  // (req, res) => createEnvelopeController.execute(req, res)
 );
 
 /**

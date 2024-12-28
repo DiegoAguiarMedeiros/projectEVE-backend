@@ -1,4 +1,3 @@
-import { Id } from "./Id";
 import { Email } from "./email";
 import { Name } from "./name";
 import { Password } from "./password";
@@ -6,6 +5,7 @@ import { JWTToken, RefreshToken } from "./jwt";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Result } from "../../../shared/core/Result";
 import { Guard } from "../../../shared/core/Guard";
+import { Id } from "../../../shared/domain/Id";
 
 interface UserProps {
   id: Id,

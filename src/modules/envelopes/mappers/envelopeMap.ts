@@ -4,10 +4,15 @@ import { EnvelopeDTO } from "../dtos/envelopeDTO";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Name } from "../domain/name";
 import { UserId } from "../domain/userId";
+import { Id } from "../../../shared/domain/Id";
+import { Balance } from "../domain/balance";
 
 export class EnvelopeMap implements Mapper<Envelope> {
   public static toDTO(envelope: Envelope): EnvelopeDTO {
     return {
+      id: envelope.id.value,
+      disable: envelope.disable,
+      balance: envelope.balance.value,
       name: envelope.name.value,
       userId: envelope.userId.value,
     };
@@ -15,7 +20,10 @@ export class EnvelopeMap implements Mapper<Envelope> {
 
   public static toDomain(raw: any): Envelope {
     const NameOrError = Name.create({ name: raw.name });
-    const UserIdOrError = UserId.create({ userId: raw.userId });
+    const BalanceOrError = Balance.create({ balance: raw.balance });
+    const UserIdOrError = Id.create(raw.user_id);
+    const IdOrError = Id.create(raw.id);
+
     if (NameOrError.isFailure) {
       throw new Error('Invalid use name');
     }
@@ -23,24 +31,30 @@ export class EnvelopeMap implements Mapper<Envelope> {
       throw new Error('Invalid use id');
     }
 
-    const userOrError = Envelope.create(
+    const envelopeOrError = Envelope.create(
       {
         name: NameOrError.getValue(),
-        userId: UserIdOrError.getValue(),
+        userId: UserIdOrError.getErrorValue(),
+        id: IdOrError.getErrorValue(),
+        disable: raw.disable,
+        balance: BalanceOrError.getErrorValue(),
       }
     );
 
-    if (userOrError.isFailure) {
+    if (envelopeOrError.isFailure) {
       throw new Error('Failed to create user');
     }
-    return userOrError.getValue();
+    return envelopeOrError.getValue();
   }
 
   public static async toPersistence(envelope: Envelope): Promise<any> {
 
     return {
+      id: envelope.id.value,
+      disable: envelope.disable,
+      balance: envelope.balance.value,
       name: envelope.name.value,
-      userId: envelope.userId.value,
+      user_id: envelope.userId.value,
     };
   }
 }

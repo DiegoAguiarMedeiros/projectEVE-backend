@@ -4,12 +4,16 @@ import { CreateUserErrors } from "./CreateUserErrors";
 import { Either, Result, left, right } from "../../../../shared/core/Result";
 import { AppError } from "../../../../shared/core/AppError";
 import { IUserRepo } from "../../repos/userRepo";
+import { IBaseEnvelopeRepo } from "../../../envelopes/repos/BaseEnvelopeRepo";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { Email } from "../../domain/email";
 import { Password } from "../../domain/password";
 import { Name } from "../../domain/name";
 import { User } from "../../domain/user";
-import { Id } from "../../domain/Id";
+import { CreateEnvelopeUseCase } from "../../../envelopes/useCases/createEnvelope/CreateEnvelopeUseCase";
+import { Id } from "../../../../shared/domain/Id";
+import e from "express";
+import { Envelope } from "../../../envelopes/domain/envelope";
 
 type Response = Either<
   CreateUserErrors.EmailAlreadyExistsError |
@@ -21,9 +25,13 @@ type Response = Either<
 
 export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Response>> {
   private userRepo: IUserRepo;
+  private baseEnvelopeRepo: IBaseEnvelopeRepo;
+  private createEnvelopeUseCase: CreateEnvelopeUseCase;
 
-  constructor(userRepo: IUserRepo) {
+  constructor(userRepo: IUserRepo, baseEnvelopeRepo: IBaseEnvelopeRepo, createEnvelopeUseCase: CreateEnvelopeUseCase) {
     this.userRepo = userRepo;
+    this.baseEnvelopeRepo = baseEnvelopeRepo;
+    this.createEnvelopeUseCase = createEnvelopeUseCase;
   }
 
   async execute(request: CreateUserDTO): Promise<Response> {
@@ -66,7 +74,20 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
 
       const user: User = userOrError.getValue();
 
+
       await this.userRepo.save(user);
+
+      const envelopes = await this.baseEnvelopeRepo.getAll();
+      await envelopes.forEach(envelope => {
+
+        this.createEnvelopeUseCase.execute({
+          name: envelope.name.value,
+          userId: user.id.value,
+          balance: 0,
+          disable: false
+        })
+
+      });
 
       return right(Result.ok<void>())
 
