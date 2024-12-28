@@ -11,7 +11,8 @@ interface EnvelopeProps {
   id: Id;
   name: Name;
   balance: Balance;
-  disable: boolean;
+  active: boolean;
+  is_deletable: boolean;
   userId: Id;
 }
 
@@ -24,8 +25,11 @@ export class Envelope {
   get balance(): Balance {
     return this.props.balance;
   }
-  get disable(): boolean {
-    return this.props.disable;
+  get active(): boolean {
+    return this.props.active;
+  }
+  get is_deletable(): boolean {
+    return this.props.is_deletable;
   }
   get name(): Name {
     return this.props.name;

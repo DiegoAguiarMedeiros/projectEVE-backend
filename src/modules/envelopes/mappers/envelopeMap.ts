@@ -11,7 +11,8 @@ export class EnvelopeMap implements Mapper<Envelope> {
   public static toDTO(envelope: Envelope): EnvelopeDTO {
     return {
       id: envelope.id.value,
-      disable: envelope.disable,
+      active: envelope.active,
+      is_deletable: envelope.is_deletable,
       balance: envelope.balance.value,
       name: envelope.name.value,
       userId: envelope.userId.value,
@@ -36,7 +37,8 @@ export class EnvelopeMap implements Mapper<Envelope> {
         name: NameOrError.getValue(),
         userId: UserIdOrError.getErrorValue(),
         id: IdOrError.getErrorValue(),
-        disable: raw.disable,
+        active: raw.active,
+        is_deletable: raw.is_deletable,
         balance: BalanceOrError.getErrorValue(),
       }
     );
@@ -51,7 +53,8 @@ export class EnvelopeMap implements Mapper<Envelope> {
 
     return {
       id: envelope.id.value,
-      disable: envelope.disable,
+      active: envelope.active,
+      is_deletable: envelope.is_deletable,
       balance: envelope.balance.value,
       name: envelope.name.value,
       user_id: envelope.userId.value,

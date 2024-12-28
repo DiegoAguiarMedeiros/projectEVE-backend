@@ -31,10 +31,15 @@ Envelopes.init({
     type: DataTypes.FLOAT,
     allowNull: true
   },
-  disable: {
+  active: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
-    defaultValue: false
+    defaultValue: true
+  },
+  is_deletable: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   }
 }, {
   sequelize,

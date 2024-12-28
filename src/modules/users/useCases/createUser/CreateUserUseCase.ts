@@ -84,7 +84,8 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
           name: envelope.name.value,
           userId: user.id.value,
           balance: 0,
-          disable: false
+          active: true,
+          is_deletable: false
         })
 
       });

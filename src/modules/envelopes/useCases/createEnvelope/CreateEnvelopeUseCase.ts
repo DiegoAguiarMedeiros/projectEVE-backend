@@ -51,7 +51,8 @@ export class CreateEnvelopeUseCase implements UseCase<CreateEnvelopeDTO, Promise
         name,
         userId,
         balance: balance,
-        disable: request.disable
+        active: request.active,
+        is_deletable: request.is_deletable
       });
 
       if (EnvelopeOrError.isFailure) {

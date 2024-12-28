@@ -8,6 +8,7 @@ export interface EnvelopeDTO {
   id: string;
   name: string;
   balance: number;
-  disable: boolean;
+  active: boolean;
+  is_deletable: boolean;
   userId: string;
 }
