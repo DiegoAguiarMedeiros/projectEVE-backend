@@ -19,7 +19,7 @@ import { User } from '../../domain/user';
 
 export class RedisAuthService extends AbstractRedisClient implements IAuthService {
 
-  public jwtHashName: string = 'activeJwtClients';
+  public jwtHashid: string = 'activeJwtClients';
 
   constructor(redisClient: RedisClientType) {
     super(redisClient);
@@ -30,25 +30,25 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
     return keys.length !== 0;
   }
 
-  public async getNameFromRefreshToken(refreshToken: RefreshToken): Promise<string> {
+  public async getIdFromRefreshToken(refreshToken: RefreshToken): Promise<string> {
     const keys = await this.getAllKeys(`*${refreshToken}*`);
     const exists = keys.length !== 0;
 
-    if (!exists) throw new Error("name not found for refresh token.");
+    if (!exists) throw new Error("id not found for refresh token.");
 
     const key = keys[0];
 
-    return key.substring(key.indexOf(this.jwtHashName) + this.jwtHashName.length + 1)
+    return key.substring(key.indexOf(this.jwtHashid) + this.jwtHashid.length + 1)
   }
 
   public async saveAuthenticatedUser(user: User): Promise<void> {
     if (user.isLoggedIn()) {
-      await this.addToken(user.name.value, user.refreshToken, user.accessToken);
+      await this.addToken(user.id.value, user.refreshToken, user.accessToken);
     }
   }
 
-  public async deAuthenticateUser(name: string): Promise<void> {
-    await this.clearAllSessions(name);
+  public async deAuthenticateUser(id: string): Promise<void> {
+    await this.clearAllSessions(id);
   }
 
   public createRefreshToken(): RefreshToken {
@@ -64,8 +64,8 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
   public signJWT(props: JWTClaims): JWTToken {
     const claims: JWTClaims = {
       email: props.email,
+      id: props.id,
       name: props.name,
-      userId: props.userId,
       adminUser: props.adminUser,
       isEmailVerified: props.isEmailVerified
     };
@@ -98,22 +98,22 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
     })
   }
 
-  private constructKey(name: string, refreshToken: RefreshToken): string {
-    return `refresh-${refreshToken}.${this.jwtHashName}.${name}`
+  private constructKey(id: string, refreshToken: RefreshToken): string {
+    return `refresh-${refreshToken}.${this.jwtHashid}.${id}`
   }
 
   /**
    * @method addToken
    * @desc Adds the token for this user to redis.
    * 
-   * @param {name} string
+   * @param {id} string
    * @param {refreshToken} string
    * @param {token} string
    * @return Promise<any>
    */
 
-  public addToken(name: string, refreshToken: RefreshToken, token: JWTToken): Promise<any> {
-    return this.set(this.constructKey(name, refreshToken), token);
+  public addToken(id: string, refreshToken: RefreshToken, token: JWTToken): Promise<any> {
+    return this.set(this.constructKey(id, refreshToken), token);
   }
 
   /**
@@ -123,7 +123,7 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
    */
 
   public async clearAllTokens(): Promise<any> {
-    const allKeys = await this.getAllKeys(`*${this.jwtHashName}*`);
+    const allKeys = await this.getAllKeys(`*${this.jwtHashid}*`);
     return Promise.all(
       allKeys.map((key) => this.deleteOne(key))
     )
@@ -132,12 +132,12 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
   /**
    * @method countSessions
    * @desc Counts the total number of sessions for a particular user.
-   * @param {name} string
+   * @param {id} string
    * @return Promise<number>
    */
 
-  public countSessions(name: string): Promise<number> {
-    return this.count(`*${this.jwtHashName}.${name}`);
+  public countSessions(id: string): Promise<number> {
+    return this.count(`*${this.jwtHashid}.${id}`);
   }
 
   /**
@@ -147,7 +147,7 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
    */
 
   public countTokens(): Promise<number> {
-    return this.count(`*${this.jwtHashName}*`);
+    return this.count(`*${this.jwtHashid}*`);
   }
 
   /**
@@ -156,44 +156,45 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
    * @return Promise<string[]>
    */
 
-  public async getTokens(name: string): Promise<string[]> {
-    const keyValues = await this.getAllKeyValue(`*${this.jwtHashName}.${name}`);
+  public async getTokens(id: string): Promise<string[]> {
+    const allKeys = await this.getAllKeys(`*${this.jwtHashid}*`);
+    const keyValues = await this.getAllKeyValue(`*${this.jwtHashid}.${id}`);
     return keyValues.map((kv) => kv.value);
   }
 
   /**
    * @method getToken
    * @desc Gets a single token for the user.
-   * @param {name} string
+   * @param {id} string
    * @param {refreshToken} string
    * @return Promise<string>
    */
 
-  public async getToken(name: string, refreshToken: string): Promise<string> {
-    return this.getOne(this.constructKey(name, refreshToken));
+  public async getToken(id: string, refreshToken: string): Promise<string> {
+    return this.getOne(this.constructKey(id, refreshToken));
   }
 
   /**
    * @method clearToken
    * @desc Deletes a single user's session token.
-   * @param {name} string
+   * @param {id} string
    * @param {refreshToken} string
    * @return Promise<string>
    */
 
-  public async clearToken(name: string, refreshToken: string): Promise<any> {
-    return this.deleteOne(this.constructKey(name, refreshToken));
+  public async clearToken(id: string, refreshToken: string): Promise<any> {
+    return this.deleteOne(this.constructKey(id, refreshToken));
   }
 
   /**
    * @method clearAllSessions
    * @desc Clears all active sessions for the current user.
-   * @param {name} string
+   * @param {id} string
    * @return Promise<any>
    */
 
-  public async clearAllSessions(name: string): Promise<any> {
-    const keyValues = await this.getAllKeyValue(`*${this.jwtHashName}.${name}`);
+  public async clearAllSessions(id: string): Promise<any> {
+    const keyValues = await this.getAllKeyValue(`*${this.jwtHashid}.${id}`);
     const keys = keyValues.map((kv) => kv.key);
     return Promise.all(
       keys.map((key) => this.deleteOne(key))
@@ -203,13 +204,13 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
   /**
    * @method sessionExists
    * @desc Checks if the session for this user exists
-   * @param {name} string
+   * @param {id} string
    * @param {refreshToken} string
    * @return Promise<boolean>
    */
 
-  public async sessionExists(name: string, refreshToken: string): Promise<boolean> {
-    const token = await this.getToken(name, refreshToken);
+  public async sessionExists(id: string, refreshToken: string): Promise<boolean> {
+    const token = await this.getToken(id, refreshToken);
     if (!!token) {
       return true;
     } else {

@@ -1,34 +1,27 @@
 import express from 'express'
-
+import { getAllEnvelopesController } from '../../../useCases/getAllEnvelopes';
+import { middleware } from '../../../../../shared/infra/http';
 const envelopeRouter = express.Router();
 
 /**
  * @swagger
- * /envelope:
- *   post:
- *     summary: Create a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
+ * /envelopes:
+ *   get:
+ *     summary: Get all envelopes
+ *     tags: [Envelopes]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
- *       201:
- *         description: User created successfully
- *       400:
- *         description: Bad request
- */
-envelopeRouter.post('/',
-  // (req, res) => createEnvelopeController.execute(req, res)
+ *       200:
+ *         description: envelopes[]
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Enelopes not found
+  */
+envelopeRouter.get('/',
+  middleware.ensureAuthenticated(),
+  (req, res) => getAllEnvelopesController.execute(req, res)
 );
 
 /**

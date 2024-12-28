@@ -6,9 +6,9 @@ export interface IAuthService {
   signJWT(props: JWTClaims): JWTToken;
   decodeJWT(token: string): Promise<JWTClaims>;
   createRefreshToken(): RefreshToken;
-  getTokens(name: string): Promise<string[]>;
+  getTokens(id: string): Promise<string[]>;
   saveAuthenticatedUser(user: User): Promise<void>;
-  deAuthenticateUser(name: string): Promise<void>;
+  deAuthenticateUser(id: string): Promise<void>;
   refreshTokenExists(refreshToken: RefreshToken): Promise<boolean>;
-  getNameFromRefreshToken(refreshToken: RefreshToken): Promise<string>;
+  getIdFromRefreshToken(refreshToken: RefreshToken): Promise<string>;
 }

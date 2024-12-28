@@ -63,7 +63,7 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
         name: user.name.value,
         email: user.email.value,
         isEmailVerified: user.isEmailVerified,
-        userId: user.id.toString(),
+        id: user.id.value,
         adminUser: user.isAdminUser,
       });
 

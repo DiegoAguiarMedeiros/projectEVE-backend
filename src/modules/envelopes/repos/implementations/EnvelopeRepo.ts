@@ -9,10 +9,12 @@ export class EnvelopeRepo implements IEnvelopeRepo {
     constructor(models: any) {
         this.models = models;
     }
-    async getAll(): Promise<Envelope[]> {
+    async getAll(id: string): Promise<Envelope[]> {
         const EnvelopeModel = this.models.Envelopes;
         return await EnvelopeModel.findAll({
-            attributes: ['id', 'name'],
+            where: {
+                user_id: id,
+            },
         });
     }
 

@@ -39,11 +39,27 @@ const swaggerDefinition = {
       description: 'Development server',
     },
   ],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT', // Opcional, apenas para documentação
+      },
+    },
+  },
+  security: [
+    {
+      bearerAuth: [], // Aplica autenticação por padrão a todas as rotas
+    },
+  ],
 };
+
 const options = {
   swaggerDefinition,
   apis: [
     path.resolve(__dirname, '../../../modules/users/infra/http/routes/*.js'), // Use absolute path
+    path.resolve(__dirname, '../../../modules/envelopes/infra/http/routes/*.js'), // Use absolute path
   ],
 };
 
