@@ -29,7 +29,7 @@ export class CreateEnvelopeUseCase implements UseCase<CreateEnvelopeDTO, Promise
     const nameOrError = Name.create({ name: request.name });
     const balanceOrError = Balance.create({ balance: request.balance });
     const userIdOrError = Id.create(new UniqueEntityID(request.userId));
-    const idorError = Id.create(new UniqueEntityID());
+    const idorError = Id.create(request.id);
 
     const dtoResult = Result.combine([
       nameOrError, userIdOrError, idorError, balanceOrError
@@ -46,13 +46,20 @@ export class CreateEnvelopeUseCase implements UseCase<CreateEnvelopeDTO, Promise
 
     try {
 
+      const checkname = await this.envelopeRepo.checkName(request.name, request.userId.toString());
+      if (checkname) {
+        return left(
+          new CreateEnvelopeErrors.NameTakenError(request.name)
+        ) as Response;
+      }
+
       const EnvelopeOrError: Result<Envelope> = Envelope.create({
         id,
         name,
         userId,
         balance: balance,
         active: request.active,
-        is_deletable: request.is_deletable
+        is_editable: request.is_editable
       });
 
       if (EnvelopeOrError.isFailure) {

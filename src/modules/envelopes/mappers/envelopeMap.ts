@@ -12,7 +12,7 @@ export class EnvelopeMap implements Mapper<Envelope> {
     return {
       id: envelope.id.value,
       active: envelope.active,
-      is_deletable: envelope.is_deletable,
+      is_editable: envelope.is_editable,
       balance: envelope.balance.value,
       name: envelope.name.value,
       userId: envelope.userId.value,
@@ -35,16 +35,16 @@ export class EnvelopeMap implements Mapper<Envelope> {
     const envelopeOrError = Envelope.create(
       {
         name: NameOrError.getValue(),
-        userId: UserIdOrError.getErrorValue(),
-        id: IdOrError.getErrorValue(),
+        userId: UserIdOrError.getValue(),
+        id: IdOrError.getValue(),
         active: raw.active,
-        is_deletable: raw.is_deletable,
-        balance: BalanceOrError.getErrorValue(),
+        is_editable: raw.is_editable,
+        balance: BalanceOrError.getValue(),
       }
     );
 
     if (envelopeOrError.isFailure) {
-      throw new Error('Failed to create user');
+      throw new Error('Failed to create envelope');
     }
     return envelopeOrError.getValue();
   }
@@ -54,7 +54,7 @@ export class EnvelopeMap implements Mapper<Envelope> {
     return {
       id: envelope.id.value,
       active: envelope.active,
-      is_deletable: envelope.is_deletable,
+      is_editable: envelope.is_editable,
       balance: envelope.balance.value,
       name: envelope.name.value,
       user_id: envelope.userId.value,

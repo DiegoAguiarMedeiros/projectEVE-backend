@@ -12,7 +12,7 @@ interface EnvelopeProps {
   name: Name;
   balance: Balance;
   active: boolean;
-  is_deletable: boolean;
+  is_editable: boolean;
   userId: Id;
 }
 
@@ -28,8 +28,8 @@ export class Envelope {
   get active(): boolean {
     return this.props.active;
   }
-  get is_deletable(): boolean {
-    return this.props.is_deletable;
+  get is_editable(): boolean {
+    return this.props.is_editable;
   }
   get name(): Name {
     return this.props.name;

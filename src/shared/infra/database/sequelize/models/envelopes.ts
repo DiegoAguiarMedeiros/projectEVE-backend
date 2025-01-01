@@ -36,7 +36,7 @@ Envelopes.init({
     allowNull: false,
     defaultValue: true
   },
-  is_deletable: {
+  is_editable: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true

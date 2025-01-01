@@ -14,6 +14,7 @@ import { CreateEnvelopeUseCase } from "../../../envelopes/useCases/createEnvelop
 import { Id } from "../../../../shared/domain/Id";
 import e from "express";
 import { Envelope } from "../../../envelopes/domain/envelope";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 
 type Response = Either<
   CreateUserErrors.EmailAlreadyExistsError |
@@ -81,11 +82,12 @@ export class CreateUserUseCase implements UseCase<CreateUserDTO, Promise<Respons
       await envelopes.forEach(envelope => {
 
         this.createEnvelopeUseCase.execute({
+          id: new UniqueEntityID(),
           name: envelope.name.value,
           userId: user.id.value,
           balance: 0,
           active: true,
-          is_deletable: false
+          is_editable: false
         })
 
       });

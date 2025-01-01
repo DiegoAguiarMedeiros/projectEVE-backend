@@ -1,6 +1,10 @@
 import express from 'express'
 import { getAllEnvelopesController } from '../../../useCases/getAllEnvelopes';
 import { middleware } from '../../../../../shared/infra/http';
+import { createEnvelopeController } from '../../../useCases/createEnvelope';
+import { deleteEnvelopeController } from '../../../useCases/deleteEnvelope';
+import { getEnvelopeByIdController } from '../../../useCases/getEnvelopeById';
+import { updateEnvelopeNameController } from '../../../useCases/updateEnvelopeName';
 const envelopeRouter = express.Router();
 
 /**
@@ -26,10 +30,10 @@ envelopeRouter.get('/',
 
 /**
  * @swagger
- * /auth/login:
+ * /envelopes/create:
  *   post:
- *     summary: Login a user
- *     tags: [Auth]
+ *     summary: Create Envelope
+ *     tags: [Envelopes]
  *     requestBody:
  *       required: true
  *       content:
@@ -37,18 +41,120 @@ envelopeRouter.get('/',
  *           schema:
  *             type: object
  *             properties:
- *               email:
- *                 type: string
- *               password:
+ *               name:
  *                 type: string
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Envelope created
  *       401:
  *         description: Unauthorized
  */
-// authRouter.post('/login',
-//   (req, res) => loginController.execute(req, res)
-// )
+envelopeRouter.post('/create',
+  middleware.ensureAuthenticated(),
+  (req, res) => createEnvelopeController.execute(req, res)
+)
+
+
+/**
+ * @swagger
+ * /envelopes/{id}:
+ *   delete:
+ *     summary: Delete an envelope
+ *     tags: [Envelopes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The envelope ID
+ *     responses:
+ *       200:
+ *         description: Envelope deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Envelope not found
+ */
+envelopeRouter.delete(
+  '/:id',
+  middleware.ensureAuthenticated(),
+  (req, res) => deleteEnvelopeController.execute(req, res)
+);
+
+/**
+ * @swagger
+ * /envelopes/change-name/{id}:
+ *   patch:
+ *     summary: Change Name of an envelope
+ *     tags: [Envelopes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The envelope ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Envelope updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Envelope not found
+ */
+
+envelopeRouter.patch(
+  '/update/:id',
+  middleware.ensureAuthenticated(),
+  (req, res) => updateEnvelopeNameController.execute(req, res)
+);
+
+/**
+ * @swagger
+ * /envelopes/{id}:
+ *   get:
+ *     summary: Get an envelope by ID
+ *     tags: [Envelopes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The envelope ID
+ *     responses:
+ *       200:
+ *         description: Envelope retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                 name:
+ *                   type: string
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Envelope not found
+ */
+envelopeRouter.get(
+  '/:id',
+  middleware.ensureAuthenticated(),
+  (req, res) => getEnvelopeByIdController.execute(req, res)
+);
+
+
 
 export { envelopeRouter };
