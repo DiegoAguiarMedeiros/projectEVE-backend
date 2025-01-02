@@ -1,0 +1,11 @@
+
+import { CreditCard } from "../domain/creditCard";
+
+export interface ICreditCardRepo {
+  getAll(id: string): Promise<CreditCard[]>
+  save(creditCard: CreditCard): Promise<void>;
+  getById(id: string, userId: string): Promise<CreditCard | null>;
+  checkName(name: string, userId: string): Promise<boolean>;
+  updateName(id: string, userId: string, name: string): Promise<boolean>;
+  delete(id: string): Promise<void>
+}

@@ -1,6 +1,7 @@
 
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
+import User from './user';
 
 class CreditCards extends Model { }
 
@@ -16,9 +17,28 @@ CreditCards.init({
     allowNull: false
   },
   flag: {
-    type: DataTypes.STRING(10),
-    allowNull: false
-  }
+    type: DataTypes.ENUM(
+      'Visa',
+      'Mastercard',
+      'American Express',
+      'Discover',
+      'Diners Club',
+      'JCB',
+      'Elo',
+      'Hipercard'
+    ),
+    allowNull: false,
+  },
+  user_id: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    },
+    onDelete: 'cascade',
+    onUpdate: 'cascade'
+  },
 }, {
   sequelize,
   modelName: 'CreditCards',

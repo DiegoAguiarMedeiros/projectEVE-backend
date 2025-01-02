@@ -5,30 +5,27 @@ import { Result } from "../../../shared/core/Result";
 import { Guard } from "../../../shared/core/Guard";
 import { Balance } from "./balance";
 import { Id } from "../../../shared/domain/Id";
+import { Flag } from "./flag";
 
-interface EnvelopeProps {
+interface CreditCardProps {
   id: Id;
   name: Name;
-  balance: Balance;
+  flag: Flag;
   active: boolean;
-  is_editable: boolean;
   userId: Id;
 }
 
-export class Envelope {
-  private props: EnvelopeProps;
+export class CreditCard {
+  private props: CreditCardProps;
 
   get id(): Id {
     return this.props.id;
   }
-  get balance(): Balance {
-    return this.props.balance;
+  get flag(): Flag {
+    return this.props.flag;
   }
   get active(): boolean {
     return this.props.active;
-  }
-  get is_editable(): boolean {
-    return this.props.is_editable;
   }
   get name(): Name {
     return this.props.name;
@@ -37,11 +34,11 @@ export class Envelope {
     return this.props.userId;
   }
 
-  private constructor(props: EnvelopeProps) {
+  private constructor(props: CreditCardProps) {
     this.props = props;
   }
 
-  public static create(props: EnvelopeProps): Result<Envelope> {
+  public static create(props: CreditCardProps): Result<CreditCard> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.name, argumentName: "name" },
@@ -49,15 +46,15 @@ export class Envelope {
     ]);
 
     if (guardResult.isFailure) {
-      return Result.fail<Envelope>('Envelope :' + guardResult.getErrorValue());
+      return Result.fail<CreditCard>('CreditCard :' + guardResult.getErrorValue());
     }
 
-    const envelope = new Envelope(
+    const casereditCard = new CreditCard(
       {
         ...props
       }
     );
 
-    return Result.ok<Envelope>(envelope);
+    return Result.ok<CreditCard>(casereditCard);
   }
 }

@@ -10,7 +10,7 @@ import { Email } from "../../domain/email";
 import { Password } from "../../domain/password";
 import { Name } from "../../domain/name";
 import { User } from "../../domain/user";
-import { CreateEnvelopeUseCase } from "../../../envelopes/useCases/createEnvelope/CreateEnvelopeUseCase";
+import { CreateEnvelopeUseCase } from "../../../envelopes/useCases/envelopes/createEnvelope/CreateEnvelopeUseCase";
 import { Id } from "../../../../shared/domain/Id";
 import e from "express";
 import { Envelope } from "../../../envelopes/domain/envelope";
