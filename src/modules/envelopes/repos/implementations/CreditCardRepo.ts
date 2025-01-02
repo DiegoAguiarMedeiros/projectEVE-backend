@@ -20,12 +20,12 @@ export class CreditCardRepo implements ICreditCardRepo {
         });
         return !!creditCard;
     }
-    async updateName(id: string, userId: string, name: string): Promise<boolean> {
+    async update(id: string, userId: string, name: string, flag: string): Promise<boolean> {
         const creditCardModel = this.models.CreditCards;
 
         // Atualiza o nome onde o id e o userId correspondem
         const [updatedRows] = await creditCardModel.update(
-            { name }, // Campos a serem atualizados
+            { name, flag }, // Campos a serem atualizados
             {
                 where: {
                     id,
@@ -56,7 +56,7 @@ export class CreditCardRepo implements ICreditCardRepo {
             },
             raw: true,
         });
-        return creditCard ? CreditCardMap.toDomain(creditCard) : null;
+        return creditCard ?? null;
     }
 
     async save(CreditCard: CreditCard): Promise<void> {

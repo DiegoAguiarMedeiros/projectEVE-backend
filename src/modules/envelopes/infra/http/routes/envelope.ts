@@ -114,7 +114,7 @@ envelopeRouter.delete(
  */
 
 envelopeRouter.patch(
-  '/update/:id',
+  '/change-name/:id',
   middleware.ensureAuthenticated(),
   (req, res) => updateEnvelopeNameController.execute(req, res)
 );

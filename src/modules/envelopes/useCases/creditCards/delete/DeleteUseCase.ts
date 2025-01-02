@@ -31,7 +31,7 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<Response>> {
                 ) as Response;
             }
 
-            await this.repo.delete(creditCard.id.value);
+            await this.repo.delete(request.id.toString());
             return right(Result.ok<void>()) as Response;
 
         } catch (err) {

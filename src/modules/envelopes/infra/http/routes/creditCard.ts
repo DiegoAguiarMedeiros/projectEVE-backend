@@ -2,9 +2,10 @@ import express from 'express'
 import { middleware } from '../../../../../shared/infra/http';
 import { createCreditCardController } from '../../../useCases/creditCards/create';
 import { deleteCreditCardController } from '../../../useCases/creditCards/delete';
-import { getEnvelopeByIdController } from '../../../useCases/envelopes/getById';
+import { getCreditCardByIdController } from '../../../useCases/creditCards/getById';
 import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateName';
 import { getAllCreditCardsController } from '../../../useCases/creditCards/getAll';
+import { updateEnvelopeController } from '../../../useCases/creditCards/update';
 const creditCard = express.Router();
 
 /**
@@ -98,9 +99,9 @@ creditCard.delete(
 
 /**
  * @swagger
- * /credit-cards/change-name/{id}:
+ * /credit-cards/{id}:
  *   patch:
- *     summary: Change Name of an Credit Card
+ *     summary: Update an Credit Card
  *     tags: [Credit Cards]
  *     parameters:
  *       - in: path
@@ -118,6 +119,18 @@ creditCard.delete(
  *             properties:
  *               name:
  *                 type: string
+ *               flag:
+ *                 type: string
+ *                 description: Credit card flag
+ *                 enum:
+ *                   - Visa
+ *                   - Mastercard
+ *                   - American Express
+ *                   - Discover
+ *                   - Diners Club
+ *                   - JCB
+ *                   - Elo
+ *                   - Hipercard
  *     responses:
  *       200:
  *         description: Credit Card updated successfully
@@ -128,9 +141,9 @@ creditCard.delete(
  */
 
 creditCard.patch(
-  '/update/:id',
+  '/:id',
   middleware.ensureAuthenticated(),
-  (req, res) => updateEnvelopeNameController.execute(req, res)
+  (req, res) => updateEnvelopeController.execute(req, res)
 );
 
 /**
@@ -166,7 +179,7 @@ creditCard.patch(
 creditCard.get(
   '/:id',
   middleware.ensureAuthenticated(),
-  (req, res) => getEnvelopeByIdController.execute(req, res)
+  (req, res) => getCreditCardByIdController.execute(req, res)
 );
 
 
