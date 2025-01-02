@@ -1,10 +1,10 @@
 import express from 'express'
-import { getAllEnvelopesController } from '../../../useCases/envelopes/getAllEnvelopes';
 import { middleware } from '../../../../../shared/infra/http';
 import { createCreditCardController } from '../../../useCases/creditCards/createCreditCard';
 import { deleteEnvelopeController } from '../../../useCases/envelopes/deleteEnvelope';
 import { getEnvelopeByIdController } from '../../../useCases/envelopes/getEnvelopeById';
 import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateEnvelopeName';
+import { getAllCreditCardsController } from '../../../useCases/creditCards/getAllCreditCards';
 const creditCard = express.Router();
 
 /**
@@ -25,7 +25,7 @@ const creditCard = express.Router();
   */
 creditCard.get('/',
   middleware.ensureAuthenticated(),
-  (req, res) => getAllEnvelopesController.execute(req, res)
+  (req, res) => getAllCreditCardsController.execute(req, res)
 );
 
 /**
