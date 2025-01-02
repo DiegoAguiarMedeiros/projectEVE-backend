@@ -1,7 +1,7 @@
 import express from 'express'
 import { middleware } from '../../../../../shared/infra/http';
 import { createCreditCardController } from '../../../useCases/creditCards/create';
-import { deleteEnvelopeController } from '../../../useCases/envelopes/delete';
+import { deleteCreditCardController } from '../../../useCases/creditCards/delete';
 import { getEnvelopeByIdController } from '../../../useCases/envelopes/getById';
 import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateName';
 import { getAllCreditCardsController } from '../../../useCases/creditCards/getAll';
@@ -93,7 +93,7 @@ creditCard.post('/create',
 creditCard.delete(
   '/:id',
   middleware.ensureAuthenticated(),
-  (req, res) => deleteEnvelopeController.execute(req, res)
+  (req, res) => deleteCreditCardController.execute(req, res)
 );
 
 /**

@@ -56,7 +56,7 @@ export class CreditCardRepo implements ICreditCardRepo {
             },
             raw: true,
         });
-        return creditCard ?? null;
+        return creditCard ? CreditCardMap.toDomain(creditCard) : null;
     }
 
     async save(CreditCard: CreditCard): Promise<void> {
