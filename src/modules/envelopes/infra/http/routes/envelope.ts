@@ -1,10 +1,10 @@
 import express from 'express'
-import { getAllEnvelopesController } from '../../../useCases/envelopes/getAllEnvelopes';
+import { getAllEnvelopesController } from '../../../useCases/envelopes/getAll';
 import { middleware } from '../../../../../shared/infra/http';
-import { createEnvelopeController } from '../../../useCases/envelopes/createEnvelope';
-import { deleteEnvelopeController } from '../../../useCases/envelopes/deleteEnvelope';
-import { getEnvelopeByIdController } from '../../../useCases/envelopes/getEnvelopeById';
-import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateEnvelopeName';
+import { createEnvelopeController } from '../../../useCases/envelopes/create';
+import { deleteEnvelopeController } from '../../../useCases/envelopes/delete';
+import { getEnvelopeByIdController } from '../../../useCases/envelopes/getById';
+import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateName';
 const envelopeRouter = express.Router();
 
 /**

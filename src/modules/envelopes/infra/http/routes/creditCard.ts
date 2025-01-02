@@ -1,10 +1,10 @@
 import express from 'express'
 import { middleware } from '../../../../../shared/infra/http';
-import { createCreditCardController } from '../../../useCases/creditCards/createCreditCard';
-import { deleteEnvelopeController } from '../../../useCases/envelopes/deleteEnvelope';
-import { getEnvelopeByIdController } from '../../../useCases/envelopes/getEnvelopeById';
-import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateEnvelopeName';
-import { getAllCreditCardsController } from '../../../useCases/creditCards/getAllCreditCards';
+import { createCreditCardController } from '../../../useCases/creditCards/create';
+import { deleteEnvelopeController } from '../../../useCases/envelopes/delete';
+import { getEnvelopeByIdController } from '../../../useCases/envelopes/getById';
+import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateName';
+import { getAllCreditCardsController } from '../../../useCases/creditCards/getAll';
 const creditCard = express.Router();
 
 /**

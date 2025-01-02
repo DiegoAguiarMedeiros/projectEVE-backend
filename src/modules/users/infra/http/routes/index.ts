@@ -1,5 +1,5 @@
 import express from 'express'
-import { createUserController } from '../../../useCases/createUser';
+import { createUserController } from '../../../useCases/create';
 import { loginController } from '../../../useCases/login';
 
 const authRouter = express.Router();
