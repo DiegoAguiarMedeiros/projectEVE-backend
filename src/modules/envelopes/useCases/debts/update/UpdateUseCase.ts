@@ -1,0 +1,121 @@
+import { AppError } from "../../../../../shared/core/AppError";
+import { Either, left, Result, right } from "../../../../../shared/core/Result";
+import { UseCase } from "../../../../../shared/core/UseCase";
+import { Id } from "../../../../../shared/domain/Id";
+import { UniqueEntityID } from "../../../../../shared/domain/UniqueEntityID";
+import { Balance } from "../../../domain/balance";
+import { Debt } from "../../../domain/debt";
+import { DebtsStatus } from "../../../domain/debtsStatus";
+import { Description } from "../../../domain/description";
+import { Flag } from "../../../domain/flag";
+import { Flags } from "../../../domain/flags";
+import { Name } from "../../../domain/name";
+import { DebtMap } from "../../../mappers/debtMap";
+import { IDebtRepo } from "../../../repos/DebtsRepo";
+import { CreateResponse } from "../create/CreateResponse";
+import { UpdateDTO } from "./UpdateDTO";
+import { UpdateErrors } from "./UpdateErrors";
+
+type Response = Either<
+    UpdateErrors.UpdateError |
+    UpdateErrors.CanNotBeChanged |
+    UpdateErrors.NotFound |
+    UpdateErrors.AlreadyExist |
+    AppError.UnexpectedError |
+    Result<any>,
+    Result<void>
+>
+
+export class UpdateUseCase implements UseCase<UpdateDTO, Promise<Response>> {
+    private repo: IDebtRepo;
+
+    constructor(repo: IDebtRepo) {
+        this.repo = repo;
+    }
+    async execute(request: UpdateDTO): Promise<Promise<Response>> {
+        try {
+
+            const debt = DebtMap.toDomain(await this.repo.getById(request.id.toString(), request.userId.toString()));
+            if (!debt) {
+                return left(
+                    new UpdateErrors.NotFound(request.id.toString())
+                ) as Response;
+            }
+
+            const DescriptionOrError = Description.create({ description: request.description ? request.description : debt.description.value });
+            DescriptionOrError.isFailure ? console.error(DescriptionOrError.getErrorValue()) : '';
+
+            const AmountOrError = Balance.create({ balance: request.amount ? request.amount : debt.amount.value });
+            AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
+
+            const InstallmentsTotalOrError = Balance.create({ balance: request.installments_total ? request.installments_total : debt.installments_total.value });
+            InstallmentsTotalOrError.isFailure ? console.error(InstallmentsTotalOrError.getErrorValue()) : '';
+
+            const InstallmentsPaidOrError = Balance.create({ balance: request.installments_paid ? request.installments_paid : debt.installments_paid.value });
+            InstallmentsPaidOrError.isFailure ? console.error(InstallmentsPaidOrError.getErrorValue()) : '';
+
+            const UserIdOrError = Id.create(request.userId);
+            UserIdOrError.isFailure ? console.error(UserIdOrError.getErrorValue()) : '';
+
+            const IdOrError = Id.create(request.id);
+            IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
+
+            const CreditCardIdOrError = Id.create(new UniqueEntityID(request.creditCardId ? request.creditCardId : debt.creditCardId.value));
+            CreditCardIdOrError.isFailure ? console.error(CreditCardIdOrError.getErrorValue()) : '';
+
+            const EvelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId ? request.envelopeId : debt.envelopeId.value));
+            EvelopeIdOrError.isFailure ? console.error(EvelopeIdOrError.getErrorValue()) : '';
+
+            const dtoResult = Result.combine([
+                DescriptionOrError, AmountOrError, UserIdOrError, IdOrError, CreditCardIdOrError, EvelopeIdOrError, InstallmentsTotalOrError, InstallmentsPaidOrError
+            ]);
+
+            if (dtoResult.isFailure) {
+                return left(Result.fail<void>(dtoResult.getErrorValue())) as Response;
+            }
+
+            const id: Id = IdOrError.getValue();
+            const userId: Id = UserIdOrError.getValue();
+            const creditCardId: Id = CreditCardIdOrError.getValue();
+            const envelopeId: Id = EvelopeIdOrError.getValue();
+            const description: Description = DescriptionOrError.getValue();
+            const amount: Balance = AmountOrError.getValue();
+            const installments_total: Balance = InstallmentsTotalOrError.getValue();
+            const installments_paid: Balance = InstallmentsPaidOrError.getValue();
+            const dueDate: Date = request.dueDate ? request.dueDate : debt.dueDate;
+            const status: DebtsStatus = request.status ? request.status : debt.status;
+
+            const debtOrError: Result<Debt> = Debt.create({
+                id,
+                userId,
+                creditCardId,
+                envelopeId,
+                description,
+                amount,
+                installments_total,
+                installments_paid,
+                dueDate,
+                status,
+            });
+
+            if (debtOrError.isFailure) {
+                return left(
+                    Result.fail<Debt>(debtOrError.getErrorValue().toString())
+                ) as CreateResponse;
+            }
+            const newDebt: Debt = debtOrError.getValue();
+
+            const updateDebt = await this.repo.update(request.id.toString(), request.userId.toString(), newDebt);
+            if (updateDebt) return right(Result.ok<void>()) as Response;
+
+            return left(
+                new UpdateErrors.UpdateError(request.id.toString())
+            ) as Response;
+
+
+        } catch (err) {
+            return left(new AppError.UnexpectedError(err)) as Response;
+        }
+    }
+
+}

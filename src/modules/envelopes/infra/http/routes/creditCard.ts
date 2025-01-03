@@ -5,7 +5,7 @@ import { deleteCreditCardController } from '../../../useCases/creditCards/delete
 import { getCreditCardByIdController } from '../../../useCases/creditCards/getById';
 import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateName';
 import { getAllCreditCardsController } from '../../../useCases/creditCards/getAll';
-import { updateEnvelopeController } from '../../../useCases/creditCards/update';
+import { updateCreditCardController } from '../../../useCases/creditCards/update';
 const creditCard = express.Router();
 
 /**
@@ -143,7 +143,7 @@ creditCard.delete(
 creditCard.patch(
   '/:id',
   middleware.ensureAuthenticated(),
-  (req, res) => updateEnvelopeController.execute(req, res)
+  (req, res) => updateCreditCardController.execute(req, res)
 );
 
 /**

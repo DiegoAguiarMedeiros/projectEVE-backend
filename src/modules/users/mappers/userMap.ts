@@ -19,24 +19,19 @@ export class UserMap implements Mapper<User> {
 
   public static toDomain(raw: any): User {
     const IdOrError = Id.create(raw.id);
-    if (IdOrError.isFailure) {
-      throw new Error('Invalid id');
-    }
+    IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
+
     const NameOrError = Name.create({ name: raw.name });
-    if (NameOrError.isFailure) {
-      throw new Error('Invalid use name');
-    }
+    NameOrError.isFailure ? console.error(NameOrError.getErrorValue()) : '';
+
     const PasswordOrError = Password.create({
       value: raw.password,
       hashed: true,
     });
-    if (PasswordOrError.isFailure) {
-      throw new Error('Invalid user password');
-    }
+    PasswordOrError.isFailure ? console.error(PasswordOrError.getErrorValue()) : '';
+
     const EmailOrError = Email.create(raw.email);
-    if (EmailOrError.isFailure) {
-      throw new Error('Invalid user email');
-    }
+    EmailOrError.isFailure ? console.error(EmailOrError.getErrorValue()) : '';
 
 
     const userOrError = User.create(
@@ -51,9 +46,8 @@ export class UserMap implements Mapper<User> {
       }
     );
 
-    if (userOrError.isFailure) {
-      throw new Error('Failed to create user');
-    }
+    userOrError.isFailure ? console.error(userOrError.getErrorValue()) : '';
+
     return userOrError.getValue();
   }
 

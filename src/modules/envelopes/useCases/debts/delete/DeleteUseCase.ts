@@ -1,0 +1,42 @@
+import { AppError } from "../../../../../shared/core/AppError";
+import { Either, left, Result, right } from "../../../../../shared/core/Result";
+import { UseCase } from "../../../../../shared/core/UseCase";
+import { IDebtRepo } from "../../../repos/DebtsRepo";
+import { DeleteDTO } from "./DeleteDTO";
+import { DeleteErrors } from "./DeleteErrors";
+
+type Response = Either<
+    DeleteErrors.CanNotBeDeleted |
+    DeleteErrors.NotFound |
+    AppError.UnexpectedError |
+    Result<any>,
+    Result<void>
+>
+
+
+export class DeleteUseCase implements UseCase<DeleteDTO, Promise<Response>> {
+    private repo: IDebtRepo;
+
+    constructor(repo: IDebtRepo) {
+        this.repo = repo;
+    }
+    async execute(request: DeleteDTO): Promise<Response> {
+
+        try {
+            const creditCard = await this.repo.getById(request.id.toString(), request.userId.toString());
+
+            if (!creditCard) {
+                return left(
+                    new DeleteErrors.NotFound(request.id.toString())
+                ) as Response;
+            }
+
+            await this.repo.delete(request.id.toString());
+            return right(Result.ok<void>()) as Response;
+
+        } catch (err) {
+            return left(new AppError.UnexpectedError(err)) as Response;
+        }
+    }
+
+}
