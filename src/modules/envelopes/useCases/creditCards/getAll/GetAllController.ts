@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { BaseController } from "../../../../../shared/infra/http/models/BaseController";
 import { GetAllUseCase } from "./GetAllUseCase";
-import { GetAllDTOResponse } from "./GetAllDTO";
+import { GetAllDTO } from "./GetAllDTO";
 import { DecodedExpressRequest } from "../../../../users/infra/http/models/decodedRequest";
 
 export class GetAllController extends BaseController {
@@ -26,8 +26,8 @@ export class GetAllController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: GetAllDTOResponse = result.value.getValue() as GetAllDTOResponse;
-                return this.ok<GetAllDTOResponse>(res, dto);
+                const dto: GetAllDTO = result.value.getValue() as GetAllDTO;
+                return this.ok<GetAllDTO>(res, dto);
             }
 
         } catch (err) {
