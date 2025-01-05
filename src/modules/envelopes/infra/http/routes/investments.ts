@@ -5,7 +5,7 @@ import { deleteInvestmentsController } from '../../../useCases/investments/delet
 import { getInvestmentByIdController } from '../../../useCases/investments/getById';
 import { getAllInvestmentsController } from '../../../useCases/investments/getAll';
 import { updatedInvestmentsController } from '../../../useCases/investments/update';
-const investments = express.Router();
+const investmentsRouter = express.Router();
 
 /**
  * @swagger
@@ -21,7 +21,7 @@ const investments = express.Router();
  *       401:
  *         description: Unauthorized
   */
-investments.get('/',
+investmentsRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => getAllInvestmentsController.execute(req, res)
 );
@@ -88,7 +88,7 @@ investments.get('/',
  *         description: Unauthorized
  */
 
-investments.post('/',
+investmentsRouter.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => createdInvestmensController.execute(req, res)
 )
@@ -115,7 +115,7 @@ investments.post('/',
  *       404:
  *         description: Investment not found
  */
-investments.delete(
+investmentsRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => deleteInvestmentsController.execute(req, res)
@@ -180,7 +180,7 @@ investments.delete(
  *         description: Investment not found
  */
 
-investments.patch(
+investmentsRouter.patch(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => updatedInvestmentsController.execute(req, res)
@@ -216,7 +216,7 @@ investments.patch(
  *       404:
  *         description: Investment not found
  */
-investments.get(
+investmentsRouter.get(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => getInvestmentByIdController.execute(req, res)
@@ -224,4 +224,4 @@ investments.get(
 
 
 
-export { investments };
+export { investmentsRouter };

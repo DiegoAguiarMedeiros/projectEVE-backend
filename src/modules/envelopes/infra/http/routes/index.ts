@@ -1,11 +1,13 @@
 import { envelopeRouter } from "./envelope";
-import { creditCard } from "./creditCard";
-import { debt } from "./debt";
-import { investments } from "./investments";
+import { creditCardsRouter } from "./creditCard";
+import { debtsRouter } from "./debt";
+import { investmentsRouter } from "./investments";
+import { incomesRouter } from "./income";
 
 export {
   envelopeRouter,
-  creditCard,
-  debt,
-  investments
+  creditCardsRouter,
+  debtsRouter,
+  investmentsRouter,
+  incomesRouter
 }

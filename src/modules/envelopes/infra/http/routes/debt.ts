@@ -5,7 +5,7 @@ import { deleteDebtController } from '../../../useCases/debts/delete';
 import { getDebtByIdController } from '../../../useCases/debts/getById';
 import { getAllDebtController } from '../../../useCases/debts/getAll';
 import { updatedDebtController } from '../../../useCases/debts/update';
-const debt = express.Router();
+const debtsRouter = express.Router();
 
 /**
  * @swagger
@@ -23,7 +23,7 @@ const debt = express.Router();
  *       404:
  *         description: Debt not found
   */
-debt.get('/',
+debtsRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => getAllDebtController.execute(req, res)
 );
@@ -89,7 +89,7 @@ debt.get('/',
  *         description: Unauthorized
  */
 
-debt.post('/',
+debtsRouter.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => createDebtController.execute(req, res)
 )
@@ -116,7 +116,7 @@ debt.post('/',
  *       404:
  *         description: Debt not found
  */
-debt.delete(
+debtsRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => deleteDebtController.execute(req, res)
@@ -180,7 +180,7 @@ debt.delete(
  *         description: Debt not found
  */
 
-debt.patch(
+debtsRouter.patch(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => updatedDebtController.execute(req, res)
@@ -216,7 +216,7 @@ debt.patch(
  *       404:
  *         description: Debt not found
  */
-debt.get(
+debtsRouter.get(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => getDebtByIdController.execute(req, res)
@@ -224,4 +224,4 @@ debt.get(
 
 
 
-export { debt };
+export { debtsRouter };

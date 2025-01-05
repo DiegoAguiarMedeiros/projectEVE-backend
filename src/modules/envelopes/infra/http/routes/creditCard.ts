@@ -6,7 +6,7 @@ import { getCreditCardByIdController } from '../../../useCases/creditCards/getBy
 import { updateEnvelopeNameController } from '../../../useCases/envelopes/updateName';
 import { getAllCreditCardsController } from '../../../useCases/creditCards/getAll';
 import { updateCreditCardController } from '../../../useCases/creditCards/update';
-const creditCard = express.Router();
+const creditCardsRouter = express.Router();
 
 /**
  * @swagger
@@ -24,7 +24,7 @@ const creditCard = express.Router();
  *       404:
  *         description: Credit Card not found
   */
-creditCard.get('/',
+creditCardsRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => getAllCreditCardsController.execute(req, res)
 );
@@ -64,7 +64,7 @@ creditCard.get('/',
  *         description: Unauthorized
  */
 
-creditCard.post('/',
+creditCardsRouter.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => createCreditCardController.execute(req, res)
 )
@@ -91,7 +91,7 @@ creditCard.post('/',
  *       404:
  *         description: Credit Card not found
  */
-creditCard.delete(
+creditCardsRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => deleteCreditCardController.execute(req, res)
@@ -140,7 +140,7 @@ creditCard.delete(
  *         description: Credit Card not found
  */
 
-creditCard.patch(
+creditCardsRouter.patch(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => updateCreditCardController.execute(req, res)
@@ -176,7 +176,7 @@ creditCard.patch(
  *       404:
  *         description: Credit Card not found
  */
-creditCard.get(
+creditCardsRouter.get(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => getCreditCardByIdController.execute(req, res)
@@ -184,4 +184,4 @@ creditCard.get(
 
 
 
-export { creditCard };
+export { creditCardsRouter };
