@@ -65,7 +65,7 @@ Debts.init({
         allowNull: false
     },
     status: {
-        type: DataTypes.ENUM('Pending', 'Paid', 'Overdue'),
+        type: DataTypes.ENUM('Pending', 'paid', 'overdue'),
         allowNull: false,
         defaultValue: 'Pending'
     }

@@ -80,12 +80,12 @@ export class Debt {
       return Result.fail<Debt>('Debt :' + guardResult.getErrorValue());
     }
 
-    const casereditCard = new Debt(
+    const debt = new Debt(
       {
         ...props
       }
     );
 
-    return Result.ok<Debt>(casereditCard);
+    return Result.ok<Debt>(debt);
   }
 }

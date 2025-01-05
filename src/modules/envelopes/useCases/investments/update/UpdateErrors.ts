@@ -7,7 +7,7 @@ export namespace UpdateErrors {
     export class AlreadyExist extends Result<UseCaseError> {
         constructor(name: string) {
             super(false, {
-                message: `Debt name: ${name} Already exist!`
+                message: `Investment name: ${name} Already exist!`
             } as UseCaseError)
         }
     }
@@ -21,14 +21,14 @@ export namespace UpdateErrors {
     export class NotFound extends Result<UseCaseError> {
         constructor(id: string) {
             super(false, {
-                message: `Debt id: ${id} was not found!`
+                message: `Investment id: ${id} was not found!`
             } as UseCaseError)
         }
     }
     export class CanNotBeChanged extends Result<UseCaseError> {
         constructor(id: string) {
             super(false, {
-                message: `Debt id: ${id} can not be Changed!`
+                message: `Investment id: ${id} can not be Changed!`
             } as UseCaseError)
         }
     }

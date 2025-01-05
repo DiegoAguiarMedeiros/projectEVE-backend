@@ -79,9 +79,9 @@ debt.get('/',
  *                 type: string
  *                 description: Debt Status
  *                 enum:
- *                   - Pending
- *                   - Paid
- *                   - Overdue
+ *                   - pending
+ *                   - paid
+ *                   - overdue
  *     responses:
  *       200:
  *         description: Debt created successfully
@@ -168,9 +168,9 @@ debt.delete(
  *                 type: string
  *                 description: Debt Status
  *                 enum:
- *                   - Pending
- *                   - Paid
- *                   - Overdue
+ *                   - pending
+ *                   - paid
+ *                   - overdue
  *     responses:
  *       200:
  *         description: Debt updated successfully

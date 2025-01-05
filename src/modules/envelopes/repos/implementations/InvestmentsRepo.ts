@@ -1,10 +1,11 @@
 import { CreditCard } from "../../domain/creditCard";
 import { Debt } from "../../domain/debt";
+import { Investments } from "../../domain/investments";
 import { CreditCardMap } from "../../mappers/creditCardMap";
-import { DebtMap } from "../../mappers/debtMap";
-import { IDebtRepo } from "../DebtsRepo";
+import { InvestmentsMap } from "../../mappers/investmentMap";
+import { IInvestmentsRepo } from "../InvestmentsRepo";
 
-export class DebtRepo implements IDebtRepo {
+export class InvestmentsRepo implements IInvestmentsRepo {
 
     private models: any;
 
@@ -12,11 +13,11 @@ export class DebtRepo implements IDebtRepo {
         this.models = models;
     }
 
-    async update(id: string, userId: string, debt: Debt): Promise<boolean> {
-        const debtModel = this.models.Debts;
-        const rawDebt = await DebtMap.toPersistence(debt);
+    async update(id: string, userId: string, investment: Investments): Promise<boolean> {
+        const model = this.models.Investments;
+        const rawDebt = await InvestmentsMap.toPersistence(investment);
         // Atualiza o nome onde o id e o userId correspondem
-        const [updatedRows] = await debtModel.update(
+        const [updatedRows] = await model.update(
             rawDebt, // Campos a serem atualizados
             {
                 where: {
@@ -30,9 +31,9 @@ export class DebtRepo implements IDebtRepo {
         }
         return true;
     }
-    async getAll(id: string): Promise<Debt[]> {
-        const debtModel = this.models.Debts;
-        return await debtModel.findAll({
+    async getAll(id: string): Promise<Investments[]> {
+        const model = this.models.Investments;
+        return await model.findAll({
             where: {
                 user_id: id,
             },
@@ -40,8 +41,8 @@ export class DebtRepo implements IDebtRepo {
     }
 
     async getById(id: string, userId: string): Promise<Debt | null> {
-        const debtModel = this.models.Debts;
-        const debt = await debtModel.findOne({
+        const model = this.models.Investments;
+        const debt = await model.findOne({
             where: {
                 id,
                 user_id: userId,
@@ -51,15 +52,15 @@ export class DebtRepo implements IDebtRepo {
         return debt ?? null;
     }
 
-    async save(debt: Debt): Promise<void> {
-        const debtModel = this.models.Debts;
-        const rawDebt = await DebtMap.toPersistence(debt);
-        await debtModel.create(rawDebt);
+    async save(investment: Investments): Promise<void> {
+        const model = this.models.Investments;
+        const rawDebt = await InvestmentsMap.toPersistence(investment);
+        await model.create(rawDebt);
     }
 
     async delete(id: string): Promise<void> {
-        const debtModel = this.models.Debts;
-        await debtModel.destroy({
+        const model = this.models.Investments;
+        await model.destroy({
             where: {
                 id,
             },
