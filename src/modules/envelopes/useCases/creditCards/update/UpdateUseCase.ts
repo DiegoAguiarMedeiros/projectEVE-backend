@@ -7,24 +7,16 @@ import { Name } from "../../../domain/name";
 import { ICreditCardRepo } from "../../../repos/CreditCardRepo";
 import { UpdateDTO } from "./UpdateDTO";
 import { UpdateErrors } from "./UpdateErrors";
+import { UpdateResponse } from "./UpdateResponse";
 
-type Response = Either<
-    UpdateErrors.UpdateError |
-    UpdateErrors.CanNotBeChanged |
-    UpdateErrors.NotFound |
-    UpdateErrors.AlreadyExist |
-    AppError.UnexpectedError |
-    Result<any>,
-    Result<void>
->
 
-export class UpdateUseCase implements UseCase<UpdateDTO, Promise<Response>> {
+export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: ICreditCardRepo;
 
     constructor(repo: ICreditCardRepo) {
         this.repo = repo;
     }
-    async execute(request: UpdateDTO): Promise<Promise<Response>> {
+    async execute(request: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
 
             const nameOrError = Name.create({ name: request.name });
@@ -35,7 +27,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<Response>> {
             ]);
 
             if (dtoResult.isFailure) {
-                return left(Result.fail<void>(dtoResult.getErrorValue())) as Response;
+                return left(Result.fail<void>(dtoResult.getErrorValue())) as UpdateResponse;
             }
 
 
@@ -47,26 +39,26 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<Response>> {
             if (checkname) {
                 return left(
                     new UpdateErrors.AlreadyExist(name.value)
-                ) as Response;
+                ) as UpdateResponse;
             }
             const creditCard = await this.repo.getById(request.id.toString(), request.userId.toString());
             if (!creditCard) {
                 return left(
                     new UpdateErrors.NotFound(request.id.toString())
-                ) as Response;
+                ) as UpdateResponse;
             }
 
 
             const updateCreditCard = await this.repo.update(request.id.toString(), request.userId.toString(), name.value, flag.value);
-            if (updateCreditCard) return right(Result.ok<void>()) as Response;
+            if (updateCreditCard) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(
                 new UpdateErrors.UpdateError(request.id.toString())
-            ) as Response;
+            ) as UpdateResponse;
 
 
         } catch (err) {
-            return left(new AppError.UnexpectedError(err)) as Response;
+            return left(new AppError.UnexpectedError(err)) as UpdateResponse;
         }
     }
 

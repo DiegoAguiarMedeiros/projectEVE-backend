@@ -4,23 +4,17 @@ import { UseCase } from "../../../../../shared/core/UseCase";
 import { IDebtRepo } from "../../../repos/DebtsRepo";
 import { DeleteDTO } from "./DeleteDTO";
 import { DeleteErrors } from "./DeleteErrors";
-
-type Response = Either<
-    DeleteErrors.CanNotBeDeleted |
-    DeleteErrors.NotFound |
-    AppError.UnexpectedError |
-    Result<any>,
-    Result<void>
->
+import { DeleteResponse } from "./DeleteResponse";
 
 
-export class DeleteUseCase implements UseCase<DeleteDTO, Promise<Response>> {
+
+export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>> {
     private repo: IDebtRepo;
 
     constructor(repo: IDebtRepo) {
         this.repo = repo;
     }
-    async execute(request: DeleteDTO): Promise<Response> {
+    async execute(request: DeleteDTO): Promise<DeleteResponse> {
 
         try {
             const creditCard = await this.repo.getById(request.id.toString(), request.userId.toString());
@@ -28,14 +22,14 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<Response>> {
             if (!creditCard) {
                 return left(
                     new DeleteErrors.NotFound(request.id.toString())
-                ) as Response;
+                ) as DeleteResponse;
             }
 
             await this.repo.delete(request.id.toString());
-            return right(Result.ok<void>()) as Response;
+            return right(Result.ok<void>()) as DeleteResponse;
 
         } catch (err) {
-            return left(new AppError.UnexpectedError(err)) as Response;
+            return left(new AppError.UnexpectedError(err)) as DeleteResponse;
         }
     }
 

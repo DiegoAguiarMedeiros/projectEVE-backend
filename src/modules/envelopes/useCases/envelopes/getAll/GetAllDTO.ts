@@ -1,5 +1,5 @@
 import { Envelope } from "../../../domain/envelope";
 
-export interface GetAllDTOResponse {
+export interface GetAllDTO {
     envelopes: Envelope[];
 }

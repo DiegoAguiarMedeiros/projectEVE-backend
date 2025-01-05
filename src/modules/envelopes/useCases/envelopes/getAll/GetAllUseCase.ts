@@ -3,23 +3,21 @@ import { Either, Result, right } from "../../../../../shared/core/Result";
 import { UseCase } from "../../../../../shared/core/UseCase";
 import { Envelope } from "../../../domain/envelope";
 import { IEnvelopeRepo } from "../../../repos/EnvelopeRepo";
-import { GetAllDTOResponse } from "./GetAllDTO";
+import { GetAllDTO } from "./GetAllDTO";
+import { GetAllResponse } from "./GetAllResponse";
 
-type Response = Either<
-    AppError.UnexpectedError,
-    Result<GetAllDTOResponse>
->
 
-export class GetAllUseCase implements UseCase<string, Promise<Response>> {
+
+export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
     private envelopeRepo: IEnvelopeRepo;
 
     constructor(envelopeRepo: IEnvelopeRepo) {
         this.envelopeRepo = envelopeRepo;
     }
-    async execute(id: string): Promise<Response> {
+    async execute(id: string): Promise<GetAllResponse> {
         const envelopes = await this.envelopeRepo.getAll(id);
 
-        return right(Result.ok<GetAllDTOResponse>({
+        return right(Result.ok<GetAllDTO>({
             envelopes
         }));
     }

@@ -1,7 +1,7 @@
 import { UniqueEntityID } from "../../../../../shared/domain/UniqueEntityID";
 import { Envelope } from "../../../domain/envelope";
 
-export interface GetByIdDTOResponse {
+export interface GetByIdDTO {
     envelope: Envelope;
 }
 export interface GetByIdDTOResquest {

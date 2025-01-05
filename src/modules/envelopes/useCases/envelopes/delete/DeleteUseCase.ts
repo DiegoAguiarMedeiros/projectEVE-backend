@@ -4,23 +4,18 @@ import { UseCase } from "../../../../../shared/core/UseCase";
 import { IEnvelopeRepo } from "../../../repos/EnvelopeRepo";
 import { DeleteDTO } from "./DeleteDTO";
 import { DeleteErrors } from "./DeleteErrors";
-
-type Response = Either<
-    DeleteErrors.CanNotBeDeleted |
-    DeleteErrors.NotFound |
-    AppError.UnexpectedError |
-    Result<any>,
-    Result<void>
->
+import { DeleteResponse } from "./DeleteResponse";
 
 
-export class DeleteUseCase implements UseCase<DeleteDTO, Promise<Response>> {
+
+
+export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>> {
     private repo: IEnvelopeRepo;
 
     constructor(repo: IEnvelopeRepo) {
         this.repo = repo;
     }
-    async execute(request: DeleteDTO): Promise<Response> {
+    async execute(request: DeleteDTO): Promise<DeleteResponse> {
 
         try {
 
@@ -29,20 +24,20 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<Response>> {
             if (!envelope) {
                 return left(
                     new DeleteErrors.NotFound(request.id.toString())
-                ) as Response;
+                ) as DeleteResponse;
             }
 
             if (envelope.is_editable) {
                 await this.repo.delete(envelope.id.value);
-                return right(Result.ok<void>()) as Response;
+                return right(Result.ok<void>()) as DeleteResponse;
             }
 
             return left(
                 new DeleteErrors.CanNotBeDeleted(request.id.toString())
-            ) as Response;
+            ) as DeleteResponse;
 
         } catch (err) {
-            return left(new AppError.UnexpectedError(err)) as Response;
+            return left(new AppError.UnexpectedError(err)) as DeleteResponse;
         }
     }
 

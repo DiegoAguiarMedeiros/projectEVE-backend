@@ -1,5 +1,5 @@
 import { Debt } from "../../../domain/debt";
 
-export interface GetAllDTOResponse {
+export interface GetAllDTO {
     debts: Debt[];
 }

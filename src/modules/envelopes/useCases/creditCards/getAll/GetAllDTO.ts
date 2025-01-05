@@ -1,5 +1,5 @@
 import { CreditCard } from "../../../domain/creditCard";
 
-export interface GetAllDTOResponse {
+export interface GetAllDTO {
     creditCards: CreditCard[];
 }

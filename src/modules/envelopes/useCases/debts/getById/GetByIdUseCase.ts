@@ -5,25 +5,21 @@ import { AppError } from "../../../../../shared/core/AppError";
 import { GetByIdDTOResponse, GetByIdDTOResquest } from "./GetByIdDTO";
 import { GetByIdErrors } from "./GetByIdErrors";
 import { Debt } from "../../../domain/debt";
-
-type Response = Either<
-    AppError.UnexpectedError,
-    Result<Debt>
->
+import { GetByIdResponse } from "./GetByIdResponse";
 
 
-export class GetByIdUseCase implements UseCase<GetByIdDTOResquest, Promise<Response>> {
+export class GetByIdUseCase implements UseCase<GetByIdDTOResquest, Promise<GetByIdResponse>> {
     private repo: IDebtRepo;
     constructor(repo: IDebtRepo) {
         this.repo = repo;
     }
-    async execute(request: GetByIdDTOResquest): Promise<Response> {
+    async execute(request: GetByIdDTOResquest): Promise<GetByIdResponse> {
         const debt = await this.repo.getById(request.Id.toString(), request.userId.toString());
 
         if (!debt) {
             return left(
                 new GetByIdErrors.NotFound(request.Id.toString())
-            ) as Response;
+            ) as GetByIdResponse;
         }
 
 

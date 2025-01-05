@@ -12,34 +12,25 @@ import { Flags } from "../../../domain/flags";
 import { Name } from "../../../domain/name";
 import { DebtMap } from "../../../mappers/debtMap";
 import { IDebtRepo } from "../../../repos/DebtsRepo";
-import { CreateResponse } from "../create/CreateResponse";
 import { UpdateDTO } from "./UpdateDTO";
 import { UpdateErrors } from "./UpdateErrors";
+import { UpdateResponse } from "./UpdateResponse";
 
-type Response = Either<
-    UpdateErrors.UpdateError |
-    UpdateErrors.CanNotBeChanged |
-    UpdateErrors.NotFound |
-    UpdateErrors.AlreadyExist |
-    AppError.UnexpectedError |
-    Result<any>,
-    Result<void>
->
 
-export class UpdateUseCase implements UseCase<UpdateDTO, Promise<Response>> {
+export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: IDebtRepo;
 
     constructor(repo: IDebtRepo) {
         this.repo = repo;
     }
-    async execute(request: UpdateDTO): Promise<Promise<Response>> {
+    async execute(request: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
 
             const debt = DebtMap.toDomain(await this.repo.getById(request.id.toString(), request.userId.toString()));
             if (!debt) {
                 return left(
                     new UpdateErrors.NotFound(request.id.toString())
-                ) as Response;
+                ) as UpdateResponse;
             }
 
             const DescriptionOrError = Description.create({ description: request.description ? request.description : debt.description.value });
@@ -71,7 +62,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<Response>> {
             ]);
 
             if (dtoResult.isFailure) {
-                return left(Result.fail<void>(dtoResult.getErrorValue())) as Response;
+                return left(Result.fail<void>(dtoResult.getErrorValue())) as UpdateResponse;
             }
 
             const id: Id = IdOrError.getValue();
@@ -101,20 +92,20 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<Response>> {
             if (debtOrError.isFailure) {
                 return left(
                     Result.fail<Debt>(debtOrError.getErrorValue().toString())
-                ) as CreateResponse;
+                ) as UpdateResponse;
             }
             const newDebt: Debt = debtOrError.getValue();
 
             const updateDebt = await this.repo.update(request.id.toString(), request.userId.toString(), newDebt);
-            if (updateDebt) return right(Result.ok<void>()) as Response;
+            if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(
                 new UpdateErrors.UpdateError(request.id.toString())
-            ) as Response;
+            ) as UpdateResponse;
 
 
         } catch (err) {
-            return left(new AppError.UnexpectedError(err)) as Response;
+            return left(new AppError.UnexpectedError(err)) as UpdateResponse;
         }
     }
 
