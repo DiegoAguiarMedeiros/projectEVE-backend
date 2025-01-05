@@ -31,7 +31,7 @@ creditCard.get('/',
 
 /**
  * @swagger
- * /credit-cards/create:
+ * /credit-cards:
  *   post:
  *     summary: Create Credit Card
  *     tags: [Credit Cards]
@@ -64,7 +64,7 @@ creditCard.get('/',
  *         description: Unauthorized
  */
 
-creditCard.post('/create',
+creditCard.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => createCreditCardController.execute(req, res)
 )

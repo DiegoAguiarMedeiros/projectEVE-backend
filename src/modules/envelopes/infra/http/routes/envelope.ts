@@ -30,7 +30,7 @@ envelopeRouter.get('/',
 
 /**
  * @swagger
- * /envelopes/create:
+ * /envelopes:
  *   post:
  *     summary: Create Envelope
  *     tags: [Envelopes]
@@ -49,7 +49,7 @@ envelopeRouter.get('/',
  *       401:
  *         description: Unauthorized
  */
-envelopeRouter.post('/create',
+envelopeRouter.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => createEnvelopeController.execute(req, res)
 )

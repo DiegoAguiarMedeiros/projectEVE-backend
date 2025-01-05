@@ -42,7 +42,7 @@ debt.get('/',
 
 /**
  * @swagger
- * /debts/create:
+ * /debts:
  *   post:
  *     summary: Create Debt
  *     tags: [Debts]
@@ -89,7 +89,7 @@ debt.get('/',
  *         description: Unauthorized
  */
 
-debt.post('/create',
+debt.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => createDebtController.execute(req, res)
 )

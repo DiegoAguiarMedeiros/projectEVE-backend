@@ -40,7 +40,7 @@ investments.get('/',
 
 /**
  * @swagger
- * /investments/create:
+ * /investments:
  *   post:
  *     summary: Create Investment
  *     tags: [Investments]
@@ -88,7 +88,7 @@ investments.get('/',
  *         description: Unauthorized
  */
 
-investments.post('/create',
+investments.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => createdInvestmensController.execute(req, res)
 )
