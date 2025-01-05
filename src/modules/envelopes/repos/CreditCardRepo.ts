@@ -6,6 +6,6 @@ export interface ICreditCardRepo {
   save(creditCard: CreditCard): Promise<void>;
   getById(id: string, userId: string): Promise<CreditCard | null>;
   checkName(name: string, userId: string): Promise<boolean>;
-  update(id: string, userId: string, name: string, flag: string): Promise<boolean>;
+  update(id: string, userId: string, creditCard: CreditCard): Promise<boolean>;
   delete(id: string): Promise<void>
 }

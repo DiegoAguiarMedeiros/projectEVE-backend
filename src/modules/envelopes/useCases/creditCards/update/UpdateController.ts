@@ -19,10 +19,9 @@ export class UpdateController extends BaseController {
         let params: any = req.params;
         const { id } = req.decoded;
         dto = {
+            ...dto,
             id: new UniqueEntityID(params.id),
             userId: new UniqueEntityID(id),
-            name: TextUtils.sanitize(dto.name),
-            flag: TextUtils.sanitize(dto.flag),
         }
 
         try {

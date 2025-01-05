@@ -35,28 +35,51 @@ export class Debt {
   get creditCardId(): Id {
     return this.props.creditCardId;
   }
+  public updateCreditCardId(creditCardId: Id): void {
+    this.props.creditCardId = creditCardId;
+  }
   get envelopeId(): Id {
     return this.props.envelopeId;
+  }
+  public updateEnvelopeId(envelopeId: Id): void {
+    this.props.envelopeId = envelopeId;
   }
   get description(): Description {
     return this.props.description;
   }
+  public updateDescription(description: Description): void {
+    this.props.description = description;
+  }
   get amount(): Balance {
     return this.props.amount;
+  }
+  public updateAmount(amount: Balance): void {
+    this.props.amount = amount;
   }
   get installments_total(): Balance {
     return this.props.installments_total;
   }
+  public updateInstallmentsTotal(installments_total: Balance): void {
+    this.props.installments_total = installments_total;
+  }
   get installments_paid(): Balance {
     return this.props.installments_paid;
+  }
+  public updateInstallmentsPaid(installments_paid: Balance): void {
+    this.props.installments_paid = installments_paid;
   }
   get dueDate(): Date {
     return this.props.dueDate;
   }
+  public updateDueDate(dueDate: Date): void {
+    this.props.dueDate = dueDate;
+  }
   get status(): DebtsStatus {
     return this.props.status;
   }
-
+  public updateStatus(status: DebtsStatus): void {
+    this.props.status = status;
+  }
 
   private constructor(props: DebtProps) {
     this.props = props;

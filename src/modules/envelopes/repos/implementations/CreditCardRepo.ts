@@ -20,12 +20,12 @@ export class CreditCardRepo implements ICreditCardRepo {
         });
         return !!creditCard;
     }
-    async update(id: string, userId: string, name: string, flag: string): Promise<boolean> {
+    async update(id: string, userId: string, creditCard: CreditCard): Promise<boolean> {
         const creditCardModel = this.models.CreditCards;
 
         // Atualiza o nome onde o id e o userId correspondem
         const [updatedRows] = await creditCardModel.update(
-            { name, flag }, // Campos a serem atualizados
+            creditCard, // Campos a serem atualizados
             {
                 where: {
                     id,

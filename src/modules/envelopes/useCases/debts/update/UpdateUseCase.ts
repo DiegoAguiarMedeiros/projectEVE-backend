@@ -45,12 +45,6 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const InstallmentsPaidOrError = Balance.create({ balance: request.installments_paid ? request.installments_paid : debt.installments_paid.value });
             InstallmentsPaidOrError.isFailure ? console.error(InstallmentsPaidOrError.getErrorValue()) : '';
 
-            const UserIdOrError = Id.create(request.userId);
-            UserIdOrError.isFailure ? console.error(UserIdOrError.getErrorValue()) : '';
-
-            const IdOrError = Id.create(request.id);
-            IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
-
             const CreditCardIdOrError = Id.create(new UniqueEntityID(request.creditCardId ? request.creditCardId : debt.creditCardId.value));
             CreditCardIdOrError.isFailure ? console.error(CreditCardIdOrError.getErrorValue()) : '';
 
@@ -58,15 +52,13 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             EvelopeIdOrError.isFailure ? console.error(EvelopeIdOrError.getErrorValue()) : '';
 
             const dtoResult = Result.combine([
-                DescriptionOrError, AmountOrError, UserIdOrError, IdOrError, CreditCardIdOrError, EvelopeIdOrError, InstallmentsTotalOrError, InstallmentsPaidOrError
+                DescriptionOrError, AmountOrError, CreditCardIdOrError, EvelopeIdOrError, InstallmentsTotalOrError, InstallmentsPaidOrError
             ]);
 
             if (dtoResult.isFailure) {
                 return left(Result.fail<void>(dtoResult.getErrorValue())) as UpdateResponse;
             }
 
-            const id: Id = IdOrError.getValue();
-            const userId: Id = UserIdOrError.getValue();
             const creditCardId: Id = CreditCardIdOrError.getValue();
             const envelopeId: Id = EvelopeIdOrError.getValue();
             const description: Description = DescriptionOrError.getValue();
@@ -76,27 +68,22 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const dueDate: Date = request.dueDate ? request.dueDate : debt.dueDate;
             const status: DebtsStatus = request.status ? request.status : debt.status;
 
-            const debtOrError: Result<Debt> = Debt.create({
-                id,
-                userId,
-                creditCardId,
-                envelopeId,
-                description,
-                amount,
-                installments_total,
-                installments_paid,
-                dueDate,
-                status,
-            });
 
-            if (debtOrError.isFailure) {
-                return left(
-                    Result.fail<Debt>(debtOrError.getErrorValue().toString())
-                ) as UpdateResponse;
-            }
-            const newDebt: Debt = debtOrError.getValue();
 
-            const updateDebt = await this.repo.update(request.id.toString(), request.userId.toString(), newDebt);
+
+            if (request.creditCardId) debt.updateCreditCardId(creditCardId)
+            if (request.envelopeId) debt.updateEnvelopeId(envelopeId)
+            if (request.description) debt.updateDescription(description)
+            if (request.amount) debt.updateAmount(amount)
+            if (request.installments_total) debt.updateInstallmentsTotal(installments_total)
+            if (request.installments_paid) debt.updateInstallmentsPaid(installments_paid)
+            if (request.dueDate) debt.updateDueDate(dueDate)
+            if (request.status) debt.updateStatus(status)
+
+            request.creditCardId ? request.creditCardId : debt.creditCardId.value
+
+
+            const updateDebt = await this.repo.update(request.id.toString(), request.userId.toString(), debt);
             if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(

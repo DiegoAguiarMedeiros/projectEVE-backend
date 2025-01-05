@@ -24,11 +24,17 @@ export class CreditCard {
   get flag(): Flag {
     return this.props.flag;
   }
+  public updateFlag(flag: Flag): void {
+    this.props.flag = flag;
+  }
   get active(): boolean {
     return this.props.active;
   }
   get name(): Name {
     return this.props.name;
+  }
+  public updateName(name: Name): void {
+    this.props.name = name;
   }
   get userId(): Id {
     return this.props.userId;

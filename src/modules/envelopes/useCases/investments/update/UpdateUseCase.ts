@@ -34,6 +34,14 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const AmountOrError = Balance.create({ balance: request.amount ? request.amount : investment.amount.value });
             AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
 
+            const dtoResult = Result.combine([
+                DescriptionOrError, AmountOrError,
+            ]);
+
+            if (dtoResult.isFailure) {
+                return left(Result.fail<void>(dtoResult.getErrorValue())) as UpdateResponse;
+            }
+
             if (!investment) {
                 return left(
                     new UpdateErrors.NotFound(request.id.toString())
