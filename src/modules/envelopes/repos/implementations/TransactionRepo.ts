@@ -1,11 +1,11 @@
 import { Op, Sequelize } from "sequelize";
 import { CreditCard } from "../../domain/creditCard";
-import { Debt } from "../../domain/debt";
+import { Transaction } from "../../domain/transaction";
 import { CreditCardMap } from "../../mappers/creditCardMap";
-import { DebtMap } from "../../mappers/debtMap";
-import { IDebtRepo } from "../DebtsRepo";
+import { ITransactionRepo } from "../TransactionsRepo";
+import { TransactionMap } from "../../mappers/transactionMap";
 
-export class DebtRepo implements IDebtRepo {
+export class TransactionRepo implements ITransactionRepo {
 
     private models: any;
 
@@ -13,12 +13,11 @@ export class DebtRepo implements IDebtRepo {
         this.models = models;
     }
 
-    async update(id: string, userId: string, debt: Debt): Promise<boolean> {
-        const debtModel = this.models.Debts;
-        const rawDebt = await DebtMap.toPersistence(debt);
-        // Atualiza o nome onde o id e o userId correspondem
-        const [updatedRows] = await debtModel.update(
-            rawDebt, // Campos a serem atualizados
+    async update(id: string, userId: string, transaction: Transaction): Promise<boolean> {
+        const model = this.models.Transactions;
+        const rawDebt = await TransactionMap.toPersistence(transaction);
+        const [updatedRows] = await model.update(
+            {...rawDebt,credit_card_id: rawDebt.credit_card_id === undefined ? null : rawDebt.credit_card_id},
             {
                 where: {
                     id,
@@ -28,16 +27,16 @@ export class DebtRepo implements IDebtRepo {
                       )`),
                     },
                   },
-            }
+            },
         );
         if (updatedRows === 0) {
             return false;
         }
         return true;
     }
-    async getAll(id: string): Promise<Debt[]> {
-        const debtModel = this.models.Debts;
-        return await debtModel.findAll({
+    async getAll(id: string): Promise<Transaction[]> {
+        const model = this.models.Transactions;
+        return await model.findAll({
             where: {
                 envelope_id: {
                   [Op.in]: Sequelize.literal(`(
@@ -48,9 +47,9 @@ export class DebtRepo implements IDebtRepo {
         });
     }
 
-    async getById(id: string, userId: string): Promise<Debt | null> {
-        const debtModel = this.models.Debts;
-        const debt = await debtModel.findOne({
+    async getById(id: string, userId: string): Promise<Transaction | null> {
+        const model = this.models.Transactions;
+        const debt = await model.findOne({
             where: {
                 id,
                 envelope_id: {
@@ -64,15 +63,15 @@ export class DebtRepo implements IDebtRepo {
         return debt ?? null;
     }
 
-    async save(debt: Debt): Promise<void> {
-        const debtModel = this.models.Debts;
-        const rawDebt = await DebtMap.toPersistence(debt);
-        await debtModel.create(rawDebt);
+    async save(transaction: Transaction): Promise<void> {
+        const model = this.models.Transactions;
+        const rawDebt = await TransactionMap.toPersistence(transaction);
+        await model.create(rawDebt);
     }
 
     async delete(id: string): Promise<void> {
-        const debtModel = this.models.Debts;
-        await debtModel.destroy({
+        const model = this.models.Transactions;
+        await model.destroy({
             where: {
                 id,
             },

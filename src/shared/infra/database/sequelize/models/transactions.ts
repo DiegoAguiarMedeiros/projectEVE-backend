@@ -37,17 +37,22 @@ Transactions.init({
         type: DataTypes.STRING(255),
         allowNull: false
     },
-    transaction_amount: {
+    amount: {
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
-    transaction_date: {
+    date: {
         type: DataTypes.DATEONLY,
         allowNull: false
     },
     payment_method: {
-        type: DataTypes.ENUM('CreditCard', 'DebitCard', 'Cash', 'BankTransfer'),
+        type: DataTypes.ENUM('CreditCard', 'DebitCard', 'Cash', 'BankTransfer','Pix'),
         allowNull: false
+    },
+    type: {
+        type: DataTypes.ENUM('Credit', 'Debit'),
+        allowNull: false,
+        defaultValue: 'Debit'
     },
     status: {
         type: DataTypes.ENUM('Pending', 'Completed'),
