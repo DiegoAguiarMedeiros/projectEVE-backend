@@ -3,6 +3,7 @@ import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
 import User from './user';
 import Envelope from './baseEnvelopes';
+import Debts from './debts';
 
 class Envelopes extends Model { }
 

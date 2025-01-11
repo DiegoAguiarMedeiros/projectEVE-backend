@@ -13,7 +13,6 @@ export class DebtMap implements Mapper<Debt> {
   public static toDTO(debt: Debt): DebtDTO {
     return {
       id: debt.id.value,
-      userId: debt.userId.value,
       creditCardId: debt.creditCardId.value,
       envelopeId: debt.envelopeId.value,
       description: debt.description.value,
@@ -38,9 +37,6 @@ export class DebtMap implements Mapper<Debt> {
     const InstallmentsPaidOrError = Balance.create({ balance: raw.installments_paid });
     InstallmentsPaidOrError.isFailure ? console.error(InstallmentsPaidOrError.getErrorValue()) : '';
 
-    const UserIdOrError = Id.create(raw.user_id);
-    UserIdOrError.isFailure ? console.error(UserIdOrError.getErrorValue()) : '';
-
     const IdOrError = Id.create(raw.id);
     IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
 
@@ -53,7 +49,6 @@ export class DebtMap implements Mapper<Debt> {
     const debtOrError = Debt.create(
       {
         id: IdOrError.getValue(),
-        userId: UserIdOrError.getValue(),
         creditCardId: CreditCardIdOrError.getValue(),
         envelopeId: EvelopeIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
@@ -74,7 +69,6 @@ export class DebtMap implements Mapper<Debt> {
 
     return {
       id: debt.id.value,
-      user_id: debt.userId.value,
       credit_card_id: debt.creditCardId.value,
       envelope_id: debt.envelopeId.value,
       description: debt.description.value,

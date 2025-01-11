@@ -6,7 +6,7 @@ const authRouter = express.Router();
 
 /**
  * @swagger
- * /auth/register:
+ * /auth:
  *   post:
  *     summary: Create a new user
  *     tags: [Auth]
@@ -29,7 +29,7 @@ const authRouter = express.Router();
  *       400:
  *         description: Bad request
  */
-authRouter.post('/register',
+authRouter.post('/',
   (req, res) => createUserController.execute(req, res)
 );
 

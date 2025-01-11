@@ -1,3 +1,4 @@
+import { Op, Sequelize } from "sequelize";
 import { CreditCard } from "../../domain/creditCard";
 import { Debt } from "../../domain/debt";
 import { CreditCardMap } from "../../mappers/creditCardMap";
@@ -20,9 +21,12 @@ export class DebtRepo implements IDebtRepo {
             rawDebt, // Campos a serem atualizados
             {
                 where: {
-                    id,
-                    user_id: userId,
-                },
+                    envelope_id: {
+                      [Op.in]: Sequelize.literal(`(
+                        SELECT id FROM "envelopes" WHERE user_id = '${userId}'
+                      )`),
+                    },
+                  },
             }
         );
         if (updatedRows === 0) {
@@ -34,8 +38,12 @@ export class DebtRepo implements IDebtRepo {
         const debtModel = this.models.Debts;
         return await debtModel.findAll({
             where: {
-                user_id: id,
-            },
+                envelope_id: {
+                  [Op.in]: Sequelize.literal(`(
+                    SELECT id FROM "envelopes" WHERE user_id = '${id}'
+                  )`),
+                },
+              },
         });
     }
 
@@ -44,7 +52,11 @@ export class DebtRepo implements IDebtRepo {
         const debt = await debtModel.findOne({
             where: {
                 id,
-                user_id: userId,
+                envelope_id: {
+                    [Op.in]: Sequelize.literal(`(
+                      SELECT id FROM "envelopes" WHERE user_id = '${userId}'
+                    )`),
+                  },
             },
             raw: true,
         });
@@ -54,6 +66,7 @@ export class DebtRepo implements IDebtRepo {
     async save(debt: Debt): Promise<void> {
         const debtModel = this.models.Debts;
         const rawDebt = await DebtMap.toPersistence(debt);
+        console.log("rawDebt", rawDebt)
         await debtModel.create(rawDebt);
     }
 

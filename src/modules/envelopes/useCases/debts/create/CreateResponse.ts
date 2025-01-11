@@ -5,6 +5,7 @@ import { AppError } from "../../../../../shared/core/AppError";
 
 export type CreateResponse = Either<
   CreateErrors.NameTakenError |
+  CreateErrors.EnvelopeNotFound |
   AppError.UnexpectedError |
   Result<any>,
   Result<void>

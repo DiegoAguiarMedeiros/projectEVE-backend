@@ -12,8 +12,6 @@ import { Name } from "../../domain/name";
 import { User } from "../../domain/user";
 import { CreateUseCase as CreateEnvelopeUseCase } from "../../../envelopes/useCases/envelopes/create/CreateUseCase";
 import { Id } from "../../../../shared/domain/Id";
-import e from "express";
-import { Envelope } from "../../../envelopes/domain/envelope";
 import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 
 type Response = Either<
@@ -80,7 +78,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<Response>> {
 
       const envelopes = await this.baseEnvelopeRepo.getAll();
       await envelopes.forEach(envelope => {
-
         this.createEnvelopeUseCase.execute({
           id: new UniqueEntityID(),
           name: envelope.name.value,

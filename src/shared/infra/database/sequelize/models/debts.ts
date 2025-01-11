@@ -13,16 +13,6 @@ Debts.init({
         allowNull: false,
         primaryKey: true
     },
-    user_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: User,
-            key: 'id'
-        },
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-    },
     credit_card_id: {
         type: DataTypes.UUID,
         allowNull: true,
@@ -35,7 +25,7 @@ Debts.init({
     },
     envelope_id: {
         type: DataTypes.UUID,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Envelopes,
             key: 'id'
@@ -74,5 +64,7 @@ Debts.init({
     modelName: 'Debts',
     tableName: 'debts',
 });
+
+
 
 export default Debts;

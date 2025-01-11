@@ -1,6 +1,7 @@
 
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
+import Envelopes from './envelopes';
 
 class User extends Model { }
 
@@ -44,5 +45,4 @@ User.init({
     modelName: 'Users',
     tableName: 'users'
 });
-
 export default User;

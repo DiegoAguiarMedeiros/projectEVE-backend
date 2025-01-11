@@ -12,5 +12,4 @@ v1Router.use('/debts', debtsRouter);
 v1Router.use('/investments', investmentsRouter);
 v1Router.use('/incomes', incomesRouter);
 // v1Router.use('/users', userRouter);
-
 export { v1Router }

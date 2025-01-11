@@ -83,11 +83,11 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             request.creditCardId ? request.creditCardId : debt.creditCardId.value
 
 
-            const updateDebt = await this.repo.update(request.id.toString(), request.userId.toString(), debt);
+            const updateDebt = await this.repo.update(debt.id.value, request.userId.toString(), debt);
             if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(
-                new UpdateErrors.UpdateError(request.id.toString())
+                new UpdateErrors.UpdateError(debt.id.value)
             ) as UpdateResponse;
 
 

@@ -58,6 +58,17 @@ export class EnvelopeRepo implements IEnvelopeRepo {
         });
         return envelope ?? null;
     }
+    async getByName(name: string, userId: string): Promise<Envelope | null> {
+        const EnvelopeModel = this.models.Envelopes;
+        const envelope = await EnvelopeModel.findOne({
+            where: {
+                name,
+                user_id: userId,
+            },
+            raw: true,
+        });
+        return envelope ?? null;
+    }
 
     async save(Envelope: Envelope): Promise<void> {
         const EnvelopeModel = this.models.Envelopes;

@@ -11,7 +11,6 @@ import { DebtsStatus } from "./debtsStatus";
 
 interface DebtProps {
   id: Id;
-  userId: Id;
   creditCardId: Id;
   envelopeId: Id;
   description: Description;
@@ -28,9 +27,6 @@ export class Debt {
 
   get id(): Id {
     return this.props.id;
-  }
-  get userId(): Id {
-    return this.props.userId;
   }
   get creditCardId(): Id {
     return this.props.creditCardId;
@@ -89,7 +85,6 @@ export class Debt {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.id, argumentName: "id" },
-      { argument: props.userId, argumentName: "userId" },
       { argument: props.envelopeId, argumentName: "envelopeId" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },

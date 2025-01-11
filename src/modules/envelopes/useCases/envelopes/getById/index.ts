@@ -5,4 +5,4 @@ import { envelopeRepo } from "../../../repos";
 const getEnvelopeByIdUseCase = new GetByIdUseCase(envelopeRepo);
 const getEnvelopeByIdController = new GetByIdController(getEnvelopeByIdUseCase);
 
-export { getEnvelopeByIdController }
+export { getEnvelopeByIdController,getEnvelopeByIdUseCase }

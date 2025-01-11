@@ -11,12 +11,17 @@ import { Debt } from "../../../domain/debt";
 import { Description } from "../../../domain/description";
 import { DebtsStatus } from "../../../domain/debtsStatus";
 import { Balance } from "../../../domain/balance";
+import { GetByIdUseCase } from "../../envelopes/getById/GetByIdUseCase";
+import { Envelope } from "../../../domain/envelope";
+import { EnvelopeMap } from "../../../mappers/envelopeMap";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private debtRepo: IDebtRepo;
+  private getEnvelopeByIdUseCase: GetByIdUseCase;
 
-  constructor(debtRepo: IDebtRepo) {
+  constructor(debtRepo: IDebtRepo,getEnvelopeByIdUseCase: GetByIdUseCase) {
     this.debtRepo = debtRepo;
+    this.getEnvelopeByIdUseCase = getEnvelopeByIdUseCase;
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
@@ -36,11 +41,25 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
+    
+    const envelopeOrError = await this.getEnvelopeByIdUseCase.execute({userId:new UniqueEntityID(request.userId),envelopeId:new UniqueEntityID(request.envelopeId)})
+    
+    if (envelopeOrError.isLeft()) {
+      const error = envelopeOrError.value;
+      switch (error.constructor) {
+          default:
+            return left(Result.fail<void>(error.getErrorValue() === undefined ?
+            String(error.getErrorValue()) :
+            error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message)) as CreateResponse;
+      }
+    }
 
-    const id: Id = IdOrError.getValue();
-    const userId: Id = UserIdOrError.getValue();
-    const creditCardId: Id = CreditCardIdOrError.getValue();
+    const envelope: Envelope = EnvelopeMap.toDomain(envelopeOrError.value.getValue());
+    if(envelope.name.value != 'Dívidas') return left(Result.fail<void>(`The envelope ${envelope.name.value} can not be used to debt`));
+    
     const envelopeId: Id = EvelopeIdOrError.getValue();
+    const id: Id = IdOrError.getValue();
+    const creditCardId: Id = CreditCardIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
     const installments_total: Balance = InstallmentsTotalOrError.getValue();
@@ -52,7 +71,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
       const debtOrError: Result<Debt> = Debt.create({
         id,
-        userId,
         creditCardId,
         envelopeId,
         description,

@@ -1,8 +1,8 @@
-
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
-import Envelope from './baseEnvelopes';
-import UserPaymentMethod from './userPaymentMethods';
+import User from './user';
+import CreditCards from './creditCards';
+import Envelopes from './envelopes';
 
 class Transactions extends Model { }
 
@@ -13,42 +13,51 @@ Transactions.init({
         allowNull: false,
         primaryKey: true
     },
+    credit_card_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: CreditCards,
+            key: 'id'
+        },
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+    },
     envelope_id: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-            model: Envelope,
+            model: Envelopes,
             key: 'id'
         },
         onDelete: 'cascade',
         onUpdate: 'cascade'
     },
-    payment_method_id: {
-        type: DataTypes.UUID,
+    description: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+    },
+    transaction_amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false
+    },
+    transaction_date: {
+        type: DataTypes.DATEONLY,
+        allowNull: false
+    },
+    payment_method: {
+        type: DataTypes.ENUM('CreditCard', 'DebitCard', 'Cash', 'BankTransfer'),
+        allowNull: false
+    },
+    status: {
+        type: DataTypes.ENUM('Pending', 'Completed'),
         allowNull: false,
-        references: {
-            model: UserPaymentMethod,
-            key: 'id'
-        },
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-    },
-    type: {
-        type: DataTypes.ENUM('Crétido', 'Débito'),
-        allowNull: false
-    },
-    due_date: {
-        type: DataTypes.DATE,
-        allowNull: false
-    },
-    payment_date: {
-        type: DataTypes.DATE,
-        allowNull: false
+        defaultValue: 'Pending'
     }
 }, {
     sequelize,
     modelName: 'Transactions',
-    tableName: 'transations'
+    tableName: 'transactions',
 });
 
 export default Transactions;

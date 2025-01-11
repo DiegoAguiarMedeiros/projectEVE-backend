@@ -168,9 +168,9 @@ debtsRouter.delete(
  *                 type: string
  *                 description: Debt Status
  *                 enum:
- *                   - pending
- *                   - paid
- *                   - overdue
+ *                   - Pending
+ *                   - Paid
+ *                   - Overdue
  *     responses:
  *       200:
  *         description: Debt updated successfully

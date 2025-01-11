@@ -2,7 +2,6 @@ import { DebtsStatus } from "../domain/debtsStatus";
 
 export interface DebtDTO {
     id: string;
-    userId: string;
     creditCardId?: string;
     envelopeId: string;
     description: string;
