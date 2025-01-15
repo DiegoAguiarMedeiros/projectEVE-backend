@@ -10,6 +10,7 @@ import models from "../../../shared/infra/database/sequelize/models";
 
 models.Debts.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
 models.Transactions.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
+models.Investments.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
 models.Envelopes.belongsTo(models.Users, { foreignKey: 'user_id' });
 models.Envelopes.hasMany(models.Debts, { foreignKey: 'envelope_id' });
 models.Users.hasMany(models.Envelopes, { foreignKey: 'user_id' });

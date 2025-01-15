@@ -34,8 +34,11 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const AmountOrError = Balance.create({ balance: request.amount ? request.amount : investment.amount.value });
             AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
 
+            const ProfitabilityOrError = Balance.create({ balance: request.profitability ? request.profitability : investment.profitability.value });
+            ProfitabilityOrError.isFailure ? console.error(ProfitabilityOrError.getErrorValue()) : '';
+
             const dtoResult = Result.combine([
-                DescriptionOrError, AmountOrError,
+                DescriptionOrError, AmountOrError, ProfitabilityOrError
             ]);
 
             if (dtoResult.isFailure) {
@@ -54,12 +57,17 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const amount: Balance = AmountOrError.getValue();
             if (request.amount) investment.updateAmount(amount)
 
+            const profitability: Balance = ProfitabilityOrError.getValue();
+            if (request.profitability) investment.updateProfitability(profitability)
+
             if (request.applicationDate) investment.updateApplicationDate(request.applicationDate)
             if (request.maturityDate) investment.updateMaturityDate(request.maturityDate)
             if (request.type) investment.updateType(request.type)
             if (request.status) investment.updateStatus(request.status)
 
+            console.log("investment", investment)
             const updateDebt = await this.repo.update(request.id.toString(), request.userId.toString(), investment);
+            console.log("updateDebt", updateDebt)
             if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(

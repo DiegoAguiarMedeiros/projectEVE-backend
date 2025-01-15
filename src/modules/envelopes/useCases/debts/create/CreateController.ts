@@ -23,7 +23,6 @@ export class CreateController extends BaseController {
     dto = {
       userId: id,
       creditCardId: dto.creditCardId,
-      envelopeId: dto.envelopeId,
       description: TextUtils.sanitize(dto.description),
       amount: dto.amount,
       installments_total: dto.installments_total,

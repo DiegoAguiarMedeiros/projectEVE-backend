@@ -82,7 +82,6 @@ export class Debt {
   }
 
   public static create(props: DebtProps): Result<Debt> {
-
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.id, argumentName: "id" },
       { argument: props.envelopeId, argumentName: "envelopeId" },

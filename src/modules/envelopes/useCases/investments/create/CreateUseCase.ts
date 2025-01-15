@@ -14,32 +14,50 @@ import { Balance } from "../../../domain/balance";
 import { Investments } from "../../../domain/investments";
 import { InvestmentsStatus } from "../../../domain/investmentsStatus";
 import { InvestmentsType } from "../../../domain/investmentsType";
+import { GetByIdUseCase } from "../../envelopes/getById/GetByIdUseCase";
+import { Envelope } from "../../../domain/envelope";
+import { EnvelopeMap } from "../../../mappers/envelopeMap";
+import { IEnvelopeRepo } from "../../../repos/EnvelopeRepo";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private repo: IInvestmentsRepo;
+  private envelopeRepo: IEnvelopeRepo;
 
-  constructor(repo: IInvestmentsRepo) {
+  constructor(repo: IInvestmentsRepo,envelopeRepo: IEnvelopeRepo) {
     this.repo = repo;
+    this.envelopeRepo = envelopeRepo;
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
-    const UserIdOrError = Id.create(new UniqueEntityID(request.userId));
+    const ProfitabilityOrError = Balance.create({ balance: request.profitability });
     const IdOrError = Id.create(new UniqueEntityID());
+    const envelopeRaw= await this.envelopeRepo.getByName('Dívidas',request.userId)
+    
+    if (!envelopeRaw) {
+      return left(Result.fail<void>(`The envelope was not found`))
+    }
+    const envelope = EnvelopeMap.toDomain(envelopeRaw);
 
+    const EnvelopeIdOrError = Id.create(new UniqueEntityID(envelope.id.value));
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, UserIdOrError, IdOrError
+      DescriptionOrError, AmountOrError, EnvelopeIdOrError, IdOrError,ProfitabilityOrError
     ]);
+
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
+
+
+
     const id: Id = IdOrError.getValue();
-    const userId: Id = UserIdOrError.getValue();
+    const envelopeId: Id = EnvelopeIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
+    const profitability: Balance = ProfitabilityOrError.getValue();
     const applicationDate: Date = request.applicationDate;
     const maturityDate: Date = request.maturityDate;
     const status: InvestmentsStatus = request.status;
@@ -49,9 +67,10 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
       const investmentsOrError: Result<Investments> = Investments.create({
         id,
-        userId,
+        envelopeId,
         description,
         amount,
+        profitability,
         applicationDate,
         maturityDate,
         status,
@@ -65,7 +84,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       }
 
       const investment: Investments = investmentsOrError.getValue();
-
+      console.log("investment",investment)
       await this.repo.save(investment);
 
       return right(Result.ok<void>())

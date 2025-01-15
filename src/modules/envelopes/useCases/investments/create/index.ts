@@ -1,9 +1,8 @@
 
 import { CreateUseCase } from "./CreateUseCase";
 import { CreateController } from "./CreateController";
-import { investmentsRepo } from "../../../repos";
-
-const createdInvestmensUseCase = new CreateUseCase(investmentsRepo);
+import { investmentsRepo,envelopeRepo } from "../../../repos";
+const createdInvestmensUseCase = new CreateUseCase(investmentsRepo,envelopeRepo);
 const createdInvestmensController = new CreateController(
     createdInvestmensUseCase
 )

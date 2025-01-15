@@ -9,6 +9,7 @@ export interface UpdateDTO {
     description: string;
     type: InvestmentsType;
     amount: number;
+    profitability: number;
     applicationDate: Date;
     maturityDate: Date;
     status: InvestmentsStatus;

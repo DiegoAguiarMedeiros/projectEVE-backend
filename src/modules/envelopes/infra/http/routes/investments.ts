@@ -57,6 +57,9 @@ investmentsRouter.get('/',
  *               amount:
  *                 type: number
  *                 description: Amount of Investment
+ *               profitability:
+ *                 type: number
+ *                 description: Profitability of Investment - Year
  *               applicationDate:
  *                  type: string
  *                  format: date-time
@@ -147,6 +150,9 @@ investmentsRouter.delete(
  *               amount:
  *                 type: number
  *                 description: Amount of Investment
+ *               profitability:
+ *                 type: number
+ *                 description: Profitability of Investment - Year
  *               applicationDate:
  *                  type: string
  *                  format: date-time

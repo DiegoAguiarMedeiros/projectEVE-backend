@@ -1,3 +1,4 @@
+import { Op, Sequelize } from "sequelize";
 import { CreditCard } from "../../domain/creditCard";
 import { Debt } from "../../domain/debt";
 import { Investments } from "../../domain/investments";
@@ -22,8 +23,12 @@ export class InvestmentsRepo implements IInvestmentsRepo {
             {
                 where: {
                     id,
-                    user_id: userId,
-                },
+                    envelope_id: {
+                      [Op.in]: Sequelize.literal(`(
+                        SELECT id FROM "envelopes" WHERE user_id = '${userId}'
+                      )`),
+                    },
+                  },
             }
         );
         if (updatedRows === 0) {
@@ -35,8 +40,12 @@ export class InvestmentsRepo implements IInvestmentsRepo {
         const model = this.models.Investments;
         return await model.findAll({
             where: {
-                user_id: id,
-            },
+                envelope_id: {
+                  [Op.in]: Sequelize.literal(`(
+                    SELECT id FROM "envelopes" WHERE user_id = '${id}'
+                  )`),
+                },
+              },
         });
     }
 
@@ -44,9 +53,12 @@ export class InvestmentsRepo implements IInvestmentsRepo {
         const model = this.models.Investments;
         const debt = await model.findOne({
             where: {
-                id,
-                user_id: userId,
-            },
+                envelope_id: {
+                  [Op.in]: Sequelize.literal(`(
+                    SELECT id FROM "envelopes" WHERE user_id = '${userId}'
+                  )`),
+                },
+              },
             raw: true,
         });
         return debt ?? null;

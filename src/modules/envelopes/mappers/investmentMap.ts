@@ -17,9 +17,10 @@ export class InvestmentsMap implements Mapper<Investments> {
   public static toDTO(investment: Investments): InvestmentsDTO {
     return {
       id: investment.id.value,
-      userId: investment.userId.value,
+      envelopeId: investment.envelopeId.value,
       description: investment.description.value,
       amount: investment.amount.value,
+      profitability: investment.profitability.value,
       applicationDate: investment.applicationDate,
       maturityDate: investment.maturityDate,
       type: investment.type,
@@ -34,9 +35,12 @@ export class InvestmentsMap implements Mapper<Investments> {
 
     const AmountOrError = Balance.create({ balance: raw.amount });
     AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
+    
+    const ProfitabilityOrError = Balance.create({ balance: raw.profitability });
+    ProfitabilityOrError.isFailure ? console.error(ProfitabilityOrError.getErrorValue()) : '';
 
-    const UserIdOrError = Id.create(raw.user_id);
-    UserIdOrError.isFailure ? console.error(UserIdOrError.getErrorValue()) : '';
+    const EnvelopeIdOrError = Id.create(raw.envelope_id);
+    EnvelopeIdOrError.isFailure ? console.error(EnvelopeIdOrError.getErrorValue()) : '';
 
     const IdOrError = Id.create(raw.id);
     IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
@@ -48,9 +52,10 @@ export class InvestmentsMap implements Mapper<Investments> {
     const investmentOrError = Investments.create(
       {
         id: IdOrError.getValue(),
-        userId: UserIdOrError.getValue(),
+        envelopeId: EnvelopeIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
+        profitability:ProfitabilityOrError.getValue(),
         applicationDate: applicationDate,
         maturityDate: maturityDate,
         type: type,
@@ -67,9 +72,10 @@ export class InvestmentsMap implements Mapper<Investments> {
 
     return {
       id: investment.id.value,
-      user_id: investment.userId.value,
+      envelope_id: investment.envelopeId.value,
       description: investment.description.value,
       amount: investment.amount.value,
+      profitability: investment.profitability.value,
       application_date: investment.applicationDate,
       maturity_date: investment.maturityDate,
       type: investment.type,

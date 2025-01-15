@@ -21,13 +21,9 @@ export class CreateController extends BaseController {
     let dto: CreateDTO = req.body as CreateDTO;
     const { id } = req.decoded;
     dto = {
+      ...dto,
       userId: id,
       description: TextUtils.sanitize(dto.description),
-      amount: dto.amount,
-      type: dto.type,
-      applicationDate: dto.applicationDate,
-      maturityDate: dto.maturityDate,
-      status: dto.status,
     }
     try {
       const result = await this.useCase.execute(dto);

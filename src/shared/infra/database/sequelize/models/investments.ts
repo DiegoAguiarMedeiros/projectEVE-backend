@@ -1,6 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
 import User from './user';
+import Envelopes from './envelopes';
 
 class Investments extends Model { }
 
@@ -11,15 +12,15 @@ Investments.init({
         allowNull: false,
         primaryKey: true,
     },
-    user_id: {
+    envelope_id: {
         type: DataTypes.UUID,
         allowNull: false,
         references: {
-            model: User,
-            key: 'id',
+            model: Envelopes,
+            key: 'id'
         },
         onDelete: 'cascade',
-        onUpdate: 'cascade',
+        onUpdate: 'cascade'
     },
     description: {
         type: DataTypes.STRING(255),

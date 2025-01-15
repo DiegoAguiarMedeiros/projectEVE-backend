@@ -3,6 +3,7 @@ import { CreateDTO } from "./CreateDTO";
 import { Result, left, right } from "../../../../../shared/core/Result";
 import { AppError } from "../../../../../shared/core/AppError";
 import { IDebtRepo } from "../../../repos/DebtsRepo";
+import { IEnvelopeRepo } from "../../../repos/EnvelopeRepo";
 import { UseCase } from "../../../../../shared/core/UseCase";
 import { Id } from "../../../../../shared/domain/Id";
 import { UniqueEntityID } from "../../../../../shared/domain/UniqueEntityID";
@@ -17,11 +18,11 @@ import { EnvelopeMap } from "../../../mappers/envelopeMap";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private debtRepo: IDebtRepo;
-  private getEnvelopeByIdUseCase: GetByIdUseCase;
+  private envelopeRepo: IEnvelopeRepo;
 
-  constructor(debtRepo: IDebtRepo,getEnvelopeByIdUseCase: GetByIdUseCase) {
+  constructor(debtRepo: IDebtRepo,envelopeRepo: IEnvelopeRepo) {
     this.debtRepo = debtRepo;
-    this.getEnvelopeByIdUseCase = getEnvelopeByIdUseCase;
+    this.envelopeRepo = envelopeRepo;
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
@@ -29,37 +30,29 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const AmountOrError = Balance.create({ balance: request.amount });
     const InstallmentsTotalOrError = Balance.create({ balance: request.installments_total });
     const InstallmentsPaidOrError = Balance.create({ balance: request.installments_paid });
-    const UserIdOrError = Id.create(new UniqueEntityID(request.userId));
     const IdOrError = Id.create(new UniqueEntityID());
     const CreditCardIdOrError = Id.create(new UniqueEntityID(request.creditCardId));
-    const EvelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId));
+    
+    
+    const envelopeRaw= await this.envelopeRepo.getByName('Dívidas',request.userId)
+    
+    if (!envelopeRaw) {
+      return left(Result.fail<void>(`The envelope was not found`))
+    }
+    const envelope = EnvelopeMap.toDomain(envelopeRaw);
+    const EnvelopeIdOrError = Id.create(new UniqueEntityID(envelope.id.value));
 
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, UserIdOrError, IdOrError, CreditCardIdOrError, EvelopeIdOrError, InstallmentsTotalOrError, InstallmentsPaidOrError
+      DescriptionOrError, AmountOrError, IdOrError,EnvelopeIdOrError, CreditCardIdOrError, InstallmentsTotalOrError, InstallmentsPaidOrError
     ]);
-
+    
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
     
-    const envelopeOrError = await this.getEnvelopeByIdUseCase.execute({userId:new UniqueEntityID(request.userId),envelopeId:new UniqueEntityID(request.envelopeId)})
-    
-    if (envelopeOrError.isLeft()) {
-      const error = envelopeOrError.value;
-      switch (error.constructor) {
-          default:
-            return left(Result.fail<void>(error.getErrorValue() === undefined ?
-            String(error.getErrorValue()) :
-            error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message)) as CreateResponse;
-      }
-    }
-
-    const envelope: Envelope = EnvelopeMap.toDomain(envelopeOrError.value.getValue());
-    if(envelope.name.value != 'Dívidas') return left(Result.fail<void>(`The envelope ${envelope.name.value} can not be used to debt`));
-    
-    const envelopeId: Id = EvelopeIdOrError.getValue();
     const id: Id = IdOrError.getValue();
     const creditCardId: Id = CreditCardIdOrError.getValue();
+    const envelopeId: Id = EnvelopeIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
     const installments_total: Balance = InstallmentsTotalOrError.getValue();
@@ -88,7 +81,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       }
 
       const debt: Debt = debtOrError.getValue();
-
       await this.debtRepo.save(debt);
 
       return right(Result.ok<void>())

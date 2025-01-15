@@ -12,10 +12,11 @@ import { InvestmentsType } from "./investmentsType";
 
 interface InvestmentsProps {
   id: Id;
-  userId: Id;
+  envelopeId: Id;
   description: Description;
   type: InvestmentsType;
   amount: Balance;
+  profitability: Balance;
   applicationDate: Date;
   maturityDate: Date;
   status: InvestmentsStatus;
@@ -28,8 +29,8 @@ export class Investments {
   get id(): Id {
     return this.props.id;
   }
-  get userId(): Id {
-    return this.props.userId;
+  get envelopeId(): Id {
+    return this.props.envelopeId;
   }
   get description(): Description {
     return this.props.description;
@@ -48,6 +49,12 @@ export class Investments {
   }
   public updateAmount(amount: Balance): void {
     this.props.amount = amount;
+  }
+  get profitability(): Balance {
+    return this.props.profitability;
+  }
+  public updateProfitability(profitability: Balance): void {
+    this.props.profitability = profitability;
   }
   get applicationDate(): Date {
     return this.props.applicationDate;
@@ -77,7 +84,7 @@ export class Investments {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.id, argumentName: "id" },
-      { argument: props.userId, argumentName: "userId" },
+      { argument: props.envelopeId, argumentName: "envelopeId" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },
       { argument: props.applicationDate, argumentName: "applicationDate" },

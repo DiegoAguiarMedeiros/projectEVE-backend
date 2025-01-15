@@ -28,18 +28,6 @@ debtsRouter.get('/',
   (req, res) => getAllDebtController.execute(req, res)
 );
 
-/*
-{
-  userId: string;
-  creditCardId?: string;
-  envelopeId: string;
-  description: string;
-  amount: number;
-  dueDate: Date;
-  status: DebtsStatus;
-}
-*/
-
 /**
  * @swagger
  * /debts:
@@ -56,9 +44,6 @@ debtsRouter.get('/',
  *               creditCardId:
  *                 type: string
  *                 description: Credit Card Id
- *               envelopeId:
- *                 type: string
- *                 description: Envelope Id
  *               description:
  *                 type: string
  *                 description: Name of the cardholder
@@ -79,9 +64,9 @@ debtsRouter.get('/',
  *                 type: string
  *                 description: Debt Status
  *                 enum:
- *                   - pending
- *                   - paid
- *                   - overdue
+ *                   - Pending
+ *                   - Paid
+ *                   - Overdue
  *     responses:
  *       200:
  *         description: Debt created successfully
@@ -145,9 +130,6 @@ debtsRouter.delete(
  *               creditCardId:
  *                 type: string
  *                 description: Credit Card Id
- *               envelopeId:
- *                 type: string
- *                 description: Envelope Id
  *               description:
  *                 type: string
  *                 description: Name of the cardholder

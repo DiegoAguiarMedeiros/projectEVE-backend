@@ -17,9 +17,9 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
     async execute(request: DeleteDTO): Promise<DeleteResponse> {
 
         try {
-            const creditCard = await this.repo.getById(request.id.toString(), request.userId.toString());
+            const investment = await this.repo.getById(request.id.toString(), request.userId.toString());
 
-            if (!creditCard) {
+            if (!investment) {
                 return left(
                     new DeleteErrors.NotFound(request.id.toString())
                 ) as DeleteResponse;

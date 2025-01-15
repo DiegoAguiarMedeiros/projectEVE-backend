@@ -5,7 +5,6 @@ import { Flags } from "../../../domain/flags";
 export interface CreateDTO {
   userId: string;
   creditCardId?: string;
-  envelopeId: string;
   description: string;
   amount: number;
   installments_total: number;
