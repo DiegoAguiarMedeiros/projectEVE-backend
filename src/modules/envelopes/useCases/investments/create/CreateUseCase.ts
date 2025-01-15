@@ -84,7 +84,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       }
 
       const investment: Investments = investmentsOrError.getValue();
-      console.log("investment",investment)
       await this.repo.save(investment);
 
       return right(Result.ok<void>())

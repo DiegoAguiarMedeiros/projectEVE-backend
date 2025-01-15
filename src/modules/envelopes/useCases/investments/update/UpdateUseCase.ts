@@ -65,9 +65,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             if (request.type) investment.updateType(request.type)
             if (request.status) investment.updateStatus(request.status)
 
-            console.log("investment", investment)
             const updateDebt = await this.repo.update(request.id.toString(), request.userId.toString(), investment);
-            console.log("updateDebt", updateDebt)
             if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(
