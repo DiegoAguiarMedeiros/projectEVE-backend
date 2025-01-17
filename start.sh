@@ -1,8 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
-# echo "Running migrations..."
-# npx sequelize-cli db:migrate
+# Passo 1: Build das imagens do Docker com docker-compose
+echo "Building Docker images..."
+docker-compose build
 
-
-echo "Starting the application..."
-npm start
+# Passo 2: Iniciar os containers com docker-compose
+echo "Starting Docker containers..."
+docker-compose up

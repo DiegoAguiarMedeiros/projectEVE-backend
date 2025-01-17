@@ -6,7 +6,7 @@ COPY . .
 COPY ./.env.template ./.env
 
 RUN npm install
-RUN npm run build
+RUN npm run docker:up
 
 EXPOSE 3000
 
