@@ -46,7 +46,15 @@ export class Middleware {
 
     public ensureAuthenticated() {
         return async (req: any, res: any, next: any) => {
-            const token = req.headers['authorization']?.replace('Bearer ', '');
+            // const token = req.headers['authorization']?.replace('Bearer ', '');
+            const { accessToken, refreshToken } = req.cookies;
+
+            if (!accessToken || !refreshToken) {
+                return res.status(400).json({ message: 'No access token provided' });
+            }
+
+            const token = accessToken;
+            console.log("token",token)
             // Confirm that the token was signed with our signature.
             if (token) {
                 const decoded = await this.authService.decodeJWT(token);

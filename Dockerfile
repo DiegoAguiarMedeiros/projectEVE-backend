@@ -3,6 +3,7 @@ FROM node:18
 WORKDIR /usr/src/app
 
 COPY . .
+COPY ./env.template ./.env
 
 RUN npm install
 RUN npm run build

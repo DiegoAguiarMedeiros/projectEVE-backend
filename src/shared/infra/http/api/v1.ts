@@ -1,11 +1,12 @@
 
 import express from 'express'
-import { authRouter } from '../../../../modules/users/infra/http/routes';
-import { debtsRouter, envelopeRouter, creditCardsRouter, investmentsRouter, incomesRouter,transactionsRouter } from '../../../../modules/envelopes/infra/http/routes';
+import { authRouter, userRouter } from '../../../../modules/users/infra/http/routes';
+import { debtsRouter, envelopeRouter, creditCardsRouter, investmentsRouter, incomesRouter, transactionsRouter } from '../../../../modules/envelopes/infra/http/routes';
 
 const v1Router = express.Router();
 
 v1Router.use('/auth', authRouter);
+v1Router.use('/user', userRouter);
 v1Router.use('/envelopes', envelopeRouter);
 v1Router.use('/credit-cards', creditCardsRouter);
 v1Router.use('/debts', debtsRouter);

@@ -1,8 +1,11 @@
 import express from 'express'
 import { createUserController } from '../../../useCases/create';
 import { loginController } from '../../../useCases/login';
+import { getMeController } from '../../../useCases/getMe';
+import { middleware } from '../../../../../shared/infra/http';
 
 const authRouter = express.Router();
+const userRouter = express.Router();
 
 /**
  * @swagger
@@ -60,4 +63,21 @@ authRouter.post('/login',
   (req, res) => loginController.execute(req, res)
 )
 
-export { authRouter };
+/**
+ * @swagger
+ * /user/me:
+ *   get:
+ *     summary: Login a user
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Unauthorized
+ */
+userRouter.get('/me',
+  middleware.ensureAuthenticated(),
+  (req, res) => getMeController.execute(req, res)
+)
+
+export { authRouter ,userRouter};

@@ -3,6 +3,8 @@ services:
     build: .
     ports:
       - "${PORT}:${PORT}" # Usando a variável PORT do .env
+    networks:
+      - backend-network
     depends_on:
       - postgres
       - redis
@@ -29,12 +31,20 @@ services:
       POSTGRES_DB: ${PROJECT_EVE_DB_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-network
 
   redis:
     image: redis:latest
     ports:
       - "${PROJECT_EVE_REDIS_PORT}:${PROJECT_EVE_REDIS_PORT}"
+    networks:
+      - backend-network
 
 volumes:
   postgres_data:
     driver: local
+
+networks:
+  backend-network:
+    driver: bridge

@@ -10,21 +10,23 @@ import { isProduction } from '../../../config';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import path from 'path';
-
-const origin = {
-  // origin: isProduction ? 'https://dddforum.com' : '*',
-  origin: "*"
-}
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
+const corsOptions = {
+  origin: ['http://localhost:3039', 'http://192.168.70.6:3039'], // Especifique a origem do seu frontend
+  methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE'], // Métodos permitidos
+  credentials: true, // Permite credenciais (cookies, autorizações, etc.)
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(cors(origin))
 app.use(compression())
 app.use(helmet())
 app.use(morgan('combined'))
-
+app.use(cookieParser());
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -41,10 +43,10 @@ const swaggerDefinition = {
   ],
   components: {
     securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT', // Opcional, apenas para documentação
+      cookieAuth: {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'accessToken', // Nome do cookie
       },
     },
   },
@@ -72,6 +74,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use('/api/', v1Router)
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => {
-  console.info(`[App]: Listening on port ${port}`)
+app.listen(Number(port), '0.0.0.0', () => {
+  console.log('API rodando em http://0.0.0.0:3000');
 })

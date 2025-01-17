@@ -2,7 +2,7 @@
 import { UseCaseError } from "../../../../shared/core/UseCaseError"
 import { Result } from "../../../../shared/core/Result"
 
-export namespace LoginUseCaseErrors {
+export namespace GetMeUseCaseErrors {
 
   export class EmailDoesntExistError extends Result<UseCaseError> {
     constructor() {

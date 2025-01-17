@@ -1,7 +1,7 @@
 
 
-import { LoginDTO, LoginDTOResponse } from "./LoginDTO";
-import { LoginUseCaseErrors } from "./LoginErrors";
+import { GetMeDTO, GetMeDTOResponse } from "./GetMeDTO";
+import { GetMeUseCaseErrors } from "./GetMeErrors";
 import { AppError } from "../../../../shared/core/AppError";
 import { Either, Result, left, right } from "../../../../shared/core/Result";
 import { UseCase } from "../../../../shared/core/UseCase";
@@ -13,12 +13,12 @@ import { Password } from "../../domain/password";
 import { JWTToken, RefreshToken } from "../../domain/jwt";
 
 type Response = Either<
-  LoginUseCaseErrors.EmailDoesntExistError |
+  GetMeUseCaseErrors.EmailDoesntExistError |
   AppError.UnexpectedError,
-  Result<LoginDTOResponse>
+  Result<GetMeDTOResponse>
 >
 
-export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
+export class GetMeUserUseCase implements UseCase<GetMeDTO, Promise<Response>> {
   private userRepo: IUserRepo;
   private authService: IAuthService;
 
@@ -27,7 +27,7 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
     this.authService = authService
   }
 
-  public async execute(request: LoginDTO): Promise<Response> {
+  public async execute(request: GetMeDTO): Promise<Response> {
     let user: User;
     let email: Email;
     let password: Password;
@@ -49,12 +49,12 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
         const userFound = !!user;
 
         if (!userFound) {
-          return left(new LoginUseCaseErrors.EmailDoesntExistError())
+          return left(new GetMeUseCaseErrors.EmailDoesntExistError())
         }
         const passwordValid = await user.password.comparePassword(password.value);
 
         if (!passwordValid) {
-          return left(new LoginUseCaseErrors.EmailDoesntExistError())
+          return left(new GetMeUseCaseErrors.EmailDoesntExistError())
         }
 
 
@@ -75,18 +75,18 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<Response>> {
         
         await this.authService.saveAuthenticatedUser(user);
 
-        return right(Result.ok<LoginDTOResponse>({
+        return right(Result.ok<GetMeDTOResponse>({
           accessToken,
           refreshToken
         }));
       } catch (error) {
-        return left(new LoginUseCaseErrors.EmailDoesntExistError())
+        return left(new GetMeUseCaseErrors.EmailDoesntExistError())
       }
     } catch (err) {
       if (err instanceof Error) {
-        return left(new AppError.UnexpectedError("LoginUserUseCase: " + err.message));
+        return left(new AppError.UnexpectedError("GetMeUserUseCase: " + err.message));
       }
-      return left(new AppError.UnexpectedError('LoginUserUseCase An unexpected error occurred'));
+      return left(new AppError.UnexpectedError('GetMeUserUseCase An unexpected error occurred'));
     }
   }
 }
