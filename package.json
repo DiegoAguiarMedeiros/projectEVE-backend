@@ -9,9 +9,9 @@
     "dev": "ts-node-dev --poll --respawn --transpile-only --ignore-watch node_modules --no-notify src/index.ts",
     "test": "jest --watch",
     "test:coverage": "jest --coverage",
+    "docker:up": "docker-compose up -d",
     "docker:build": "docker-compose up --build -d",
-    "docker:run": "docker-compose stop app && docker-compose up app --build",
-    "docker:up": "./startDocker.sh"
+    "docker:run": "docker-compose stop app && docker-compose up app --build"
   },
   "repository": {
     "type": "git",
