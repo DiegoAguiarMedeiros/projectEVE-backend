@@ -6,5 +6,5 @@ export interface UpdateDTO {
     userId: UniqueEntityID;
     description?: string;
     amount?: number;
-    paymentDate?: Date;
+    paymentDay?: number;
 }

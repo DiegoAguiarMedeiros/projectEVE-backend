@@ -18,7 +18,7 @@ export class IncomeMap implements Mapper<Income> {
       userId: income.userId.value,
       description: income.description.value,
       amount: income.amount.value,
-      paymentDate: income.paymentDate,
+      paymentDay: income.paymentDay,
     };
   }
 
@@ -41,7 +41,7 @@ export class IncomeMap implements Mapper<Income> {
         userId: UserIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
-        paymentDate: raw.payment_date,
+        paymentDay: raw.payment_date,
       }
     );
 
@@ -57,7 +57,7 @@ export class IncomeMap implements Mapper<Income> {
       user_id: income.userId.value,
       description: income.description.value,
       amount: income.amount.value,
-      payment_date: income.paymentDate,
+      payment_day: income.paymentDay,
     };
   }
 }

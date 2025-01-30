@@ -45,10 +45,9 @@ incomesRouter.get('/',
  *               amount:
  *                 type: number
  *                 description: Amount of debt
- *               paymentDate:
- *                  type: string
- *                  format: date-time
- *                  description: Payment Date
+ *               paymentDay:
+ *                  type: number
+ *                  description: Payment Day
  *     responses:
  *       200:
  *         description: Debt created successfully
@@ -115,10 +114,9 @@ incomesRouter.delete(
  *               amount:
  *                 type: number
  *                 description: Amount of Income
- *               paymentDate:
+ *               paymentDay:
  *                  type: string
- *                  format: date-time
- *                  description: Payment Date
+ *                  description: Payment Day
  *     responses:
  *       200:
  *         description: Income updated successfully

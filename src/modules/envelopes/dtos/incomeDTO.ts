@@ -3,5 +3,5 @@ export interface IncomeDTO {
     userId: string;
     description: string;
     amount: number;
-    paymentDate: Date;
+    paymentDay: number;
 }

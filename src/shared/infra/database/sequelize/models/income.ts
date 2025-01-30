@@ -29,9 +29,13 @@ Income.init({
         type: DataTypes.DECIMAL(10, 2),
         allowNull: false
     },
-    payment_date: {
-        type: DataTypes.DATEONLY,
+    payment_day: {
+        type: DataTypes.INTEGER,
         allowNull: true,
+        validate: {
+            min: 1,
+            max: 31,
+        }
     },
 }, {
     sequelize,

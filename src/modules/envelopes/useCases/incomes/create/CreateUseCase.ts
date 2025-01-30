@@ -38,7 +38,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const userId: Id = UserIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
-    const paymentDate: Date = request.paymentDate;
+    const paymentDay: number = request.paymentDay;
 
     try {
 
@@ -47,7 +47,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         userId,
         description,
         amount,
-        paymentDate,
+        paymentDay,
       });
 
       if (incomeOrError.isFailure) {

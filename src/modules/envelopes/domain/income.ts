@@ -14,7 +14,7 @@ interface IncomeProps {
   userId: Id;
   description: Description;
   amount: Balance;
-  paymentDate: Date;
+  paymentDay: number;
 }
 
 
@@ -39,11 +39,11 @@ export class Income {
   public updateAmount(amount: Balance): void {
     this.props.amount = amount;
   }
-  get paymentDate(): Date {
-    return this.props.paymentDate;
+  get paymentDay(): number {
+    return this.props.paymentDay;
   }
-  public updatePaymentDate(paymentDate: Date): void {
-    this.props.paymentDate = paymentDate;
+  public updatePaymentDay(paymentDay: number): void {
+    this.props.paymentDay = paymentDay;
   }
 
   private constructor(props: IncomeProps) {
@@ -57,7 +57,7 @@ export class Income {
       { argument: props.userId, argumentName: "userId" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },
-      { argument: props.paymentDate, argumentName: "paymentDate" },
+      { argument: props.paymentDay, argumentName: "paymentDay" },
     ]);
 
     if (guardResult.isFailure) {
