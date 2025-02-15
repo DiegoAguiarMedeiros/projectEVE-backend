@@ -42,7 +42,7 @@ export class Income {
   get paymentDay(): number {
     return this.props.paymentDay;
   }
-  public updatePaymentDay(paymentDay: number): void {
+  public updatepaymentDay(paymentDay: number): void {
     this.props.paymentDay = paymentDay;
   }
 

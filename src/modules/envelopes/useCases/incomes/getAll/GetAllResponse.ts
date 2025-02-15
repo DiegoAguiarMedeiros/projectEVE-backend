@@ -1,8 +1,8 @@
 import { AppError } from "../../../../../shared/core/AppError";
 import { Either, Result } from "../../../../../shared/core/Result";
-import { GetAllDTO } from "./GetAllDTO";
+import { Income } from "../../../domain/income";
 
 export type GetAllResponse = Either<
     AppError.UnexpectedError,
-    Result<GetAllDTO>
+    Result<Income[]>
 >

@@ -37,16 +37,18 @@ export class LoginController extends BaseController {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production', // Requer HTTPS em produção
           sameSite: 'strict',
-          maxAge: 60 * 60 * 1000, // 1 hora de expiração
+          maxAge: 60 * 60 * 1000, 
         });
     
         res.cookie('refreshToken', dto.refreshToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
-          maxAge: 30 * 24 * 60 * 60 * 1000, // 1 hora de expiração
+          maxAge: 30 * 24 * 60 * 60 * 1000,
         });
 
+        console.log("req",req)
+        console.log("res",res)
         return this.ok(res);
       }
 

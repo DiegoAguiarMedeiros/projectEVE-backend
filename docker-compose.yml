@@ -2,14 +2,14 @@ services:
   app:
     build: .
     ports:
-      - "${PORT}:${PORT}" # Usando a variável PORT do .env
+      - "${PORT}:${PORT}"
     networks:
       - backend-network
     depends_on:
       - postgres
       - redis
     env_file:
-      - .env # Arquivo contendo as variáveis de ambiente
+      - .env
     environment:
       PROJECT_EVE_IS_PRODUCTION: ${PROJECT_EVE_IS_PRODUCTION}
       PROJECT_EVE_APP_SECRET: ${PROJECT_EVE_APP_SECRET}

@@ -15,8 +15,7 @@ import cookieParser from 'cookie-parser';
 const app = express();
 
 const corsOptions = {
-  origin: ['http://localhost:3039', 'http://192.168.70.6:3039'], // Especifique a origem do seu frontend
-  methods: ['GET', 'POST', 'PUT','PATCH', 'DELETE'], // Métodos permitidos
+  origin: ['http://localhost:3039', 'http://192.168.70.2:3039'], // Especifique a origem do seu frontend
   credentials: true, // Permite credenciais (cookies, autorizações, etc.)
 };
 

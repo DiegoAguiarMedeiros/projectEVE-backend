@@ -48,7 +48,9 @@ export class Middleware {
         return async (req: any, res: any, next: any) => {
             // const token = req.headers['authorization']?.replace('Bearer ', '');
             const { accessToken, refreshToken } = req.cookies;
-
+            console.log("req.cookies",req.cookies)
+            console.log("accessToken",accessToken)
+            console.log("refreshToken",refreshToken)
             if (!accessToken || !refreshToken) {
                 return res.status(400).json({ message: 'No access token provided' });
             }

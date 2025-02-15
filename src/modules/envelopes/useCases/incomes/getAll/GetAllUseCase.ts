@@ -1,8 +1,8 @@
 import { AppError } from "../../../../../shared/core/AppError";
 import { Either, Result, right } from "../../../../../shared/core/Result";
 import { UseCase } from "../../../../../shared/core/UseCase";
+import { Income } from "../../../domain/income";
 import { IIncomesRepo } from "../../../repos/IncomesRepo";
-import { GetAllDTO } from "./GetAllDTO";
 import { GetAllResponse } from "./GetAllResponse";
 
 
@@ -15,9 +15,9 @@ export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
     async execute(id: string): Promise<GetAllResponse> {
         const incomes = await this.repo.getAll(id);
 
-        return right(Result.ok<GetAllDTO>({
+        return right(Result.ok<Income[]>(
             incomes
-        }));
+        ));
     }
 
 }

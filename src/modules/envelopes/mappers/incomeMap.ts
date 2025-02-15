@@ -41,7 +41,7 @@ export class IncomeMap implements Mapper<Income> {
         userId: UserIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
-        paymentDay: raw.payment_date,
+        paymentDay: raw.payment_day,
       }
     );
 

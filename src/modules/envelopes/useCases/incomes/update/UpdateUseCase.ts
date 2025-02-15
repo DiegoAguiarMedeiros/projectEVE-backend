@@ -58,7 +58,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
 
             if (request.description) income.updateDescription(description)
             if (request.amount) income.updateAmount(amount)
-            if (request.paymentDay) income.updatePaymentDay(paymentDay)
+            if (request.paymentDay) income.updatepaymentDay(paymentDay)
 
             const updateIncome = await this.repo.update(request.id.toString(), request.userId.toString(), income);
             if (updateIncome) return right(Result.ok<void>()) as UpdateResponse;

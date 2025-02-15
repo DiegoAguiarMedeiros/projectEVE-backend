@@ -1,8 +1,10 @@
-import { Request, Response } from "express";
+import {  Response } from "express";
 import { BaseController } from "../../../../../shared/infra/http/models/BaseController";
 import { GetAllUseCase } from "./GetAllUseCase";
-import { GetAllDTO } from "./GetAllDTO";
 import { DecodedExpressRequest } from "../../../../users/infra/http/models/decodedRequest";
+import { Income } from "../../../domain/income";
+import { IncomeMap } from "../../../mappers/incomeMap";
+import { IncomeDTO } from "../../../dtos/incomeDTO";
 
 export class GetAllController extends BaseController {
     private useCase: GetAllUseCase;
@@ -26,8 +28,8 @@ export class GetAllController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: GetAllDTO = result.value.getValue() as GetAllDTO;
-                return this.ok<GetAllDTO>(res, dto);
+                const incomes: Income[] = result.value.getValue();
+                return this.ok<IncomeDTO[]>(res, incomes.map((income:any) => IncomeMap.toDTO(income)));
             }
 
         } catch (err) {

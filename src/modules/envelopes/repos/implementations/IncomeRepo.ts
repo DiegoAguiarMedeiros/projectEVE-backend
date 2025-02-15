@@ -32,11 +32,13 @@ export class IncomesRepo implements IIncomesRepo {
     }
     async getAll(id: string): Promise<Income[]> {
         const model = this.models.Incomes;
-        return await model.findAll({
+
+        const incomes = await model.findAll({
             where: {
                 user_id: id,
             },
         });
+        return incomes.map((income:any) => IncomeMap.toDomain(income))
     }
 
     async getById(id: string, userId: string): Promise<Income | null> {
