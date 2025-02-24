@@ -1,7 +1,8 @@
 import { AppError } from "../../../../../shared/core/AppError";
-import { Either, Result, right } from "../../../../../shared/core/Result";
+import { Either, left, Result, right } from "../../../../../shared/core/Result";
 import { UseCase } from "../../../../../shared/core/UseCase";
 import { Income } from "../../../domain/income";
+import { Pagination } from "../../../domain/pagination";
 import { IIncomesRepo } from "../../../repos/IncomesRepo";
 import { GetAllResponse } from "./GetAllResponse";
 
@@ -13,10 +14,32 @@ export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
         this.repo = repo;
     }
     async execute(id: string): Promise<GetAllResponse> {
-        const incomes = await this.repo.getAll(id);
 
-        return right(Result.ok<Income[]>(
-            incomes
+        const page = 1;
+        const pageSize = 5;
+
+        const incomesPaged = await this.repo.getAll(id,page,pageSize);
+        const totalItems = (await this.repo.getAll(id)).length;
+
+        
+        const totalPages = Math.ceil(totalItems / pageSize);
+
+        const paginationResult = Pagination.create<Income>({
+            currentPage: page,
+            pageSize,
+            totalPages,
+            totalItems,
+            data: incomesPaged,
+        });
+
+        if (paginationResult.isFailure) {
+            return left(
+                Result.fail<Pagination<Income>>(paginationResult.getErrorValue().toString())
+            ) as GetAllResponse;
+        }
+
+        return right(Result.ok<Pagination<Income>>(
+            paginationResult.getValue()
         ));
     }
 

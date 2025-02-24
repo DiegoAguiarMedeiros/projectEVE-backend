@@ -30,16 +30,29 @@ export class IncomesRepo implements IIncomesRepo {
         }
         return true;
     }
-    async getAll(id: string): Promise<Income[]> {
+    async getAll(id: string, page?: number, pageSize?: number): Promise<Income[]> {
         const model = this.models.Incomes;
-
+    
+        // Se pageSize não for fornecido, traz todos os registros (sem limite)
+        const limit = pageSize || undefined;  // undefined significa sem limite
+    
+        // Calcula o offset, apenas se page for fornecido
+        const offset = page ? (page - 1) * (pageSize || 10) : 0;
+    
+        // Faz a consulta no banco com a possibilidade de paginar
         const incomes = await model.findAll({
             where: {
                 user_id: id,
             },
+            limit: limit,
+            offset: offset,
         });
-        return incomes.map((income:any) => IncomeMap.toDomain(income))
+    
+        // Mapeia os resultados para o domínio de Income e retorna os dados
+        return incomes.map((income: any) => IncomeMap.toDomain(income));
     }
+    
+    
 
     async getById(id: string, userId: string): Promise<Income | null> {
         const model = this.models.Incomes;
