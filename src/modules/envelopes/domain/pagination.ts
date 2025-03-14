@@ -53,8 +53,8 @@ export class Pagination<T> extends ValueObject<PaginationProps<T>> {
       return Result.fail<Pagination<T>>('Current page cannot be less than 1');
     }
 
-    if (props.totalPages < 1) {
-      return Result.fail<Pagination<T>>('Total pages cannot be less than 1');
+    if (props.totalPages < 0) {
+      return Result.fail<Pagination<T>>('Total pages cannot be less than 0');
     }
 
     if (props.totalItems < 0) {

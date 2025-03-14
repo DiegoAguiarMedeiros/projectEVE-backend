@@ -8,75 +8,86 @@ import { IInvestmentsRepo } from "../InvestmentsRepo";
 
 export class InvestmentsRepo implements IInvestmentsRepo {
 
-    private models: any;
+  private models: any;
 
-    constructor(models: any) {
-        this.models = models;
-    }
+  constructor(models: any) {
+    this.models = models;
+  }
 
-    async update(id: string, userId: string, investment: Investments): Promise<boolean> {
-        const model = this.models.Investments;
-        const rawDebt = await InvestmentsMap.toPersistence(investment);
-        // Atualiza o nome onde o id e o userId correspondem
-        const [updatedRows] = await model.update(
-            rawDebt, // Campos a serem atualizados
-            {
-                where: {
-                    id,
-                    envelope_id: {
-                      [Op.in]: Sequelize.literal(`(
+  async update(id: string, userId: string, investment: Investments): Promise<boolean> {
+    const model = this.models.Investments;
+    const rawDebt = await InvestmentsMap.toPersistence(investment);
+    // Atualiza o nome onde o id e o userId correspondem
+    const [updatedRows] = await model.update(
+      rawDebt, // Campos a serem atualizados
+      {
+        where: {
+          id,
+          envelope_id: {
+            [Op.in]: Sequelize.literal(`(
                         SELECT id FROM "envelopes" WHERE user_id = '${userId}'
                       )`),
-                    },
-                  },
-            }
-        );
-        if (updatedRows === 0) {
-            return false;
-        }
-        return true;
+          },
+        },
+      }
+    );
+    if (updatedRows === 0) {
+      return false;
     }
-    async getAll(id: string): Promise<Investments[]> {
-        const model = this.models.Investments;
-        return await model.findAll({
-            where: {
-                envelope_id: {
-                  [Op.in]: Sequelize.literal(`(
-                    SELECT id FROM "envelopes" WHERE user_id = '${id}'
-                  )`),
-                },
-              },
-        });
-    }
+    return true;
+  }
+  async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Investments[]> {
+    const model = this.models.Investments;
 
-    async getById(id: string, userId: string): Promise<Debt | null> {
-        const model = this.models.Investments;
-        const debt = await model.findOne({
-            where: {
-                envelope_id: {
-                  [Op.in]: Sequelize.literal(`(
+    const limit = pageSize || undefined;
+    const offset = page ? (page - 1) * (pageSize || 10) : 0;
+    const allowedColumns = ["name", "flag"];
+    const allowedOrders = ["asc", "desc"];
+
+    const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "createdAt";
+    const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
+
+    const investments = await model.findAll({
+      where: {
+        envelope_id: {
+          [Op.in]: Sequelize.literal(`(SELECT id FROM "envelopes" WHERE user_id = '${id}')`),
+        },
+      },
+      limit: limit,
+      offset: offset,
+      order: [[safeOrderBy, safeOrder]],
+    });
+    return investments.map((investment: any) => InvestmentsMap.toDomain(investment));
+  }
+
+  async getById(id: string, userId: string): Promise<Debt | null> {
+    const model = this.models.Investments;
+    const debt = await model.findOne({
+      where: {
+        envelope_id: {
+          [Op.in]: Sequelize.literal(`(
                     SELECT id FROM "envelopes" WHERE user_id = '${userId}'
                   )`),
-                },
-              },
-            raw: true,
-        });
-        return debt ?? null;
-    }
+        },
+      },
+      raw: true,
+    });
+    return debt ?? null;
+  }
 
-    async save(investment: Investments): Promise<void> {
-        const model = this.models.Investments;
-        const rawDebt = await InvestmentsMap.toPersistence(investment);
-        await model.create(rawDebt);
-    }
+  async save(investment: Investments): Promise<void> {
+    const model = this.models.Investments;
+    const rawDebt = await InvestmentsMap.toPersistence(investment);
+    await model.create(rawDebt);
+  }
 
-    async delete(id: string): Promise<void> {
-        const model = this.models.Investments;
-        await model.destroy({
-            where: {
-                id,
-            },
-        });
-    }
+  async delete(id: string): Promise<void> {
+    const model = this.models.Investments;
+    await model.destroy({
+      where: {
+        id,
+      },
+    });
+  }
 
 }
