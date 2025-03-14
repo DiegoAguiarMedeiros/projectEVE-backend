@@ -8,14 +8,14 @@ import { GetAllDTO } from "./GetAllDTO";
 import { GetAllResponse } from "./GetAllResponse";
 
 
-export class GetAllUseCase implements UseCase<{ id: string; page: number; pageSize: number }, Promise<GetAllResponse>> {
+export class GetAllUseCase implements UseCase<{ id: string; page: number; pageSize: number, orderBy: string, order: string }, Promise<GetAllResponse>> {
     private repo: ICreditCardRepo;
 
     constructor(CreditCardRepo: ICreditCardRepo) {
         this.repo = CreditCardRepo;
     }
-    async execute({ id, page, pageSize }: { id: string; page: number; pageSize: number }): Promise<GetAllResponse> {
-        const creditCardsPaged = await this.repo.getAll(id,page,pageSize);
+    async execute({ id, page, pageSize, orderBy, order }: { id: string; page: number; pageSize: number, orderBy: string, order: string }): Promise<GetAllResponse> {
+        const creditCardsPaged = await this.repo.getAll(id,page,pageSize, orderBy, order);
         const totalItems = (await this.repo.getAll(id)).length;
 
         const totalPages = Math.ceil(totalItems / pageSize);

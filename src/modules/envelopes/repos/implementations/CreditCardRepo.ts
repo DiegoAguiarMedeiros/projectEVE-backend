@@ -39,16 +39,23 @@ export class CreditCardRepo implements ICreditCardRepo {
         return true;
     }
 
-    async getAll(id: string, page?: number, pageSize?: number): Promise<CreditCard[]> {
+    async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<CreditCard[]> {
         const creditCardModel = this.models.CreditCards;
         const limit = pageSize || undefined;
         const offset = page ? (page - 1) * (pageSize || 10) : 0;
+        const allowedColumns = ["name", "flag"];
+        const allowedOrders = ["asc", "desc"];
+
+        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "createdAt";
+        const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
+
         const creditCards = await creditCardModel.findAll({
             where: {
                 user_id: id,
             },
             limit: limit,
             offset: offset,
+            order: [[safeOrderBy, safeOrder]],
         });
         return creditCards.map((creditCard: any) => CreditCardMap.toDomain(creditCard));
     }

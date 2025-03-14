@@ -29,6 +29,18 @@ const creditCardsRouter = express.Router();
  *           type: integer
  *           default: 10
  *         description: Number of items per page
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           enum: [name, flag]
+ *         description: Column name to order by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *         description: Sort direction (ascending or descending)
  *     responses:
  *       200:
  *         description: creditCards[]
