@@ -74,5 +74,5 @@ app.use('/api/', v1Router)
 const port = process.env.PORT || 3000;
 
 app.listen(Number(port), '0.0.0.0', () => {
-  console.log('API rodando em http://0.0.0.0:3000');
+  console.info('API rodando em http://0.0.0.0:3000');
 })

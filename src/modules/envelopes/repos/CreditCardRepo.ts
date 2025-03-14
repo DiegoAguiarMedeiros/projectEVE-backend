@@ -2,7 +2,7 @@
 import { CreditCard } from "../domain/creditCard";
 
 export interface ICreditCardRepo {
-  getAll(id: string): Promise<CreditCard[]>
+  getAll(id: string, page?: number, pageSize?: number): Promise<CreditCard[]>
   save(creditCard: CreditCard): Promise<void>;
   getById(id: string, userId: string): Promise<CreditCard | null>;
   checkName(name: string, userId: string): Promise<boolean>;

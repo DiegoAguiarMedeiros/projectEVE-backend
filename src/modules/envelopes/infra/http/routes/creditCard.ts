@@ -16,13 +16,24 @@ const creditCardsRouter = express.Router();
  *     tags: [Credit Cards]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
  *     responses:
  *       200:
  *         description: creditCards[]
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Credit Card not found
   */
 creditCardsRouter.get('/',
   middleware.ensureAuthenticated(),

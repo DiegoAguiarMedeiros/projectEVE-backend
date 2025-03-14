@@ -11,20 +11,47 @@ const incomesRouter = express.Router();
  * @swagger
  * /incomes:
  *   get:
- *     summary: Get all Incomes
+ *     summary: Get all Incomes with pagination and sorting
  *     tags: [Incomes]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           enum: [description, amount,payment_day]
+ *         description: Column name to order by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *         description: Sort direction (ascending or descending)
  *     responses:
  *       200:
- *         description: Income[]
+ *         description: Paginated list of Incomes
  *       401:
  *         description: Unauthorized
-  */
+ */
+
 incomesRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => getAllIncomeController.execute(req, res)
 );
+
 
 /**
  * @swagger

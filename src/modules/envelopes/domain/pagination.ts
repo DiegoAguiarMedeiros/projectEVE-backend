@@ -39,7 +39,6 @@ export class Pagination<T> extends ValueObject<PaginationProps<T>> {
   }
 
   public static create<T>(props: PaginationProps<T>): Result<Pagination<T>> {
-    console.log("Pagination create")
     const pageSizeResult = Guard.againstAtLeast(this.minPageSize, `${props.pageSize}`);
     if (pageSizeResult.isFailure) {
       return Result.fail<Pagination<T>>('Page size: ' + pageSizeResult.getErrorValue());

@@ -47,8 +47,6 @@ export class LoginController extends BaseController {
           maxAge: 30 * 24 * 60 * 60 * 1000,
         });
 
-        console.log("req",req)
-        console.log("res",res)
         return this.ok(res);
       }
 

@@ -13,7 +13,7 @@ export class CreditCardMap implements Mapper<CreditCard> {
     return {
       id: CreditCard.id.value,
       name: CreditCard.name.value,
-      flag: CreditCard.name.value,
+      flag: CreditCard.flag.value,
       active: CreditCard.active,
       userId: CreditCard.userId.value,
     };

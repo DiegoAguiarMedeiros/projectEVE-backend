@@ -7,21 +7,17 @@ import { IIncomesRepo } from "../../../repos/IncomesRepo";
 import { GetAllResponse } from "./GetAllResponse";
 
 
-export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
+export class GetAllUseCase implements UseCase<{ id: string; page: number; pageSize: number, orderBy: string, order: string }, Promise<GetAllResponse>> {
     private repo: IIncomesRepo;
 
     constructor(repo: IIncomesRepo) {
         this.repo = repo;
     }
-    async execute(id: string): Promise<GetAllResponse> {
-
-        const page = 1;
-        const pageSize = 5;
-
-        const incomesPaged = await this.repo.getAll(id,page,pageSize);
+    async execute({ id, page, pageSize, orderBy, order }: { id: string; page: number; pageSize: number, orderBy: string, order: string }): Promise<GetAllResponse> {
+        const incomesPaged = await this.repo.getAll(id, page, pageSize, orderBy, order);
         const totalItems = (await this.repo.getAll(id)).length;
 
-        
+
         const totalPages = Math.ceil(totalItems / pageSize);
 
         const paginationResult = Pagination.create<Income>({

@@ -38,14 +38,21 @@ export class CreditCardRepo implements ICreditCardRepo {
         }
         return true;
     }
-    async getAll(id: string): Promise<CreditCard[]> {
+
+    async getAll(id: string, page?: number, pageSize?: number): Promise<CreditCard[]> {
         const creditCardModel = this.models.CreditCards;
-        return await creditCardModel.findAll({
+        const limit = pageSize || undefined;
+        const offset = page ? (page - 1) * (pageSize || 10) : 0;
+        const creditCards = await creditCardModel.findAll({
             where: {
                 user_id: id,
             },
+            limit: limit,
+            offset: offset,
         });
+        return creditCards.map((creditCard: any) => CreditCardMap.toDomain(creditCard));
     }
+
 
     async getById(id: string, userId: string): Promise<CreditCard | null> {
         const creditCardModel = this.models.CreditCards;

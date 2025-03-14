@@ -1,23 +1,42 @@
 import { AppError } from "../../../../../shared/core/AppError";
-import { Either, Result, right } from "../../../../../shared/core/Result";
+import { Either, left, Result, right } from "../../../../../shared/core/Result";
 import { UseCase } from "../../../../../shared/core/UseCase";
+import { CreditCard } from "../../../domain/creditCard";
+import { Pagination } from "../../../domain/pagination";
 import { ICreditCardRepo } from "../../../repos/CreditCardRepo";
 import { GetAllDTO } from "./GetAllDTO";
 import { GetAllResponse } from "./GetAllResponse";
 
 
-export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
-    private CreditCardRepo: ICreditCardRepo;
+export class GetAllUseCase implements UseCase<{ id: string; page: number; pageSize: number }, Promise<GetAllResponse>> {
+    private repo: ICreditCardRepo;
 
     constructor(CreditCardRepo: ICreditCardRepo) {
-        this.CreditCardRepo = CreditCardRepo;
+        this.repo = CreditCardRepo;
     }
-    async execute(id: string): Promise<GetAllResponse> {
-        const creditCards = await this.CreditCardRepo.getAll(id);
+    async execute({ id, page, pageSize }: { id: string; page: number; pageSize: number }): Promise<GetAllResponse> {
+        const creditCardsPaged = await this.repo.getAll(id,page,pageSize);
+        const totalItems = (await this.repo.getAll(id)).length;
 
-        return right(Result.ok<GetAllDTO>({
-            creditCards
-        }));
+        const totalPages = Math.ceil(totalItems / pageSize);
+
+        const paginationResult = Pagination.create<CreditCard>({
+            currentPage: page,
+            pageSize,
+            totalPages,
+            totalItems,
+            data: creditCardsPaged,
+        });
+
+        if (paginationResult.isFailure) {
+            return left(
+                Result.fail<Pagination<CreditCard>>(paginationResult.getErrorValue().toString())
+            ) as GetAllResponse;
+        }
+
+        return right(Result.ok<Pagination<CreditCard>>(
+            paginationResult.getValue()
+        ));
     }
 
 }

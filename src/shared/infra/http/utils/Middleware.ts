@@ -46,18 +46,12 @@ export class Middleware {
 
     public ensureAuthenticated() {
         return async (req: any, res: any, next: any) => {
-            // const token = req.headers['authorization']?.replace('Bearer ', '');
             const { accessToken, refreshToken } = req.cookies;
-            console.log("req.cookies",req.cookies)
-            console.log("accessToken",accessToken)
-            console.log("refreshToken",refreshToken)
             if (!accessToken || !refreshToken) {
                 return res.status(400).json({ message: 'No access token provided' });
             }
 
             const token = accessToken;
-            console.log("token",token)
-            // Confirm that the token was signed with our signature.
             if (token) {
                 const decoded = await this.authService.decodeJWT(token);
                 //@ts-ignore
@@ -67,11 +61,9 @@ export class Middleware {
                     return this.endRequest(403, 'Token signature expired.', res)
                 }
 
-                // See if the token was found
                 const { id } = decoded;
                 const tokens = await this.authService.getTokens(id);
 
-                // if the token was found, just continue the request.
                 if (tokens.length !== 0) {
                     req.decoded = decoded;
                     return next();
