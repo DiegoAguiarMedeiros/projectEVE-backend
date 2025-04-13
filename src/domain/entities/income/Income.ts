@@ -1,0 +1,71 @@
+import { Balance } from "../../shared/Balance";
+import { Guard } from "../../shared/core/Guard";
+import { Result } from "../../shared/core/Result";
+import { Description } from "../../shared/Description";
+import { Id } from "../../shared/Id";
+
+
+interface IncomeProps {
+  id: Id;
+  userId: Id;
+  description: Description;
+  amount: Balance;
+  paymentDay: number;
+}
+
+
+export class Income {
+  private props: IncomeProps;
+
+  get id(): Id {
+    return this.props.id;
+  }
+  get userId(): Id {
+    return this.props.userId;
+  }
+  get description(): Description {
+    return this.props.description;
+  }
+  public updateDescription(description: Description): void {
+    this.props.description = description;
+  }
+  get amount(): Balance {
+    return this.props.amount;
+  }
+  public updateAmount(amount: Balance): void {
+    this.props.amount = amount;
+  }
+  get paymentDay(): number {
+    return this.props.paymentDay;
+  }
+  public updatepaymentDay(paymentDay: number): void {
+    this.props.paymentDay = paymentDay;
+  }
+
+  private constructor(props: IncomeProps) {
+    this.props = props;
+  }
+
+  public static create(props: IncomeProps): Result<Income> {
+
+    const guardResult = Guard.againstNullOrUndefinedBulk([
+      { argument: props.id, argumentName: "id" },
+      { argument: props.userId, argumentName: "userId" },
+      { argument: props.description, argumentName: "description" },
+      { argument: props.amount, argumentName: "amount" },
+      { argument: props.paymentDay, argumentName: "paymentDay" },
+    ]);
+
+    if (guardResult.isFailure) {
+      return Result.fail<Income>('Income :' + guardResult.getErrorValue());
+    }
+
+    const income = new Income(
+      {
+        ...props
+      }
+    );
+
+    return Result.ok<Income>(income);
+  }
+}

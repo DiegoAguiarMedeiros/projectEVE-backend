@@ -1,0 +1,69 @@
+
+import { Interface as IIncomesRepo} from "../../../../domain/repositories/income/Interface";
+import { Balance } from "../../../../domain/shared/Balance";
+import { Description } from "../../../../domain/shared/Description";
+import { IncomeMap } from "../../../../shared/mappers/income";
+import { AppError } from "../../../../domain/shared/core/AppError";
+import { left, Result, right } from "../../../../domain/shared/core/Result";
+import { UseCase } from "../../../../domain/shared/core/UseCase";
+import { UpdateDTO } from "./UpdateDTO";
+import { UpdateErrors } from "./UpdateErrors";
+import { UpdateResponse } from "./UpdateResponse";
+
+
+export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
+    private repo: IIncomesRepo;
+
+    constructor(repo: IIncomesRepo) {
+        this.repo = repo;
+    }
+    async execute(request: UpdateDTO): Promise<Promise<UpdateResponse>> {
+        try {
+
+            const income = IncomeMap.toDomain(await this.repo.getById(request.id.toString(), request.userId.toString()));
+            if (!income) {
+                return left(
+                    new UpdateErrors.NotFound(request.id.toString())
+                ) as UpdateResponse;
+            }
+
+            const DescriptionOrError = Description.create({ description: request.description ? request.description : income.description.value });
+            DescriptionOrError.isFailure ? console.error(DescriptionOrError.getErrorValue()) : '';
+
+            const AmountOrError = Balance.create({ balance: request.amount ? request.amount : income.amount.value });
+            AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
+
+
+            const dtoResult = Result.combine([
+                DescriptionOrError, AmountOrError,
+            ]);
+
+            if (dtoResult.isFailure) {
+                return left(Result.fail<void>(dtoResult.getErrorValue())) as UpdateResponse;
+            }
+
+            const description: Description = DescriptionOrError.getValue();
+            const amount: Balance = AmountOrError.getValue();
+            const paymentDay: number = request.paymentDay ? request.paymentDay : income.paymentDay;
+
+
+
+
+            if (request.description) income.updateDescription(description)
+            if (request.amount) income.updateAmount(amount)
+            if (request.paymentDay) income.updatepaymentDay(paymentDay)
+
+            const updateIncome = await this.repo.update(request.id.toString(), request.userId.toString(), income);
+            if (updateIncome) return right(Result.ok<void>()) as UpdateResponse;
+
+            return left(
+                new UpdateErrors.UpdateError(request.id.toString())
+            ) as UpdateResponse;
+
+
+        } catch (err) {
+            return left(new AppError.UnexpectedError(err)) as UpdateResponse;
+        }
+    }
+
+}
