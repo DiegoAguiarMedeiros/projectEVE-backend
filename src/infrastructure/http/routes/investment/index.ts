@@ -30,7 +30,7 @@ investmentsRouter.get('/',
   envelopeId: string;
   description: string;
   amount: number;
-  dueDate: Date;
+  paymentDay: Date;
   status: InvestmentsStatus;
 }
 */

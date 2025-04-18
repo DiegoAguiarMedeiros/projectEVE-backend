@@ -52,7 +52,7 @@ debtsRouter.get('/',
  *               installments_paid:
  *                 type: number
  *                 description: installments paid
- *               dueDate:
+ *               paymentDay:
  *                  type: string
  *                  format: date-time
  *                  description: Due Date
@@ -138,7 +138,7 @@ debtsRouter.delete(
  *               installments_paid:
  *                 type: number
  *                 description: installments paid
- *               dueDate:
+ *               paymentDay:
  *                  type: string
  *                  format: date-time
  *                  description: Due Date

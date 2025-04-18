@@ -7,13 +7,12 @@ import { DebtsStatus } from "./DebtsStatus";
 
 interface DebtProps {
   id: Id;
-  creditCardId: Id;
   envelopeId: Id;
   description: Description;
   amount: Balance;
-  installments_total: Balance;
-  installments_paid: Balance;
-  dueDate: Date;
+  installmentsTotal: Balance;
+  installmentsPaid: Balance;
+  paymentDay: Date;
   status: DebtsStatus;
 }
 
@@ -23,12 +22,6 @@ export class Debt {
 
   get id(): Id {
     return this.props.id;
-  }
-  get creditCardId(): Id {
-    return this.props.creditCardId;
-  }
-  public updateCreditCardId(creditCardId: Id): void {
-    this.props.creditCardId = creditCardId;
   }
   get envelopeId(): Id {
     return this.props.envelopeId;
@@ -48,23 +41,23 @@ export class Debt {
   public updateAmount(amount: Balance): void {
     this.props.amount = amount;
   }
-  get installments_total(): Balance {
-    return this.props.installments_total;
+  get installmentsTotal(): Balance {
+    return this.props.installmentsTotal;
   }
-  public updateInstallmentsTotal(installments_total: Balance): void {
-    this.props.installments_total = installments_total;
+  public updateInstallmentsTotal(installmentsTotal: Balance): void {
+    this.props.installmentsTotal = installmentsTotal;
   }
-  get installments_paid(): Balance {
-    return this.props.installments_paid;
+  get installmentsPaid(): Balance {
+    return this.props.installmentsPaid;
   }
-  public updateInstallmentsPaid(installments_paid: Balance): void {
-    this.props.installments_paid = installments_paid;
+  public updateInstallmentsPaid(installmentsPaid: Balance): void {
+    this.props.installmentsPaid = installmentsPaid;
   }
-  get dueDate(): Date {
-    return this.props.dueDate;
+  get paymentDay(): Date {
+    return this.props.paymentDay;
   }
-  public updateDueDate(dueDate: Date): void {
-    this.props.dueDate = dueDate;
+  public updatepaymentDay(paymentDay: Date): void {
+    this.props.paymentDay = paymentDay;
   }
   get status(): DebtsStatus {
     return this.props.status;
@@ -83,9 +76,9 @@ export class Debt {
       { argument: props.envelopeId, argumentName: "envelopeId" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },
-      { argument: props.installments_total, argumentName: "installments_total" },
-      { argument: props.installments_paid, argumentName: "installments_paid" },
-      { argument: props.dueDate, argumentName: "dueDate" },
+      { argument: props.installmentsTotal, argumentName: "installmentsTotal" },
+      { argument: props.installmentsPaid, argumentName: "installmentsPaid" },
+      { argument: props.paymentDay, argumentName: "paymentDay" },
       { argument: props.status, argumentName: "status" },
     ]);
 

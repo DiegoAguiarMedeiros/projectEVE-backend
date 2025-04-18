@@ -13,7 +13,7 @@ export class Repository implements Interface {
     }
 
     async checkName(name: string, userId: string): Promise<boolean> {
-        const data = await this.models.findOne({
+        const data = await this.model.findOne({
             where: {
                 name,
                 user_id: userId,
@@ -24,7 +24,7 @@ export class Repository implements Interface {
     }
     async update(id: string, userId: string, data: Envelope): Promise<boolean> {
 
-        const [updatedRows] = await this.models.update(
+        const [updatedRows] = await this.model.update(
             { name: data.name }, 
             {
                 where: {
@@ -47,7 +47,7 @@ export class Repository implements Interface {
         const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "createdAt";
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
-        const data = await this.models.findAll({
+        const data = await this.model.findAll({
             where: {
                 user_id: id,
             },
@@ -59,7 +59,7 @@ export class Repository implements Interface {
     }
 
     async getById(id: string, userId: string): Promise<Envelope | null> {
-        const data = await this.models.findOne({
+        const data = await this.model.findOne({
             where: {
                 id,
                 user_id: userId,
@@ -70,7 +70,7 @@ export class Repository implements Interface {
     }
     
     async getByName(name: string, userId: string): Promise<Envelope | null> {
-        const data = await this.models.findOne({
+        const data = await this.model.findOne({
             where: {
                 name,
                 user_id: userId,
@@ -82,11 +82,11 @@ export class Repository implements Interface {
 
     async create(data: Envelope): Promise<void> {
         const rawData = await Mapper.toPersistence(data);
-        await this.models.create(rawData);
+        await this.model.create(rawData);
     }
 
     async delete(id: string): Promise<void> {
-        await this.models.destroy({
+        await this.model.destroy({
             where: {
                 id,
             },

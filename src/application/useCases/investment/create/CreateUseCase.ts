@@ -30,7 +30,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const AmountOrError = Balance.create({ balance: request.amount });
     const ProfitabilityOrError = Balance.create({ balance: request.profitability });
     const IdOrError = Id.create(new UniqueEntityID());
-    const envelopeRaw = await this.envelopeRepo.getByName('Dívidas', request.userId)
+    const envelopeRaw = await this.envelopeRepo.getByName('Investimentos', request.userId)
 
     if (!envelopeRaw) {
       return left(Result.fail<void>(`The envelope was not found`))

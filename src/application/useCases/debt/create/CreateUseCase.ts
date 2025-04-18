@@ -24,12 +24,12 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
+    console.log("request",request)
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
-    const InstallmentsTotalOrError = Balance.create({ balance: request.installments_total });
-    const InstallmentsPaidOrError = Balance.create({ balance: request.installments_paid });
+    const InstallmentsTotalOrError = Balance.create({ balance: request.installmentsTotal });
+    const InstallmentsPaidOrError = Balance.create({ balance: request.installmentsPaid });
     const IdOrError = Id.create(new UniqueEntityID());
-    const CreditCardIdOrError = Id.create(new UniqueEntityID(request.creditCardId));
     
     
     const envelopeRaw= await this.envelopeRepo.getByName('Dívidas',request.userId)
@@ -41,7 +41,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const EnvelopeIdOrError = Id.create(new UniqueEntityID(envelope.id.value));
 
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, IdOrError,EnvelopeIdOrError, CreditCardIdOrError, InstallmentsTotalOrError, InstallmentsPaidOrError
+      DescriptionOrError, AmountOrError, IdOrError,EnvelopeIdOrError,  InstallmentsTotalOrError, InstallmentsPaidOrError
     ]);
     
     if (dtoResult.isFailure) {
@@ -49,26 +49,24 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     }
     
     const id: Id = IdOrError.getValue();
-    const creditCardId: Id = CreditCardIdOrError.getValue();
     const envelopeId: Id = EnvelopeIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
-    const installments_total: Balance = InstallmentsTotalOrError.getValue();
-    const installments_paid: Balance = InstallmentsPaidOrError.getValue();
-    const dueDate: Date = request.dueDate;
+    const installmentsTotal: Balance = InstallmentsTotalOrError.getValue();
+    const installmentsPaid: Balance = InstallmentsPaidOrError.getValue();
+    const paymentDay: Date = request.paymentDay;
     const status: DebtsStatus = request.status;
 
     try {
 
       const debtOrError: Result<Debt> = Debt.create({
         id,
-        creditCardId,
         envelopeId,
         description,
         amount,
-        installments_total,
-        installments_paid,
-        dueDate,
+        installmentsTotal,
+        installmentsPaid,
+        paymentDay,
         status,
       });
 

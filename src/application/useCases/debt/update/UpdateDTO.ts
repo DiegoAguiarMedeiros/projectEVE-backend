@@ -4,12 +4,11 @@ import { UniqueEntityID } from "../../../../domain/shared/UniqueEntityID";
 export interface UpdateDTO {
     id: UniqueEntityID;
     userId: UniqueEntityID;
-    creditCardId?: string;
     envelopeId?: string;
     description?: string;
     amount?: number;
-    installments_total?: number;
-    installments_paid?: number;
-    dueDate?: Date;
+    installmentsTotal?: number;
+    installmentsPaid?: number;
+    paymentDay?: Date;
     status?: DebtsStatus;
 }

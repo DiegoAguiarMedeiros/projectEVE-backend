@@ -12,16 +12,6 @@ Debts.init({
         allowNull: false,
         primaryKey: true
     },
-    credit_card_id: {
-        type: DataTypes.UUID,
-        allowNull: true,
-        references: {
-            model: CreditCards,
-            key: 'id'
-        },
-        onDelete: 'cascade',
-        onUpdate: 'cascade'
-    },
     envelope_id: {
         type: DataTypes.UUID,
         allowNull: false,
@@ -49,12 +39,16 @@ Debts.init({
         allowNull: true,
         defaultValue: 0
     },
-    due_date: {
-        type: DataTypes.DATEONLY,
-        allowNull: false
+    payment_day: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        validate: {
+            min: 1,
+            max: 31,
+        }
     },
     status: {
-        type: DataTypes.ENUM('Pending', 'paid', 'overdue'),
+        type: DataTypes.ENUM('Pending', 'paid'),
         allowNull: false,
         defaultValue: 'Pending'
     }

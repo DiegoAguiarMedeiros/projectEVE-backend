@@ -21,12 +21,11 @@ export class CreateController extends BaseController {
     const { id } = req.decoded;
     dto = {
       userId: id,
-      creditCardId: dto.creditCardId,
       description: TextUtils.sanitize(dto.description),
       amount: dto.amount,
-      installments_total: dto.installments_total,
-      installments_paid: dto.installments_paid,
-      dueDate: dto.dueDate,
+      installmentsTotal: dto.installmentsTotal,
+      installmentsPaid: dto.installmentsPaid,
+      paymentDay: dto.paymentDay,
       status: dto.status,
     }
     try {

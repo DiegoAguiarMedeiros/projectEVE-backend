@@ -9,13 +9,12 @@ export class DebtMap implements Mapper<Debt> {
   public static toDTO(debt: Debt): DebtDTO {
     return {
       id: debt.id.value,
-      creditCardId: debt.creditCardId.value,
       envelopeId: debt.envelopeId.value,
       description: debt.description.value,
       amount: debt.amount.value,
-      installments_total: debt.installments_total.value,
-      installments_paid: debt.installments_paid.value,
-      dueDate: debt.dueDate,
+      installmentsTotal: debt.installmentsTotal.value,
+      installmentsPaid: debt.installmentsPaid.value,
+      paymentDay: debt.paymentDay,
       status: debt.status,
     };
   }
@@ -36,22 +35,18 @@ export class DebtMap implements Mapper<Debt> {
     const IdOrError = Id.create(raw.id);
     IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
 
-    const CreditCardIdOrError = Id.create(raw.credit_card_id);
-    CreditCardIdOrError.isFailure ? console.error(CreditCardIdOrError.getErrorValue()) : '';
-
     const EvelopeIdOrError = Id.create(raw.envelope_id);
     EvelopeIdOrError.isFailure ? console.error(EvelopeIdOrError.getErrorValue()) : '';
 
     const debtOrError = Debt.create(
       {
         id: IdOrError.getValue(),
-        creditCardId: CreditCardIdOrError.getValue(),
         envelopeId: EvelopeIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
-        installments_total: InstallmentsTotalOrError.getValue(),
-        installments_paid: InstallmentsPaidOrError.getValue(),
-        dueDate: raw.due_date,
+        installmentsTotal: InstallmentsTotalOrError.getValue(),
+        installmentsPaid: InstallmentsPaidOrError.getValue(),
+        paymentDay: raw.payment_day,
         status: raw.status,
       }
     );
@@ -65,13 +60,12 @@ export class DebtMap implements Mapper<Debt> {
 
     return {
       id: debt.id.value,
-      credit_card_id: debt.creditCardId.value,
       envelope_id: debt.envelopeId.value,
       description: debt.description.value,
       amount: debt.amount.value,
-      installments_total: debt.installments_total.value,
-      installments_paid: debt.installments_paid.value,
-      due_date: debt.dueDate,
+      installments_total: debt.installmentsTotal.value,
+      installments_paid: debt.installmentsPaid.value,
+      payment_day: debt.paymentDay,
       status: debt.status,
     };
   }

@@ -35,49 +35,40 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const AmountOrError = Balance.create({ balance: request.amount ? request.amount : debt.amount.value });
             AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
 
-            const InstallmentsTotalOrError = Balance.create({ balance: request.installments_total ? request.installments_total : debt.installments_total.value });
+            const InstallmentsTotalOrError = Balance.create({ balance: request.installmentsTotal ? request.installmentsTotal : debt.installmentsTotal.value });
             InstallmentsTotalOrError.isFailure ? console.error(InstallmentsTotalOrError.getErrorValue()) : '';
 
-            const InstallmentsPaidOrError = Balance.create({ balance: request.installments_paid ? request.installments_paid : debt.installments_paid.value });
+            const InstallmentsPaidOrError = Balance.create({ balance: request.installmentsPaid ? request.installmentsPaid : debt.installmentsPaid.value });
             InstallmentsPaidOrError.isFailure ? console.error(InstallmentsPaidOrError.getErrorValue()) : '';
-
-            const CreditCardIdOrError = Id.create(new UniqueEntityID(request.creditCardId ? request.creditCardId : debt.creditCardId.value));
-            CreditCardIdOrError.isFailure ? console.error(CreditCardIdOrError.getErrorValue()) : '';
 
             const EvelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId ? request.envelopeId : debt.envelopeId.value));
             EvelopeIdOrError.isFailure ? console.error(EvelopeIdOrError.getErrorValue()) : '';
 
             const dtoResult = Result.combine([
-                DescriptionOrError, AmountOrError, CreditCardIdOrError, EvelopeIdOrError, InstallmentsTotalOrError, InstallmentsPaidOrError
+                DescriptionOrError, AmountOrError,  EvelopeIdOrError, InstallmentsTotalOrError, InstallmentsPaidOrError
             ]);
 
             if (dtoResult.isFailure) {
                 return left(Result.fail<void>(dtoResult.getErrorValue())) as UpdateResponse;
             }
 
-            const creditCardId: Id = CreditCardIdOrError.getValue();
             const envelopeId: Id = EvelopeIdOrError.getValue();
             const description: Description = DescriptionOrError.getValue();
             const amount: Balance = AmountOrError.getValue();
-            const installments_total: Balance = InstallmentsTotalOrError.getValue();
-            const installments_paid: Balance = InstallmentsPaidOrError.getValue();
-            const dueDate: Date = request.dueDate ? request.dueDate : debt.dueDate;
+            const installmentsTotal: Balance = InstallmentsTotalOrError.getValue();
+            const installmentsPaid: Balance = InstallmentsPaidOrError.getValue();
+            const paymentDay: Date = request.paymentDay ? request.paymentDay : debt.paymentDay;
             const status: DebtsStatus = request.status ? request.status : debt.status;
 
 
 
-
-            if (request.creditCardId) debt.updateCreditCardId(creditCardId)
             if (request.envelopeId) debt.updateEnvelopeId(envelopeId)
             if (request.description) debt.updateDescription(description)
             if (request.amount) debt.updateAmount(amount)
-            if (request.installments_total) debt.updateInstallmentsTotal(installments_total)
-            if (request.installments_paid) debt.updateInstallmentsPaid(installments_paid)
-            if (request.dueDate) debt.updateDueDate(dueDate)
+            if (request.installmentsTotal) debt.updateInstallmentsTotal(installmentsTotal)
+            if (request.installmentsPaid) debt.updateInstallmentsPaid(installmentsPaid)
+            if (request.paymentDay) debt.updatepaymentDay(paymentDay)
             if (request.status) debt.updateStatus(status)
-
-            request.creditCardId ? request.creditCardId : debt.creditCardId.value
-
 
             const updateDebt = await this.repo.update(debt.id.value, request.userId.toString(), debt);
             if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;

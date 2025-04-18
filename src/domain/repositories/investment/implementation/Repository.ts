@@ -15,7 +15,7 @@ export class Repository implements Interface {
 
   async update(id: string, userId: string, data: Investment): Promise<boolean> {
     const rawData = await Mapper.toPersistence(data);
-    const [updatedRows] = await this.models.update(
+    const [updatedRows] = await this.model.update(
       rawData,
       {
         where: {
@@ -43,7 +43,7 @@ export class Repository implements Interface {
     const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "createdAt";
     const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
-    const data = await this.models.findAll({
+    const data = await this.model.findAll({
       where: {
         envelope_id: {
           [Op.in]: Sequelize.literal(`(SELECT id FROM "envelopes" WHERE user_id = '${id}')`),
@@ -57,7 +57,7 @@ export class Repository implements Interface {
   }
 
   async getById(id: string, userId: string): Promise<Investment | null> {
-    const data = await this.models.findOne({
+    const data = await this.model.findOne({
       where: {
         envelope_id: {
           [Op.in]: Sequelize.literal(`(
@@ -72,11 +72,11 @@ export class Repository implements Interface {
 
   async create(investment: Investment): Promise<void> {
     const rawData = await Mapper.toPersistence(investment);
-    await this.models.create(rawData);
+    await this.model.create(rawData);
   }
 
   async delete(id: string): Promise<void> {
-    await this.models.destroy({
+    await this.model.destroy({
       where: {
         id,
       },
