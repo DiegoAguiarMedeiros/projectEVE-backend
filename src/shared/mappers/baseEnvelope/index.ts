@@ -1,5 +1,6 @@
 import { BaseEnvelopeDTO } from "../../../domain/dto/envelope/index.";
 import { BaseEnvelope } from "../../../domain/entities/baseEnvelope/BaseEnvelope";
+import { Color } from "../../../domain/shared/Color";
 import { Id } from "../../../domain/shared/Id";
 import { Name } from "../../../domain/shared/Name";
 import { Mapper } from "../Mapper";
@@ -16,16 +17,23 @@ export class BaseEnvelopeMap implements Mapper<BaseEnvelope> {
   public static toDomain(raw: any): BaseEnvelope {
     const NameOrError = Name.create({ name: raw.name });
     const IdOrError = Id.create(raw.userId);
+    const ColorOrError = Color.create({ color: raw.color });
+
     if (NameOrError.isFailure) {
       throw new Error('Invalid use name');
     }
     if (IdOrError.isFailure) {
       throw new Error('Invalid use id');
     }
+    
+    if (ColorOrError.isFailure) {
+      throw new Error('Invalid use color');
+    }
 
     const userOrError = BaseEnvelope.create(
       {
         name: NameOrError.getValue(),
+        color: ColorOrError.getValue(),
         id: IdOrError.getValue(),
       }
     );

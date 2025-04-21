@@ -9,6 +9,7 @@ import { UseCase } from "../../../../domain/shared/core/UseCase";
 import { UpdateDTO } from "./UpdateDTO";
 import { UpdateErrors } from "./UpdateErrors";
 import { UpdateResponse } from "./UpdateResponse";
+import { PaymentDay } from "../../../../domain/shared/PaymentDay";
 
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
@@ -33,9 +34,11 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const AmountOrError = Balance.create({ balance: request.amount ? request.amount : income.amount.value });
             AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
 
+            const PaymentDayOrError = PaymentDay.create({ paymentDay: request.paymentDay ? request.paymentDay : income.paymentDay.value });
+            PaymentDayOrError.isFailure ? console.error(PaymentDayOrError.getErrorValue()) : '';
 
             const dtoResult = Result.combine([
-                DescriptionOrError, AmountOrError,
+                DescriptionOrError, AmountOrError,PaymentDayOrError
             ]);
 
             if (dtoResult.isFailure) {
@@ -44,7 +47,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
 
             const description: Description = DescriptionOrError.getValue();
             const amount: Balance = AmountOrError.getValue();
-            const paymentDay: number = request.paymentDay ? request.paymentDay : income.paymentDay;
+            const paymentDay: PaymentDay = PaymentDayOrError.getValue();
 
 
 

@@ -6,15 +6,15 @@ const envelopeRouter = express.Router();
 
 /**
  * @swagger
- * /envelopes:
+ * /envelope:
  *   get:
- *     summary: Get all envelopes
- *     tags: [Envelopes]
+ *     summary: Get all envelope
+ *     tags: [Envelope]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: envelopes[]
+ *         description: envelope[]
  *       401:
  *         description: Unauthorized
  *       404:
@@ -27,10 +27,10 @@ envelopeRouter.get('/',
 
 /**
  * @swagger
- * /envelopes:
+ * /envelope:
  *   post:
  *     summary: Create Envelope
- *     tags: [Envelopes]
+ *     tags: [Envelope]
  *     requestBody:
  *       required: true
  *       content:
@@ -54,10 +54,10 @@ envelopeRouter.post('/',
 
 /**
  * @swagger
- * /envelopes/{id}:
+ * /envelope/{id}:
  *   delete:
  *     summary: Delete an envelope
- *     tags: [Envelopes]
+ *     tags: [Envelope]
  *     parameters:
  *       - in: path
  *         name: id
@@ -81,10 +81,10 @@ envelopeRouter.delete(
 
 /**
  * @swagger
- * /envelopes/{id}:
+ * /envelope/{id}:
  *   patch:
  *     summary: Update an envelope
- *     tags: [Envelopes]
+ *     tags: [Envelope]
  *     parameters:
  *       - in: path
  *         name: id
@@ -118,10 +118,10 @@ envelopeRouter.patch(
 
 /**
  * @swagger
- * /envelopes/{id}:
+ * /envelope/{id}:
  *   get:
  *     summary: Get an envelope by ID
- *     tags: [Envelopes]
+ *     tags: [Envelope]
  *     parameters:
  *       - in: path
  *         name: id

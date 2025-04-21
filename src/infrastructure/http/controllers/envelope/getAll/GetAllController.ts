@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
-import { GetAllDTO } from "../../../../../application/useCases/envelope/getAll/GetAllDTO";
+import {  Response } from "express";
 import { GetAllUseCase } from "../../../../../application/useCases/envelope/getAll/GetAllUseCase";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
+import { EnvelopeDTO } from "../../../../../domain/dto/envelope/index.";
 
 export class GetAllController extends BaseController {
     private useCase: GetAllUseCase;
@@ -26,8 +26,8 @@ export class GetAllController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: GetAllDTO = result.value.getValue() as GetAllDTO;
-                return this.ok<GetAllDTO>(res, dto);
+                const dto: EnvelopeDTO[] = result.value.getValue() as EnvelopeDTO[];
+                return this.ok<EnvelopeDTO[]>(res, dto);
             }
 
         } catch (err) {

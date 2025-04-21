@@ -9,7 +9,7 @@ export class Repository implements Interface {
 
     constructor(models: any) {
         this.models = models;
-        this.model = this.models.CreditCards;
+        this.model = this.models.CreditCard;
     }
 
     async checkName(name: string, userId: string): Promise<boolean> {
@@ -44,7 +44,7 @@ export class Repository implements Interface {
         const allowedColumns = ["name", "flag"];
         const allowedOrders = ["asc", "desc"];
 
-        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "createdAt";
+        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
         const data = await this.model.findAll({

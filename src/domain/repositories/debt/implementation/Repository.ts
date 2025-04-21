@@ -10,7 +10,7 @@ export class Repository implements Interface {
 
     constructor(models: any) {
         this.models = models;
-        this.model = this.models.Debts;
+        this.model = this.models.Debt;
     }
 
     async update(id: string, userId: string, data: Debt): Promise<boolean> {
@@ -22,7 +22,7 @@ export class Repository implements Interface {
                     id,
                     envelope_id: {
                         [Op.in]: Sequelize.literal(`(
-                        SELECT id FROM "envelopes" WHERE user_id = '${userId}'
+                        SELECT id FROM "envelope" WHERE user_id = '${userId}'
                       )`),
                     },
                 },
@@ -37,16 +37,16 @@ export class Repository implements Interface {
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Debt[]> {
         const limit = pageSize || undefined;
         const offset = page ? (page - 1) * (pageSize || 10) : 0;
-        const allowedColumns = ["description", "amount", "installments_total", "installments_paid", "payment_day", "status", "createdAt"];
+        const allowedColumns = ["description", "amount", "installments_total", "installments_paid", "payment_day", "status", "created_at"];
         const allowedOrders = ["asc", "desc"];
 
-        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "createdAt";
+        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
         const data = await this.model.findAll({
             where: {
                 envelope_id: {
-                    [Op.in]: Sequelize.literal(`(SELECT id FROM "envelopes" WHERE user_id = '${id}')`),
+                    [Op.in]: Sequelize.literal(`(SELECT id FROM "envelope" WHERE user_id = '${id}')`),
                 },
             },
             limit: limit,
@@ -63,7 +63,7 @@ export class Repository implements Interface {
                 id,
                 envelope_id: {
                     [Op.in]: Sequelize.literal(`(
-                      SELECT id FROM "envelopes" WHERE user_id = '${userId}'
+                      SELECT id FROM "envelope" WHERE user_id = '${userId}'
                     )`),
                 },
             },

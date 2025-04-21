@@ -2,21 +2,21 @@
 import express from 'express'
 import { authRouter, userRouter } from './user';
 import { creditCardRouter } from './creditCard';
-import { debtsRouter } from './debt';
+import { debtRouter } from './debt';
 import { envelopeRouter } from './envelope';
-import { incomesRouter } from './income';
-import { investmentsRouter } from './investment';
-import { transactionsRouter } from './transaction';
+import { incomeRouter } from './income';
+import { fixedExpenseRouter } from './fixedExpense';
+import { transactionRouter } from './transaction';
 
 const v1Router = express.Router();
 
 v1Router.use('/auth', authRouter);
 v1Router.use('/user', userRouter);
-v1Router.use('/envelopes', envelopeRouter);
-v1Router.use('/credit-cards', creditCardRouter);
-v1Router.use('/debts', debtsRouter);
-v1Router.use('/investments', investmentsRouter);
-v1Router.use('/incomes', incomesRouter);
-v1Router.use('/transactions', transactionsRouter);
+v1Router.use('/envelope', envelopeRouter);
+v1Router.use('/credit-card', creditCardRouter);
+v1Router.use('/debt', debtRouter);
+v1Router.use('/fixed-expense', fixedExpenseRouter);
+v1Router.use('/income', incomeRouter);
+v1Router.use('/transaction', transactionRouter);
 
 export { v1Router }

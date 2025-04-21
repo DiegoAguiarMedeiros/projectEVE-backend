@@ -70,11 +70,13 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
       await this.repo.create(user);
 
-      const envelopes = await this.baseEnvelopeRepo.getAll();
-      await envelopes.forEach(envelope => {
+      const data = await this.baseEnvelopeRepo.getAll();
+      await data.forEach(item => {
         this.createEnvelopeUseCase.execute({
           id: new UniqueEntityID(),
-          name: envelope.name.value,
+          name: item.name.value,
+          color: item.color.value,
+          percentage:0,
           userId: user.id.value,
           balance: 0,
           active: true,

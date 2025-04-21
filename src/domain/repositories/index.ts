@@ -4,22 +4,22 @@ import { Repository as  CreditCardRepo } from "./creditCard/implementation/Repos
 import { Repository as  DebtRepo } from "./debt/implementation/Repository";
 import { Repository as  EnvelopeRepo } from "./envelope/implementation/Repository";
 import { Repository as  IncomeRepo } from "./income/implementation/Repository";
-import { Repository as  InvestmentRepo } from "./investment/implementation/Repository";
+import { Repository as  FixedExpenseRepo } from "./fixedExpense/implementation/Repository";
 import { Repository as  TransactionRepo } from "./transaction/implementation/Repository";
 import { Repository as  UserRepo } from "./user/implementation/Repository";
 
 
-models.Debts.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
-models.Transactions.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
-models.Investments.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
-models.Envelopes.belongsTo(models.Users, { foreignKey: 'user_id' });
-models.Envelopes.hasMany(models.Debts, { foreignKey: 'envelope_id' });
-models.Users.hasMany(models.Envelopes, { foreignKey: 'user_id' });
+models.Debt.belongsTo(models.Envelope, { foreignKey: 'envelope_id' });
+models.Transaction.belongsTo(models.Envelope, { foreignKey: 'envelope_id' });
+models.FixedExpense.belongsTo(models.Envelope, { foreignKey: 'envelope_id' });
+models.Envelope.belongsTo(models.User, { foreignKey: 'user_id' });
+models.Envelope.hasMany(models.Debt, { foreignKey: 'envelope_id' });
+models.User.hasMany(models.Envelope, { foreignKey: 'user_id' });
 
 const envelopeRepo = new EnvelopeRepo(models);
 const baseEnvelopeRepo = new BaseEnvelopeRepo(models);
 const creditCardRepo = new CreditCardRepo(models);
-const investmentRepo = new InvestmentRepo(models);
+const fixedExpenseRepo = new FixedExpenseRepo(models);
 const debtRepo = new DebtRepo(models);
 const incomeRepo = new IncomeRepo(models);
 const transactionRepo = new TransactionRepo(models);
@@ -27,4 +27,4 @@ const userRepo = new UserRepo(models);
 
 
 
-export { userRepo,envelopeRepo, baseEnvelopeRepo, creditCardRepo, debtRepo, investmentRepo, incomeRepo ,transactionRepo}
+export { userRepo,envelopeRepo, baseEnvelopeRepo, creditCardRepo, debtRepo, fixedExpenseRepo, incomeRepo ,transactionRepo}

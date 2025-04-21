@@ -21,6 +21,7 @@ export class CreateController extends BaseController {
     let dto: CreateDTO = req.body as CreateDTO;
     const { id } = req.decoded;
     dto = {
+      ...dto,
       id: new UniqueEntityID(),
       name: TextUtils.sanitize(dto.name),
       userId: id,

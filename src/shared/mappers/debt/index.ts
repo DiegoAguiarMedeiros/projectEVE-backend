@@ -3,6 +3,7 @@ import { Debt } from "../../../domain/entities/debt/Debt";
 import { Balance } from "../../../domain/shared/Balance";
 import { Description } from "../../../domain/shared/Description";
 import { Id } from "../../../domain/shared/Id";
+import { PaymentDay } from "../../../domain/shared/PaymentDay";
 import { Mapper } from "../Mapper";
 
 export class DebtMap implements Mapper<Debt> {
@@ -14,7 +15,7 @@ export class DebtMap implements Mapper<Debt> {
       amount: debt.amount.value,
       installmentsTotal: debt.installmentsTotal.value,
       installmentsPaid: debt.installmentsPaid.value,
-      paymentDay: debt.paymentDay,
+      paymentDay: debt.paymentDay.value,
       status: debt.status,
     };
   }
@@ -38,6 +39,10 @@ export class DebtMap implements Mapper<Debt> {
     const EvelopeIdOrError = Id.create(raw.envelope_id);
     EvelopeIdOrError.isFailure ? console.error(EvelopeIdOrError.getErrorValue()) : '';
 
+    const PaymentDayOrError = PaymentDay.create({ paymentDay: raw.payment_day });
+    PaymentDayOrError.isFailure ? console.error(PaymentDayOrError.getErrorValue()) : '';
+
+
     const debtOrError = Debt.create(
       {
         id: IdOrError.getValue(),
@@ -46,7 +51,7 @@ export class DebtMap implements Mapper<Debt> {
         amount: AmountOrError.getValue(),
         installmentsTotal: InstallmentsTotalOrError.getValue(),
         installmentsPaid: InstallmentsPaidOrError.getValue(),
-        paymentDay: raw.payment_day,
+        paymentDay: PaymentDayOrError.getValue(),
         status: raw.status,
       }
     );

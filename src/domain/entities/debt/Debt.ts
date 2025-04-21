@@ -3,6 +3,7 @@ import { Guard } from "../../shared/core/Guard";
 import { Result } from "../../shared/core/Result";
 import { Description } from "../../shared/Description";
 import { Id } from "../../shared/Id";
+import { PaymentDay } from "../../shared/PaymentDay";
 import { DebtsStatus } from "./DebtsStatus";
 
 interface DebtProps {
@@ -12,7 +13,7 @@ interface DebtProps {
   amount: Balance;
   installmentsTotal: Balance;
   installmentsPaid: Balance;
-  paymentDay: Date;
+  paymentDay: PaymentDay;
   status: DebtsStatus;
 }
 
@@ -53,10 +54,10 @@ export class Debt {
   public updateInstallmentsPaid(installmentsPaid: Balance): void {
     this.props.installmentsPaid = installmentsPaid;
   }
-  get paymentDay(): Date {
+  get paymentDay(): PaymentDay {
     return this.props.paymentDay;
   }
-  public updatepaymentDay(paymentDay: Date): void {
+  public updatepaymentDay(paymentDay: PaymentDay): void {
     this.props.paymentDay = paymentDay;
   }
   get status(): DebtsStatus {

@@ -1,9 +1,9 @@
 import { UseCase } from "../../../../domain/shared/core/UseCase";
-import { Interface as IEnvelopeRepo} from "../../../../domain/repositories/envelope/Interface";
-import { GetAllDTO } from "./GetAllDTO";
+import { Interface as IEnvelopeRepo } from "../../../../domain/repositories/envelope/Interface";
 import { GetAllResponse } from "./GetAllResponse";
 import { Result, right } from "../../../../domain/shared/core/Result";
-
+import { EnvelopeDTO } from "../../../../domain/dto/envelope/index.";
+import { EnvelopeMap as Mapper } from "../../../../shared/mappers/envelope";
 
 
 export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
@@ -13,11 +13,11 @@ export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
         this.envelopeRepo = envelopeRepo;
     }
     async execute(id: string): Promise<GetAllResponse> {
-        const envelopes = await this.envelopeRepo.getAll(id);
+        const data = await this.envelopeRepo.getAll(id);
 
-        return right(Result.ok<GetAllDTO>({
-            envelopes
-        }));
+        return right(Result.ok<EnvelopeDTO[]>(
+            data.map((item: any) => Mapper.toDTO(item))
+        ));
     }
 
 }

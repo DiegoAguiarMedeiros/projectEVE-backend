@@ -6,6 +6,6 @@ export interface CreateDTO {
   amount: number;
   installmentsTotal: number;
   installmentsPaid: number;
-  paymentDay: Date;
+  paymentDay: number;
   status: DebtsStatus;
 }

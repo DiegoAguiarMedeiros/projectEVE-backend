@@ -1,9 +1,10 @@
 
 import { Income } from "../../../../domain/entities/income/Income";
-import { Interface as IIncomesRepo} from "../../../../domain/repositories/income/Interface";
+import { Interface as IIncomesRepo } from "../../../../domain/repositories/income/Interface";
 import { Balance } from "../../../../domain/shared/Balance";
 import { Description } from "../../../../domain/shared/Description";
 import { Id } from "../../../../domain/shared/Id";
+import { PaymentDay } from "../../../../domain/shared/PaymentDay";
 import { UniqueEntityID } from "../../../../domain/shared/UniqueEntityID";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { Result, left, right } from "../../../../domain/shared/core/Result";
@@ -23,9 +24,9 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const AmountOrError = Balance.create({ balance: request.amount });
     const UserIdOrError = Id.create(new UniqueEntityID(request.userId));
     const IdOrError = Id.create(new UniqueEntityID());
-
+    const PaymentDayOrError = PaymentDay.create({ paymentDay: request.paymentDay });
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, UserIdOrError, IdOrError
+      DescriptionOrError, AmountOrError, UserIdOrError, IdOrError, PaymentDayOrError
     ]);
 
     if (dtoResult.isFailure) {
@@ -36,7 +37,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const userId: Id = UserIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
-    const paymentDay: number = request.paymentDay;
+    const paymentDay: PaymentDay = PaymentDayOrError.getValue();
+
 
     try {
 

@@ -5,10 +5,10 @@ const creditCardRouter = express.Router();
 
 /**
  * @swagger
- * /credit-cards:
+ * /credit-card:
  *   get:
  *     summary: Get all Credit Cards
- *     tags: [Credit Cards]
+ *     tags: [Credit Card]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -49,10 +49,10 @@ creditCardRouter.get('/',
 
 /**
  * @swagger
- * /credit-cards:
+ * /credit-card:
  *   post:
  *     summary: Create Credit Card
- *     tags: [Credit Cards]
+ *     tags: [Credit Card]
  *     requestBody:
  *       required: true
  *       content:
@@ -90,10 +90,10 @@ creditCardRouter.post('/',
 
 /**
  * @swagger
- * /credit-cards/{id}:
+ * /credit-card/{id}:
  *   delete:
  *     summary: Delete an Credit Card
- *     tags: [Credit Cards]
+ *     tags: [Credit Card]
  *     parameters:
  *       - in: path
  *         name: id
@@ -117,10 +117,10 @@ creditCardRouter.delete(
 
 /**
  * @swagger
- * /credit-cards/{id}:
+ * /credit-card/{id}:
  *   patch:
  *     summary: Update an Credit Card
- *     tags: [Credit Cards]
+ *     tags: [Credit Card]
  *     parameters:
  *       - in: path
  *         name: id
@@ -166,10 +166,10 @@ creditCardRouter.patch(
 
 /**
  * @swagger
- * /credit-cards/{id}:
+ * /credit-card/{id}:
  *   get:
  *     summary: Get an Credit Card by ID
- *     tags: [Credit Cards]
+ *     tags: [Credit Card]
  *     parameters:
  *       - in: path
  *         name: id

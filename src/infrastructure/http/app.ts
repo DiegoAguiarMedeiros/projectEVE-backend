@@ -63,7 +63,7 @@ const options = {
     path.resolve(__dirname, './routes/debt/*.js'),
     path.resolve(__dirname, './routes/envelope/*.js'),
     path.resolve(__dirname, './routes/income/*.js'),
-    path.resolve(__dirname, './routes/investment/*.js'),
+    path.resolve(__dirname, './routes/fixedExpense/*.js'),
     path.resolve(__dirname, './routes/transaction/*.js'),
   ],
 };

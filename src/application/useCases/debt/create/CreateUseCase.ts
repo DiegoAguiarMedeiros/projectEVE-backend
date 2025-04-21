@@ -13,6 +13,7 @@ import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
 import { CreateDTO } from "./CreateDTO";
 import { CreateResponse } from "./CreateResponse";
+import { PaymentDay } from "../../../../domain/shared/PaymentDay";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private debtRepo: IDebtRepo;
@@ -24,7 +25,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
-    console.log("request",request)
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
     const InstallmentsTotalOrError = Balance.create({ balance: request.installmentsTotal });
@@ -40,8 +40,9 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const envelope = EnvelopeMap.toDomain(envelopeRaw);
     const EnvelopeIdOrError = Id.create(new UniqueEntityID(envelope.id.value));
 
+    const PaymentDayOrError = PaymentDay.create({ paymentDay: request.paymentDay });
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, IdOrError,EnvelopeIdOrError,  InstallmentsTotalOrError, InstallmentsPaidOrError
+      DescriptionOrError, AmountOrError, IdOrError,EnvelopeIdOrError,  InstallmentsTotalOrError, InstallmentsPaidOrError,PaymentDayOrError
     ]);
     
     if (dtoResult.isFailure) {
@@ -54,7 +55,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const amount: Balance = AmountOrError.getValue();
     const installmentsTotal: Balance = InstallmentsTotalOrError.getValue();
     const installmentsPaid: Balance = InstallmentsPaidOrError.getValue();
-    const paymentDay: Date = request.paymentDay;
+    const paymentDay: PaymentDay = PaymentDayOrError.getValue();
+
     const status: DebtsStatus = request.status;
 
     try {

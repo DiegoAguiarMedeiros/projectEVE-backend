@@ -9,12 +9,12 @@ export class Repository implements Interface {
 
     constructor(models: any) {
         this.models = models;
-        this.model = this.models.BaseEnvelopes;
+        this.model = this.models.BaseEnvelope;
     }
 
     async getAll(): Promise<BaseEnvelope[]> {
         const data = await this.model.findAll({
-            attributes: ['id', 'name'],
+            attributes: ['id', 'name','color'],
             raw: true,
         });
         return data.map((e: any) => Mapper.toDomain(e));;

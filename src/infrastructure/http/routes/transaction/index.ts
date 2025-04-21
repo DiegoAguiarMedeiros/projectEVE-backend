@@ -2,14 +2,14 @@ import express from 'express'
 import { middleware } from '../..';
 import transactionController from '../../controllers/transaction';
 
-const transactionsRouter = express.Router();
+const transactionRouter = express.Router();
 
 /**
  * @swagger
- * /transactions:
+ * /transaction:
  *   get:
  *     summary: Get all Transactions
- *     tags: [Transactions]
+ *     tags: [Transaction]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -18,17 +18,17 @@ const transactionsRouter = express.Router();
  *       401:
  *         description: Unauthorized
   */
-transactionsRouter.get('/',
+transactionRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.getAll.execute(req, res)
 );
 
 /**
  * @swagger
- * /transactions:
+ * /transaction:
  *   post:
  *     summary: Create Transactions
- *     tags: [Transactions]
+ *     tags: [Transaction]
  *     requestBody:
  *       required: true
  *       content:
@@ -80,7 +80,7 @@ transactionsRouter.get('/',
  *         description: Unauthorized
  */
 
-transactionsRouter.post('/',
+transactionRouter.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.create.execute(req, res)
 )
@@ -88,10 +88,10 @@ transactionsRouter.post('/',
 
 /**
  * @swagger
- * /transactions/{id}:
+ * /transaction/{id}:
  *   delete:
  *     summary: Delete an Transactions
- *     tags: [Transactions]
+ *     tags: [Transaction]
  *     parameters:
  *       - in: path
  *         name: id
@@ -107,7 +107,7 @@ transactionsRouter.post('/',
  *       404:
  *         description: Transactions not found
  */
-transactionsRouter.delete(
+transactionRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.delete.execute(req, res)
@@ -115,10 +115,10 @@ transactionsRouter.delete(
 
 /**
  * @swagger
- * /transactions/{id}:
+ * /transaction/{id}:
  *   patch:
  *     summary: Update an Transactions
- *     tags: [Transactions]
+ *     tags: [Transaction]
  *     parameters:
  *       - in: path
  *         name: id
@@ -179,7 +179,7 @@ transactionsRouter.delete(
  *         description: Transactions not found
  */
 
-transactionsRouter.patch(
+transactionRouter.patch(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.update.execute(req, res)
@@ -187,10 +187,10 @@ transactionsRouter.patch(
 
 /**
  * @swagger
- * /transactions/{id}:
+ * /transaction/{id}:
  *   get:
  *     summary: Get an Transactions by ID
- *     tags: [Transactions]
+ *     tags: [Transaction]
  *     parameters:
  *       - in: path
  *         name: id
@@ -215,7 +215,7 @@ transactionsRouter.patch(
  *       404:
  *         description: Transactions not found
  */
-transactionsRouter.get(
+transactionRouter.get(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.get.execute(req, res)
@@ -223,4 +223,4 @@ transactionsRouter.get(
 
 
 
-export { transactionsRouter };
+export { transactionRouter };

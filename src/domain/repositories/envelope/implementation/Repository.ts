@@ -9,7 +9,7 @@ export class Repository implements Interface {
 
     constructor(models: any) {
         this.models = models;
-        this.model = this.models.Envelopes;
+        this.model = this.models.Envelope;
     }
 
     async checkName(name: string, userId: string): Promise<boolean> {
@@ -41,10 +41,10 @@ export class Repository implements Interface {
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Envelope[]> {
         const limit = pageSize || undefined;
         const offset = page ? (page - 1) * (pageSize || 10) : 0;
-        const allowedColumns = ["name", "balance", "active", "createdAt"];
+        const allowedColumns = ["name", "balance", "active", "created_at"];
         const allowedOrders = ["asc", "desc"];
 
-        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "createdAt";
+        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
         const data = await this.model.findAll({

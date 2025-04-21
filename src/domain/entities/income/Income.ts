@@ -3,6 +3,7 @@ import { Guard } from "../../shared/core/Guard";
 import { Result } from "../../shared/core/Result";
 import { Description } from "../../shared/Description";
 import { Id } from "../../shared/Id";
+import { PaymentDay } from "../../shared/PaymentDay";
 
 
 interface IncomeProps {
@@ -10,7 +11,7 @@ interface IncomeProps {
   userId: Id;
   description: Description;
   amount: Balance;
-  paymentDay: number;
+  paymentDay: PaymentDay;
 }
 
 
@@ -35,10 +36,10 @@ export class Income {
   public updateAmount(amount: Balance): void {
     this.props.amount = amount;
   }
-  get paymentDay(): number {
+  get paymentDay(): PaymentDay {
     return this.props.paymentDay;
   }
-  public updatepaymentDay(paymentDay: number): void {
+  public updatepaymentDay(paymentDay: PaymentDay): void {
     this.props.paymentDay = paymentDay;
   }
 

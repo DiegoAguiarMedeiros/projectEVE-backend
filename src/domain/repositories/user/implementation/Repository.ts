@@ -10,7 +10,7 @@ export class Repository implements Interface {
 
     constructor(models: any) {
         this.models = models;
-        this.model = this.models.Users;
+        this.model = this.models.User;
     }
 
     async exists(data: Email): Promise<boolean> {

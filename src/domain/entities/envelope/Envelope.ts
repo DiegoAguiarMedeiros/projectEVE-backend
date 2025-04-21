@@ -3,12 +3,16 @@ import { Guard } from "../../shared/core/Guard";
 import { Result } from "../../shared/core/Result";
 import { Id } from "../../shared/Id";
 import { Name } from "../../shared/Name";
+import { Color } from "../../shared/Color";
+import { Percentage } from "./Percentage";
 
 
 interface EnvelopeProps {
   id: Id;
   name: Name;
   balance: Balance;
+  color: Color;
+  percentage: Percentage;
   active: boolean;
   is_editable: boolean;
   userId: Id;
@@ -34,6 +38,18 @@ export class Envelope {
   }
   public updateName(name: Name): void {
     this.props.name = name;
+  }
+  get color(): Color {
+    return this.props.color;
+  }
+  public updateColor(color: Color): void {
+    this.props.color = color;
+  }
+  get percentage(): Percentage {
+    return this.props.percentage;
+  }
+  public updatePercentage(percentage: Percentage): void {
+    this.props.percentage = percentage;
   }
   get userId(): Id {
     return this.props.userId;

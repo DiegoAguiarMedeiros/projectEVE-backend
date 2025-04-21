@@ -2,14 +2,14 @@ import express from 'express'
 import { middleware } from '../..';
 import incomeController from '../../controllers/income';
 
-const incomesRouter = express.Router();
+const incomeRouter = express.Router();
 
 /**
  * @swagger
- * /incomes:
+ * /income:
  *   get:
  *     summary: Get all Incomes with pagination and sorting
- *     tags: [Incomes]
+ *     tags: [Income]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -44,7 +44,7 @@ const incomesRouter = express.Router();
  *         description: Unauthorized
  */
 
-incomesRouter.get('/',
+incomeRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => incomeController.getAll.execute(req, res)
 );
@@ -52,10 +52,10 @@ incomesRouter.get('/',
 
 /**
  * @swagger
- * /incomes:
+ * /income:
  *   post:
  *     summary: Create Income
- *     tags: [Incomes]
+ *     tags: [Income]
  *     requestBody:
  *       required: true
  *       content:
@@ -79,7 +79,7 @@ incomesRouter.get('/',
  *         description: Unauthorized
  */
 
-incomesRouter.post('/',
+incomeRouter.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => incomeController.create.execute(req, res)
 )
@@ -87,10 +87,10 @@ incomesRouter.post('/',
 
 /**
  * @swagger
- * /incomes/{id}:
+ * /income/{id}:
  *   delete:
  *     summary: Delete an Income
- *     tags: [Incomes]
+ *     tags: [Income]
  *     parameters:
  *       - in: path
  *         name: id
@@ -106,7 +106,7 @@ incomesRouter.post('/',
  *       404:
  *         description: Income not found
  */
-incomesRouter.delete(
+incomeRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => incomeController.delete.execute(req, res)
@@ -114,10 +114,10 @@ incomesRouter.delete(
 
 /**
  * @swagger
- * /incomes/{id}:
+ * /income/{id}:
  *   patch:
  *     summary: Update an Income
- *     tags: [Incomes]
+ *     tags: [Income]
  *     parameters:
  *       - in: path
  *         name: id
@@ -150,7 +150,7 @@ incomesRouter.delete(
  *         description: Income not found
  */
 
-incomesRouter.patch(
+incomeRouter.patch(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => incomeController.update.execute(req, res)
@@ -158,10 +158,10 @@ incomesRouter.patch(
 
 /**
  * @swagger
- * /incomes/{id}:
+ * /income/{id}:
  *   get:
  *     summary: Get an Income by ID
- *     tags: [Incomes]
+ *     tags: [Income]
  *     parameters:
  *       - in: path
  *         name: id
@@ -186,7 +186,7 @@ incomesRouter.patch(
  *       404:
  *         description: Income not found
  */
-incomesRouter.get(
+incomeRouter.get(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => incomeController.get.execute(req, res)
@@ -194,4 +194,4 @@ incomesRouter.get(
 
 
 
-export { incomesRouter };
+export { incomeRouter };

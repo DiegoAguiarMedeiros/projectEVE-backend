@@ -1,14 +1,14 @@
 import express from 'express'
 import { middleware } from '../..';
 import debtController from '../../controllers/debt';
-const debtsRouter = express.Router();
+const debtRouter = express.Router();
 
 /**
  * @swagger
- * /debts:
+ * /debt:
  *   get:
  *     summary: Get all Debts
- *     tags: [Debts]
+ *     tags: [Debt]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -19,17 +19,17 @@ const debtsRouter = express.Router();
  *       404:
  *         description: Debt not found
   */
-debtsRouter.get('/',
+debtRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => debtController.getAll.execute(req, res)
 );
 
 /**
  * @swagger
- * /debts:
+ * /debt:
  *   post:
  *     summary: Create Debt
- *     tags: [Debts]
+ *     tags: [Debt]
  *     requestBody:
  *       required: true
  *       content:
@@ -70,7 +70,7 @@ debtsRouter.get('/',
  *         description: Unauthorized
  */
 
-debtsRouter.post('/',
+debtRouter.post('/',
   middleware.ensureAuthenticated(),
   (req, res) => debtController.create.execute(req, res)
 )
@@ -78,10 +78,10 @@ debtsRouter.post('/',
 
 /**
  * @swagger
- * /debts/{id}:
+ * /debt/{id}:
  *   delete:
  *     summary: Delete an Debt
- *     tags: [Debts]
+ *     tags: [Debt]
  *     parameters:
  *       - in: path
  *         name: id
@@ -97,7 +97,7 @@ debtsRouter.post('/',
  *       404:
  *         description: Debt not found
  */
-debtsRouter.delete(
+debtRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => debtController.delete.execute(req, res)
@@ -105,10 +105,10 @@ debtsRouter.delete(
 
 /**
  * @swagger
- * /debts/{id}:
+ * /debt/{id}:
  *   patch:
  *     summary: Update an Debt
- *     tags: [Debts]
+ *     tags: [Debt]
  *     parameters:
  *       - in: path
  *         name: id
@@ -158,7 +158,7 @@ debtsRouter.delete(
  *         description: Debt not found
  */
 
-debtsRouter.patch(
+debtRouter.patch(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => debtController.update.execute(req, res)
@@ -166,10 +166,10 @@ debtsRouter.patch(
 
 /**
  * @swagger
- * /debts/{id}:
+ * /debt/{id}:
  *   get:
  *     summary: Get an Debt by ID
- *     tags: [Debts]
+ *     tags: [Debt]
  *     parameters:
  *       - in: path
  *         name: id
@@ -194,7 +194,7 @@ debtsRouter.patch(
  *       404:
  *         description: Debt not found
  */
-debtsRouter.get(
+debtRouter.get(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => debtController.get.execute(req, res)
@@ -202,4 +202,4 @@ debtsRouter.get(
 
 
 
-export { debtsRouter };
+export { debtRouter };

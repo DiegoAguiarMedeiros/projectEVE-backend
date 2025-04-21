@@ -1,6 +1,8 @@
 
+import { Color } from "../../../../domain/shared/Color";
 import { Envelope } from "../../../../domain/entities/envelope/Envelope";
-import {Interface as IEnvelopeRepo } from "../../../../domain/repositories/envelope/Interface";
+import { Percentage } from "../../../../domain/entities/envelope/Percentage";
+import { Interface as IEnvelopeRepo } from "../../../../domain/repositories/envelope/Interface";
 import { Balance } from "../../../../domain/shared/Balance";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
@@ -24,20 +26,24 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const nameOrError = Name.create({ name: request.name });
     const balanceOrError = Balance.create({ balance: request.balance });
     const userIdOrError = Id.create(new UniqueEntityID(request.userId));
-    const idorError = Id.create(request.id);
+    const idOrError = Id.create(request.id);
+    const colorOrError = Color.create({ color: request.color });
+    const percentageOrError = Percentage.create({ percentage: request.percentage });
 
     const dtoResult = Result.combine([
-      nameOrError, userIdOrError, idorError, balanceOrError
+      nameOrError, userIdOrError, idOrError, balanceOrError,colorOrError, percentageOrError
     ]);
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
-    const id: Id = idorError.getValue();
+    const id: Id = idOrError.getValue();
     const name: Name = nameOrError.getValue();
     const balance: Balance = balanceOrError.getValue();
     const userId: Id = userIdOrError.getValue();
+    const color: Color = colorOrError.getValue();
+    const percentage: Percentage = percentageOrError.getValue();
 
     try {
 
@@ -54,7 +60,9 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         userId,
         balance: balance,
         active: request.active,
-        is_editable: request.is_editable
+        is_editable: request.is_editable,
+        color,
+        percentage
       });
 
       if (EnvelopeOrError.isFailure) {
