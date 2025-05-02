@@ -2,7 +2,7 @@ import {  Response } from "express";
 import { GetAllUseCase } from "../../../../../application/useCases/envelope/getAll/GetAllUseCase";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
-import { EnvelopeDTO } from "../../../../../domain/dto/envelope/index.";
+import { EnvelopeDTO } from "../../../../../domain/dto/envelope";
 
 export class GetAllController extends BaseController {
     private useCase: GetAllUseCase;

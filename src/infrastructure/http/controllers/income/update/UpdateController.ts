@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { UpdateUseCase } from "../../../../../application/useCases/income/update/UpdateUseCase";
-import { UpdateDTO } from "../../../../../application/useCases/income/update/UpdateDTO";
 import { TextUtils } from "../../../../../shared/utils/TextUtils";
 import { UpdateErrors } from "../../../../../application/useCases/income/update/UpdateErrors";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
 import { UniqueEntityID } from "../../../../../domain/shared/UniqueEntityID";
+import { UpdateDTO } from "../../../../../domain/dto/income";
 
 export class UpdateController extends BaseController {
     private useCase: UpdateUseCase;
@@ -15,13 +15,18 @@ export class UpdateController extends BaseController {
         this.useCase = useCase;
     }
     protected async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
-        let dto: UpdateDTO = req.body as UpdateDTO;
         let params: any = req.params;
         const { id } = req.decoded;
-        dto = {
-            ...dto,
-            id: new UniqueEntityID(params.id),
-            userId: new UniqueEntityID(id),
+        const dto: UpdateDTO = {
+            request: {
+                id: params.id,
+                userId: id,
+            },
+            fieldUpdate: {
+                description: req.body.description,
+                amount: req.body.amount,
+                paymentDay: req.body.paymentDay,
+            }
         }
 
         try {

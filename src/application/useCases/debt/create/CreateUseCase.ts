@@ -11,9 +11,9 @@ import { EnvelopeMap } from "../../../../shared/mappers/envelope";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
-import { CreateDTO } from "./CreateDTO";
 import { CreateResponse } from "./CreateResponse";
 import { PaymentDay } from "../../../../domain/shared/PaymentDay";
+import { CreateDTO } from "../../../../domain/dto/debt";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private debtRepo: IDebtRepo;

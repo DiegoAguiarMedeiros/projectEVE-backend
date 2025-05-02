@@ -1,10 +1,8 @@
 import { CreditCard } from "../../../../domain/entities/creditCard/CreditCard";
 import { Pagination } from "../../../../domain/entities/pagination/Pagination";
 import { Interface as ICreditCardRepo} from "../../../../domain/repositories/creditCard/Interface";
-import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, right, Result } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
-import { GetAllDTO } from "./GetAllDTO";
 import { GetAllResponse } from "./GetAllResponse";
 
 

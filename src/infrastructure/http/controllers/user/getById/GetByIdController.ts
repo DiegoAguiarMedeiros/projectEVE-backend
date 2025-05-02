@@ -2,19 +2,15 @@
 import * as express from 'express';
 import { BaseController } from '../../shared/BaseController';
 import { DecodedExpressRequest } from '../../shared/DecodedExpressRequest';
-import { GetByIdUseCase } from '../../../../../application/useCases/user/getById/GetByIdUseCase';
-import { GetByIdDTO } from '../../../../../application/useCases/user/getById/GetByIdDTO';
+import { GetByIdDTO } from '../../../../../domain/dto/user';
 
 export class GetByIdController extends BaseController {
-  private useCase: GetByIdUseCase;
 
-  constructor(useCase: GetByIdUseCase) {
+  constructor() {
     super();
-    this.useCase = useCase;
   }
 
   async executeImpl(req: DecodedExpressRequest, res: express.Response): Promise<any> {
-    const dto: GetByIdDTO = req.body as GetByIdDTO;
     try {
       const user = req.decoded;
 

@@ -1,5 +1,3 @@
-
-import { CreateDTO } from "./CreateDTO";
 import { CreateErrors } from "./CreateErrors";
 import { UniqueEntityID } from "../../../../domain/shared/UniqueEntityID";
 import { AppError } from "../../../../domain/shared/core/AppError";
@@ -11,6 +9,7 @@ import { Flag } from "../../../../domain/entities/creditCard/Flag";
 import { Id } from "../../../../domain/shared/Id";
 import { Name } from "../../../../domain/shared/Name";
 import { Result, left, right } from "../../../../domain/shared/core/Result";
+import { CreateDTO } from "../../../../domain/dto/creditCard";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private creditCardRepo: ICreditCardRepo;
@@ -23,7 +22,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const nameOrError = Name.create({ name: request.name });
     const flagOrError = Flag.create({ flag: request.flag });
     const userIdOrError = Id.create(new UniqueEntityID(request.userId));
-    const idorError = Id.create(request.id);
+    const idorError = Id.create(new UniqueEntityID());
 
     const dtoResult = Result.combine([
       nameOrError, userIdOrError, idorError, flagOrError

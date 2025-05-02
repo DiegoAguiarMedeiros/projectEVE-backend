@@ -10,9 +10,9 @@ import { UseCase } from "../../../../domain/shared/core/UseCase";
 import { Id } from "../../../../domain/shared/Id";
 import { Name } from "../../../../domain/shared/Name";
 import { UniqueEntityID } from "../../../../domain/shared/UniqueEntityID";
-import { CreateDTO } from "./CreateDTO";
 import { CreateErrors } from "./CreateErrors";
 import { CreateResponse } from "./CreateResponse";
+import { CreateDTO } from "../../../../domain/dto/envelope";
 
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
@@ -26,7 +26,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const nameOrError = Name.create({ name: request.name });
     const balanceOrError = Balance.create({ balance: request.balance });
     const userIdOrError = Id.create(new UniqueEntityID(request.userId));
-    const idOrError = Id.create(request.id);
+    const idOrError = Id.create(new UniqueEntityID());
     const colorOrError = Color.create({ color: request.color });
     const percentageOrError = Percentage.create({ percentage: request.percentage });
 

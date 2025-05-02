@@ -1,9 +1,9 @@
 import { Response } from "express";
 import { UpdateUseCase } from "../../../../../application/useCases/fixedExpense/update/UpdateUseCase";
-import { UpdateDTO } from "../../../../../application/useCases/fixedExpense/update/UpdateDTO";
 import { UpdateErrors } from "../../../../../application/useCases/fixedExpense/update/UpdateErrors";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
+import { UpdateDTO } from "../../../../../domain/dto/fixedExpense";
 
 export class UpdateController extends BaseController {
     private useCase: UpdateUseCase;
@@ -13,13 +13,19 @@ export class UpdateController extends BaseController {
         this.useCase = useCase;
     }
     protected async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
-        let dto: UpdateDTO = req.body as UpdateDTO;
         let params: any = req.params;
         const { id } = req.decoded;
-        dto = {
-            ...dto,
-            id: params.id,
-            userId: id,
+        const dto: UpdateDTO = {
+            request: {
+                id: params.id,
+                userId: id,
+            },
+            fieldUpdate: {
+                envelopeId: req.body.envelopeId,
+                description: req.body.description,
+                amount: req.body.amount,
+                paymentDay: req.body.paymentDay,
+            }
         }
 
         try {

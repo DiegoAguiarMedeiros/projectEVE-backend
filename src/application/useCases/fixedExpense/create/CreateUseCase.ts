@@ -1,7 +1,6 @@
 
 import { Interface as IFixedExpenseRepo } from "../../../../domain/repositories/fixedExpense/Interface";
 import { Interface as IEnvelopeRepo } from "../../../../domain/repositories/envelope/Interface";
-import { CreateDTO } from "./CreateDTO";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
 import { CreateResponse } from "./CreateResponse";
 import { FixedExpense } from "../../../../domain/entities/fixedExpense/FixedExpense";
@@ -13,6 +12,7 @@ import { EnvelopeMap } from "../../../../shared/mappers/envelope";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { PaymentDay } from "../../../../domain/shared/PaymentDay";
+import { CreateDTO } from "../../../../domain/dto/fixedExpense";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private repo: IFixedExpenseRepo;
@@ -39,9 +39,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
-
-
-
 
     const id: Id = IdOrError.getValue();
     const envelopeId: Id = EnvelopeIdOrError.getValue();

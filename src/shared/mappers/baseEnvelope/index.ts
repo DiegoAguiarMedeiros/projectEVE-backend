@@ -1,4 +1,4 @@
-import { BaseEnvelopeDTO } from "../../../domain/dto/envelope/index.";
+import { BaseEnvelopeDTO } from "../../../domain/dto/envelope";
 import { BaseEnvelope } from "../../../domain/entities/baseEnvelope/BaseEnvelope";
 import { Color } from "../../../domain/shared/Color";
 import { Id } from "../../../domain/shared/Id";

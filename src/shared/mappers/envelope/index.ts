@@ -1,4 +1,4 @@
-import { EnvelopeDTO } from "../../../domain/dto/envelope/index.";
+import { EnvelopeDTO } from "../../../domain/dto/envelope";
 import { Envelope } from "../../../domain/entities/envelope/Envelope";
 import { Percentage } from "../../../domain/entities/envelope/Percentage";
 import { Balance } from "../../../domain/shared/Balance";

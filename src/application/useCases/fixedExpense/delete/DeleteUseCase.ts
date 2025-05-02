@@ -1,10 +1,9 @@
 
+import { DeleteDTO } from "../../../../domain/dto/fixedExpense";
 import { Interface as IFixedExpenseRepo} from "../../../../domain/repositories/fixedExpense/Interface";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
-
-import { DeleteDTO } from "./DeleteDTO";
 import { DeleteErrors } from "./DeleteErrors";
 import { DeleteResponse } from "./DeleteResponse";
 
@@ -19,15 +18,15 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
     async execute(request: DeleteDTO): Promise<DeleteResponse> {
 
         try {
-            const investment = await this.repo.getById(request.id.toString(), request.userId.toString());
+            const investment = await this.repo.getById(request.id, request.userId);
 
             if (!investment) {
                 return left(
-                    new DeleteErrors.NotFound(request.id.toString())
+                    new DeleteErrors.NotFound(request.id)
                 ) as DeleteResponse;
             }
 
-            await this.repo.delete(request.id.toString());
+            await this.repo.delete(request.id);
             return right(Result.ok<void>()) as DeleteResponse;
 
         } catch (err) {

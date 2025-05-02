@@ -1,4 +1,4 @@
-import { EnvelopeDTO } from "../../../../domain/dto/envelope/index.";
+import { EnvelopeDTO } from "../../../../domain/dto/envelope";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { Either, Result } from "../../../../domain/shared/core/Result";
 

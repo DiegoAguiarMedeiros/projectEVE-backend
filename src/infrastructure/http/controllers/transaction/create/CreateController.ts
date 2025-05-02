@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { CreateUseCase } from "../../../../../application/useCases/transaction/create/CreateUseCase";
-import { CreateDTO } from "../../../../../application/useCases/transaction/create/CreateDTO";
 import { TextUtils } from "../../../../../shared/utils/TextUtils";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
+import { CreateDTO } from "../../../../../domain/dto/transaction";
 
 export class CreateController extends BaseController {
 
@@ -16,18 +16,17 @@ export class CreateController extends BaseController {
 
 
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
-    let dto: CreateDTO = req.body as CreateDTO;
     const { id } = req.decoded;
-    dto = {
+    const dto : CreateDTO  = {
       userId: id,
-      creditCardId: dto.creditCardId,
-      envelopeId: dto.envelopeId,
-      description: TextUtils.sanitize(dto.description),
-      amount: dto.amount,
-      paymentMethod: dto.paymentMethod,
-      date: dto.date,
-      type: dto.type,
-      status: dto.status,
+      creditCardId: req.body.creditCardId,
+      envelopeId: req.body.envelopeId,
+      description: TextUtils.sanitize(req.body.description),
+      amount: req.body.amount,
+      paymentMethod: req.body.paymentMethod,
+      date: req.body.date,
+      type: req.body.type,
+      status: req.body.status,
     }
     try {
       const result = await this.useCase.execute(dto);

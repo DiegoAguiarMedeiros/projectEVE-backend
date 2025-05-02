@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { UpdateDTO } from "../../../../../application/useCases/creditCard/update/UpdateDTO";
+import { UpdateDTO } from "../../../../../domain/dto/creditCard";
 import { UpdateErrors } from "../../../../../application/useCases/creditCard/update/UpdateErrors";
 import { UpdateUseCase } from "../../../../../application/useCases/creditCard/update/UpdateUseCase";
 import { UniqueEntityID } from "../../../../../domain/shared/UniqueEntityID";
@@ -14,14 +14,20 @@ export class UpdateController extends BaseController {
         this.useCase = useCase;
     }
     protected async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
-        let dto: UpdateDTO = req.body as UpdateDTO;
         let params: any = req.params;
         const { id } = req.decoded;
-        dto = {
-            ...dto,
-            id: new UniqueEntityID(params.id),
-            userId: new UniqueEntityID(id),
+        const dto: UpdateDTO = {
+            request: {
+                id: params.id,
+                userId: id,
+            },
+            fieldUpdate: {
+                name: req.body.name,
+                flag: req.body.flag,
+                active: req.body.active,
+            }
         }
+
 
         try {
             const result = await this.useCase.execute(dto);

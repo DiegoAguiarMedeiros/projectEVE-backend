@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
-import { GetByIdDTOResquest } from "../../../../../application/useCases/creditCard/getById/GetByIdDTO";
 import { GetByIdUseCase } from "../../../../../application/useCases/creditCard/getById/GetByIdUseCase";
 import { UniqueEntityID } from "../../../../../domain/shared/UniqueEntityID";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
 import { CreditCard } from "../../../../../domain/entities/creditCard/CreditCard";
+import { GetByIdDTO } from "../../../../../domain/dto/creditCard";
 
 export class GetByIdController extends BaseController {
     private useCase: GetByIdUseCase;
@@ -17,11 +17,11 @@ export class GetByIdController extends BaseController {
         try {
             let params: any = req.params;
             const { id } = req.decoded;
-            const requestDTO: GetByIdDTOResquest = {
-                Id: new UniqueEntityID(params.id),
-                userId: new UniqueEntityID(id),
+            const dto: GetByIdDTO = {
+                id: params.id,
+                userId: id,
             }
-            const result = await this.useCase.execute(requestDTO);
+            const result = await this.useCase.execute(dto);
 
             if (result.isLeft()) {
                 const error = result.value;

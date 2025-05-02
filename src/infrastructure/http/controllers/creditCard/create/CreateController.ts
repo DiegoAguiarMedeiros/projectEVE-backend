@@ -1,11 +1,10 @@
-import { Request, Response } from "express";
+import {  Response } from "express";
 import { CreateUseCase } from "../../../../../application/useCases/creditCard/create/CreateUseCase";
-import { CreateDTO } from "../../../../../application/useCases/creditCard/create/CreateDTO";
 import { TextUtils } from "../../../../../shared/utils/TextUtils";
 import { CreateErrors } from "../../../../../application/useCases/creditCard/create/CreateErrors";
-import { UniqueEntityID } from "../../../../../domain/shared/UniqueEntityID";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
+import { CreateDTO} from "../../../../../domain/dto/creditCard";
 
 export class CreateController extends BaseController {
 
@@ -18,10 +17,9 @@ export class CreateController extends BaseController {
 
 
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
-    let dto: CreateDTO = req.body as CreateDTO;
+    let dto = req.body as CreateDTO;
     const { id } = req.decoded;
     dto = {
-      id: new UniqueEntityID(),
       name: TextUtils.sanitize(dto.name),
       userId: id,
       active: true,

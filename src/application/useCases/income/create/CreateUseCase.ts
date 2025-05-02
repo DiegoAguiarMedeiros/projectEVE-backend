@@ -1,4 +1,5 @@
 
+import { CreateDTO } from "../../../../domain/dto/income";
 import { Income } from "../../../../domain/entities/income/Income";
 import { Interface as IIncomesRepo } from "../../../../domain/repositories/income/Interface";
 import { Balance } from "../../../../domain/shared/Balance";
@@ -9,7 +10,6 @@ import { UniqueEntityID } from "../../../../domain/shared/UniqueEntityID";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { Result, left, right } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
-import { CreateDTO } from "./CreateDTO";
 import { CreateResponse } from "./CreateResponse";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {

@@ -1,9 +1,9 @@
 import { Response } from "express";
 import { GetAllUseCase } from "../../../../../application/useCases/income/getAll/GetAllUseCase";
-import { IncomeMap } from "../../../../../shared/mappers/income";
+import { IncomeMap as Mapper } from "../../../../../shared/mappers/income";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
-import { IncomeDTO } from "../../../../../domain/dto/income/index.";
+import { IncomeDTO } from "../../../../../domain/dto/income";
 import { PaginationDTO } from "../../../../../domain/dto/pagination";
 import { Income } from "../../../../../domain/entities/income/Income";
 
@@ -42,7 +42,7 @@ export class GetAllController extends BaseController {
                     pageSize: incomes.pageSize,
                     totalItems: incomes.totalItems,
                     totalPages: incomes.totalPages,
-                    data: incomes.data.map((income: any) => IncomeMap.toDTO(income)),
+                    data: incomes.data.map((income: any) => Mapper.toDTO(income)),
                 });
             }
 

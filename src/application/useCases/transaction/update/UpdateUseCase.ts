@@ -10,9 +10,9 @@ import { Id } from "../../../../domain/shared/Id";
 import { UniqueEntityID } from "../../../../domain/shared/UniqueEntityID";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { TransactionMap } from "../../../../shared/mappers/transaction";
-import { UpdateDTO } from "./UpdateDTO";
 import { UpdateErrors } from "./UpdateErrors";
 import { UpdateResponse } from "./UpdateResponse";
+import { UpdateDTO } from "../../../../domain/dto/transaction";
 
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
@@ -21,26 +21,26 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
     constructor(repo: ITransactionRepo) {
         this.repo = repo;
     }
-    async execute(request: UpdateDTO): Promise<Promise<UpdateResponse>> {
+    async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
 
-            const transaction = TransactionMap.toDomain(await this.repo.getById(request.id.toString(), request.userId.toString()));
+            const transaction = TransactionMap.toDomain(await this.repo.getById(data.request.id.toString(), data.request.userId.toString()));
             if (!transaction) {
                 return left(
-                    new UpdateErrors.NotFound(request.id.toString())
+                    new UpdateErrors.NotFound(data.request.id.toString())
                 ) as UpdateResponse;
             }
 
-            const DescriptionOrError = Description.create({ description: request.description ? request.description : transaction.description.value });
+            const DescriptionOrError = Description.create({ description: data.fieldUpdate.description ? data.fieldUpdate.description : transaction.description.value });
             DescriptionOrError.isFailure ? console.error(DescriptionOrError.getErrorValue()) : '';
 
-            const AmountOrError = Balance.create({ balance: request.amount ? request.amount : transaction.amount.value });
+            const AmountOrError = Balance.create({ balance: data.fieldUpdate.amount ? data.fieldUpdate.amount : transaction.amount.value });
             AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
 
-            const CreditCardIdOrError = Id.create(new UniqueEntityID(request.creditCardId ? request.creditCardId : transaction.creditCardId?.value));
+            const CreditCardIdOrError = Id.create(new UniqueEntityID(data.fieldUpdate.creditCardId ? data.fieldUpdate.creditCardId : transaction.creditCardId?.value));
             CreditCardIdOrError.isFailure ? console.error(CreditCardIdOrError.getErrorValue()) : '';
 
-            const EvelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId ? request.envelopeId : transaction.envelopeId.value));
+            const EvelopeIdOrError = Id.create(new UniqueEntityID(data.fieldUpdate.envelopeId ? data.fieldUpdate.envelopeId : transaction.envelopeId.value));
             EvelopeIdOrError.isFailure ? console.error(EvelopeIdOrError.getErrorValue()) : '';
 
             const dtoResult = Result.combine([
@@ -55,25 +55,25 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const envelopeId: Id = EvelopeIdOrError.getValue();
             const description: Description = DescriptionOrError.getValue();
             const amount: Balance = AmountOrError.getValue();
-            const paymentMethod: PaymentMethod = request.paymentMethod ? request.paymentMethod : transaction.paymentMethod;
-            const date: Date = request.date ? request.date : transaction.date;
-            const type: TransactionsType = request.type ? request.type : transaction.type;
-            const status: TransactionsStatus = request.status ? request.status : transaction.status;
+            const paymentMethod: PaymentMethod = data.fieldUpdate.paymentMethod ? data.fieldUpdate.paymentMethod : transaction.paymentMethod;
+            const date: Date = data.fieldUpdate.date ? data.fieldUpdate.date : transaction.date;
+            const type: TransactionsType = data.fieldUpdate.type ? data.fieldUpdate.type : transaction.type;
+            const status: TransactionsStatus = data.fieldUpdate.status ? data.fieldUpdate.status : transaction.status;
 
-            if (request.creditCardId == '' ) {
+            if (data.fieldUpdate.creditCardId == '' ) {
                 transaction.updateCreditCardId()
             } else {
                 transaction.updateCreditCardId(creditCardId)
             }
-            if (request.envelopeId) transaction.updateEnvelopeId(envelopeId)
-            if (request.description) transaction.updateDescription(description)
-            if (request.amount) transaction.updateAmount(amount)
-            if (request.paymentMethod) transaction.updatePaymentMethod(paymentMethod)
-            if (request.date) transaction.updateDate(date)
-            if (request.type) transaction.updateType(type)
-            if (request.status) transaction.updateStatus(status)
+            if (data.fieldUpdate.envelopeId) transaction.updateEnvelopeId(envelopeId)
+            if (data.fieldUpdate.description) transaction.updateDescription(description)
+            if (data.fieldUpdate.amount) transaction.updateAmount(amount)
+            if (data.fieldUpdate.paymentMethod) transaction.updatePaymentMethod(paymentMethod)
+            if (data.fieldUpdate.date) transaction.updateDate(date)
+            if (data.fieldUpdate.type) transaction.updateType(type)
+            if (data.fieldUpdate.status) transaction.updateStatus(status)
 
-            const updateDebt = await this.repo.update(transaction.id.value, request.userId.toString(), transaction);
+            const updateDebt = await this.repo.update(transaction.id.value, data.request.userId.toString(), transaction);
             if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(

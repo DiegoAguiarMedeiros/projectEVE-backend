@@ -1,11 +1,11 @@
 
+import { UpdateDTO } from "../../../../domain/dto/envelope";
 import { Envelope } from "../../../../domain/entities/envelope/Envelope";
 import { Interface as IEnvelopeRepo } from "../../../../domain/repositories/envelope/Interface";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
 import { Name } from "../../../../domain/shared/Name";
-import { UpdateDTO } from "./UpdateDTO";
 import { UpdateErrors } from "./UpdateErrors";
 import { UpdateResponse } from "./UpdateResponse";
 
@@ -17,24 +17,24 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
     constructor(repo: IEnvelopeRepo) {
         this.repo = repo;
     }
-    async execute(request: UpdateDTO): Promise<Promise<UpdateResponse>> {
+    async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
 
-            const checkname = await this.repo.checkName(request.name, request.userId.toString());
+            const checkname = await this.repo.checkName(data.fieldUpdate.name, data.request.userId.toString());
             if (checkname) {
                 return left(
-                    new UpdateErrors.NameAlreadyExist(request.name)
+                    new UpdateErrors.NameAlreadyExist(data.fieldUpdate.name)
                 ) as UpdateResponse;
             }
-            const envelope = await this.repo.getById(request.id.toString(), request.userId.toString());
+            const envelope = await this.repo.getById(data.request.id.toString(), data.request.userId.toString());
             if (!envelope) {
                 return left(
-                    new UpdateErrors.NotFound(request.id.toString())
+                    new UpdateErrors.NotFound(data.request.id.toString())
                 ) as UpdateResponse;
             }
 
 
-            const nameOrError = Name.create({ name: request.name });
+            const nameOrError = Name.create({ name: data.fieldUpdate.name });
             const dtoResult = Result.combine([
                 nameOrError
             ]);
@@ -47,16 +47,16 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
 
             
             if (envelope.is_editable) {
-                const update = await this.repo.update(request.id.toString(), request.userId.toString(), envelope);
+                const update = await this.repo.update(data.request.id.toString(), data.request.userId.toString(), envelope);
                 if (update) return right(Result.ok<void>()) as UpdateResponse;
 
                 return left(
-                    new UpdateErrors.UpdateError(request.id.toString())
+                    new UpdateErrors.UpdateError(data.request.id.toString())
                 ) as UpdateResponse;
             }
 
             return left(
-                new UpdateErrors.NameCanNotBeChanged(request.id.toString())
+                new UpdateErrors.NameCanNotBeChanged(data.request.id.toString())
             ) as UpdateResponse;
 
         } catch (err) {

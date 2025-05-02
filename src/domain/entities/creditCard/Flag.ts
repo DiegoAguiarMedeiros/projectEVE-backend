@@ -13,7 +13,7 @@ export class Flag extends ValueObject<FlagProps> {
   public static maxLength: number = 30;
   public static minLength: number = 2;
 
-  get value(): string {
+  get value(): Flags {
     return this.props.flag;
   }
 

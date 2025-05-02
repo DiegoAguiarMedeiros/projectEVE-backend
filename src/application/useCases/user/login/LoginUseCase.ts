@@ -7,11 +7,11 @@ import { User } from "../../../../domain/entities/user/User";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
 import { IAuthService } from "../../../../infrastructure/services/authService";
 import { Interface as IUserRepo } from "../../../../domain/repositories/user/Interface";
-import { LoginDTO, LoginDTOResponse } from "./LoginDTO";
 import { LoginUseCaseErrors } from "./LoginErrors";
 import { LoginResponse } from "./LoginResponse";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { AppError } from "../../../../domain/shared/core/AppError";
+import { LoginDTO, LoginResponseDTO } from "../../../../domain/dto/user";
 
 
 export class LoginUserUseCase implements UseCase<LoginDTO, Promise<LoginResponse>> {
@@ -71,7 +71,7 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<LoginResponse
         
         await this.authService.saveAuthenticatedUser(user);
 
-        return right(Result.ok<LoginDTOResponse>({
+        return right(Result.ok<LoginResponseDTO>({
           accessToken,
           refreshToken
         }));

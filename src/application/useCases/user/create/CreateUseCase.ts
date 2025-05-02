@@ -9,11 +9,11 @@ import { Either, left, Result, right } from "../../../../domain/shared/core/Resu
 import { UseCase } from "../../../../domain/shared/core/UseCase";
 import { Id } from "../../../../domain/shared/Id";
 import { UniqueEntityID } from "../../../../domain/shared/UniqueEntityID";
-import { CreateDTO } from "./CreateDTO";
 import { CreateErrors } from "./CreateErrors";
 import { CreateUseCase as CreateEnvelopeUseCase } from "../../envelope/create/CreateUseCase";
 import { CreateResponse } from "./CreateResponse";
 import { Password } from "../../../../domain/entities/user/Password";
+import { CreateDTO } from "../../../../domain/dto/user";
 
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
@@ -28,7 +28,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
-    const idOrError = Id.create(request.id);
+    const idOrError = Id.create(new UniqueEntityID());
     const emailOrError = Email.create(request.email);
     const passwordOrError = Password.create({ value: request.password });
     const nameOrError = Name.create({ name: request.name });
@@ -73,7 +73,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       const data = await this.baseEnvelopeRepo.getAll();
       await data.forEach(item => {
         this.createEnvelopeUseCase.execute({
-          id: new UniqueEntityID(),
           name: item.name.value,
           color: item.color.value,
           percentage:0,

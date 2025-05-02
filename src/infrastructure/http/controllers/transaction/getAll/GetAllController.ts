@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
-import { GetAllDTO } from "../../../../../application/useCases/transaction/getAll/GetAllDTO";
 import { GetAllUseCase } from "../../../../../application/useCases/transaction/getAll/GetAllUseCase";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
-
+import { Transaction } from "../../../../../domain/entities/transaction/Transaction";
+import { TransactionDTO } from "../../../../../domain/dto/transaction";
+import { PaginationDTO } from "../../../../../domain/dto/pagination";
+import { TransactionMap as Mapper } from "../../../../../shared/mappers/transaction";
 export class GetAllController extends BaseController {
     private useCase: GetAllUseCase;
 
@@ -14,7 +16,13 @@ export class GetAllController extends BaseController {
     protected async executeImpl(req: DecodedExpressRequest, res: Response): Promise<any> {
         try {
             const { id } = req.decoded;
-            const result = await this.useCase.execute(id);
+
+            const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+            const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
+            const orderBy = `${req.query.orderBy}`;
+            const order = `${req.query.order}`;
+
+            const result = await this.useCase.execute({ id, page, pageSize, orderBy, order });
 
             if (result.isLeft()) {
                 const error = result.value;
@@ -26,8 +34,15 @@ export class GetAllController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: GetAllDTO = result.value.getValue() as GetAllDTO;
-                return this.ok<GetAllDTO>(res, dto);
+
+                const incomes: PaginationDTO<Transaction> = result.value.getValue();
+                return this.ok<PaginationDTO<TransactionDTO>>(res, {
+                    currentPage: incomes.currentPage,
+                    pageSize: incomes.pageSize,
+                    totalItems: incomes.totalItems,
+                    totalPages: incomes.totalPages,
+                    data: incomes.data.map((income: any) => Mapper.toDTO(income)),
+                });
             }
 
         } catch (err) {

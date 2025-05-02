@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { DeleteUseCase } from "../../../../../application/useCases/income/delete/DeleteUseCase";
-import { DeleteDTO } from "../../../../../application/useCases/income/delete/DeleteDTO";
 import { DeleteErrors } from "../../../../../application/useCases/income/delete/DeleteErrors";
 import { UniqueEntityID } from "../../../../../domain/shared/UniqueEntityID";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
+import { DeleteDTO } from "../../../../../domain/dto/income";
 
 export class DeleteController extends BaseController {
 
@@ -20,8 +20,8 @@ export class DeleteController extends BaseController {
         let params: any = req.params;
         const { id } = req.decoded;
         const dto: DeleteDTO = {
-            id: new UniqueEntityID(params.id),
-            userId: new UniqueEntityID(id),
+            id: params.id,
+            userId: id,
         }
 
         try {

@@ -13,7 +13,9 @@ export class UserMap implements Mapper<User> {
       name: user.name.value,
       isEmailVerified: user.isEmailVerified,
       isAdminUser: user.isAdminUser,
-      isDeleted: user.isDeleted,
+      id: user.id.value,
+      email: user.email.value,
+      password: user.password.value
     };
   }
 

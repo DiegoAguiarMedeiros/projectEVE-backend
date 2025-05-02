@@ -1,10 +1,10 @@
 
 import { LoginUserUseCase } from "../../../../../application/useCases/user/login/LoginUseCase";
-import { LoginDTO, LoginDTOResponse } from "../../../../../application/useCases/user/login/LoginDTO";
 import { LoginUseCaseErrors } from "../../../../../application/useCases/user/login/LoginErrors";
 import * as express from 'express'
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
+import { LoginDTO, LoginResponseDTO } from "../../../../../domain/dto/user";
 
 export class LoginController extends BaseController {
   private useCase: LoginUserUseCase;
@@ -31,7 +31,7 @@ export class LoginController extends BaseController {
                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
         }
       } else {
-        const dto: LoginDTOResponse = result.value.getValue() as LoginDTOResponse;
+        const dto: LoginResponseDTO = result.value.getValue() as LoginResponseDTO;
 
         res.cookie('accessToken', dto.accessToken, {
           httpOnly: true,

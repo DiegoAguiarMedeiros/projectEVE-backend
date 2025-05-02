@@ -1,10 +1,9 @@
-import { Request, Response } from "express";
-import { GetByIdDTOResquest } from "../../../../../application/useCases/fixedExpense/getById/GetByIdDTO";
+import { Response } from "express";
 import { GetByIdUseCase } from "../../../../../application/useCases/fixedExpense/getById/GetByIdUseCase";
-import { UniqueEntityID } from "../../../../../domain/shared/UniqueEntityID";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
 import { FixedExpense } from "../../../../../domain/entities/fixedExpense/FixedExpense";
+import { GetByIdDTO } from "../../../../../domain/dto/fixedExpense";
 
 
 export class GetByIdController extends BaseController {
@@ -18,9 +17,9 @@ export class GetByIdController extends BaseController {
         try {
             let params: any = req.params;
             const { id } = req.decoded;
-            const requestDTO: GetByIdDTOResquest = {
-                Id: new UniqueEntityID(params.id),
-                userId: new UniqueEntityID(id),
+            const requestDTO: GetByIdDTO = {
+                id: params.id,
+                userId: id,
             }
             const result = await this.useCase.execute(requestDTO);
 

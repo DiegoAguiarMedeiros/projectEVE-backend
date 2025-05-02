@@ -3,8 +3,8 @@ import { TextUtils } from "../../../../../shared/utils/TextUtils";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
 import { CreateUseCase } from "../../../../../application/useCases/fixedExpense/create/CreateUseCase";
-import { CreateDTO } from "../../../../../application/useCases/fixedExpense/create/CreateDTO";
 import { CreateErrors } from "../../../../../application/useCases/fixedExpense/create/CreateErrors";
+import { CreateDTO } from "../../../../../domain/dto/fixedExpense";
 
 export class CreateController extends BaseController {
 
@@ -17,12 +17,12 @@ export class CreateController extends BaseController {
 
 
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
-    let dto: CreateDTO = req.body as CreateDTO;
-    const { id } = req.decoded;
-    dto = {
-      ...dto,
-      userId: id,
-      description: TextUtils.sanitize(dto.description),
+    //const { id } = req.decoded;
+    const dto: CreateDTO = {
+      description: TextUtils.sanitize(req.body.description),
+      envelopeId: req.body.envelopeId,
+      amount: req.body.amount,
+      paymentDay: req.body.paymentDay,
     }
     try {
       const result = await this.useCase.execute(dto);

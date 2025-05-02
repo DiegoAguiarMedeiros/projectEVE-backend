@@ -6,11 +6,10 @@ import { IncomeMap } from "../../../../shared/mappers/income";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
-import { UpdateDTO } from "./UpdateDTO";
 import { UpdateErrors } from "./UpdateErrors";
 import { UpdateResponse } from "./UpdateResponse";
 import { PaymentDay } from "../../../../domain/shared/PaymentDay";
-
+import { UpdateDTO } from "../../../../domain/dto/income";
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: IIncomesRepo;
@@ -18,23 +17,23 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
     constructor(repo: IIncomesRepo) {
         this.repo = repo;
     }
-    async execute(request: UpdateDTO): Promise<Promise<UpdateResponse>> {
+    async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
 
-            const income = IncomeMap.toDomain(await this.repo.getById(request.id.toString(), request.userId.toString()));
+            const income = IncomeMap.toDomain(await this.repo.getById(data.request.id.toString(), data.request.userId.toString()));
             if (!income) {
                 return left(
-                    new UpdateErrors.NotFound(request.id.toString())
+                    new UpdateErrors.NotFound(data.request.id.toString())
                 ) as UpdateResponse;
             }
 
-            const DescriptionOrError = Description.create({ description: request.description ? request.description : income.description.value });
+            const DescriptionOrError = Description.create({ description: data.fieldUpdate.description ? data.fieldUpdate.description : income.description.value });
             DescriptionOrError.isFailure ? console.error(DescriptionOrError.getErrorValue()) : '';
 
-            const AmountOrError = Balance.create({ balance: request.amount ? request.amount : income.amount.value });
+            const AmountOrError = Balance.create({ balance: data.fieldUpdate.amount ? data.fieldUpdate.amount : income.amount.value });
             AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
 
-            const PaymentDayOrError = PaymentDay.create({ paymentDay: request.paymentDay ? request.paymentDay : income.paymentDay.value });
+            const PaymentDayOrError = PaymentDay.create({ paymentDay: data.fieldUpdate.paymentDay ? data.fieldUpdate.paymentDay : income.paymentDay.value });
             PaymentDayOrError.isFailure ? console.error(PaymentDayOrError.getErrorValue()) : '';
 
             const dtoResult = Result.combine([
@@ -49,18 +48,15 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const amount: Balance = AmountOrError.getValue();
             const paymentDay: PaymentDay = PaymentDayOrError.getValue();
 
+            if (data.fieldUpdate.description) income.updateDescription(description)
+            if (data.fieldUpdate.amount) income.updateAmount(amount)
+            if (data.fieldUpdate.paymentDay) income.updatepaymentDay(paymentDay)
 
-
-
-            if (request.description) income.updateDescription(description)
-            if (request.amount) income.updateAmount(amount)
-            if (request.paymentDay) income.updatepaymentDay(paymentDay)
-
-            const updateIncome = await this.repo.update(request.id.toString(), request.userId.toString(), income);
+            const updateIncome = await this.repo.update(data.request.id.toString(), data.request.userId.toString(), income);
             if (updateIncome) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(
-                new UpdateErrors.UpdateError(request.id.toString())
+                new UpdateErrors.UpdateError(data.request.id.toString())
             ) as UpdateResponse;
 
 

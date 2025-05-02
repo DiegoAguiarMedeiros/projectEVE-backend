@@ -1,1 +1,1 @@
-import './Repository';
+export * from  './Repository';

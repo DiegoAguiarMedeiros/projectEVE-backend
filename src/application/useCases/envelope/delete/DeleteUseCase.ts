@@ -1,16 +1,10 @@
 import { AppError } from "../../../../domain/shared/core/AppError";
-
-
-
-import { DeleteDTO } from "./DeleteDTO";
 import { DeleteErrors } from "./DeleteErrors";
 import { DeleteResponse } from "./DeleteResponse";
 import { left, right, Result } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
 import { Interface as IEnvelopeRepo} from "../../../../domain/repositories/envelope/Interface";
-
-
-
+import { DeleteDTO } from "../../../../domain/dto/envelope";
 
 export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>> {
     private repo: IEnvelopeRepo;
@@ -22,11 +16,11 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
 
         try {
 
-            const envelope = await this.repo.getById(request.id.toString(), request.userId.toString());
+            const envelope = await this.repo.getById(request.id, request.userId);
 
             if (!envelope) {
                 return left(
-                    new DeleteErrors.NotFound(request.id.toString())
+                    new DeleteErrors.NotFound(request.id)
                 ) as DeleteResponse;
             }
 
@@ -36,7 +30,7 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
             }
 
             return left(
-                new DeleteErrors.CanNotBeDeleted(request.id.toString())
+                new DeleteErrors.CanNotBeDeleted(request.id)
             ) as DeleteResponse;
 
         } catch (err) {

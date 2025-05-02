@@ -1,4 +1,4 @@
-import { IncomeDTO } from "../../../domain/dto/income/index.";
+import { IncomeDTO } from "../../../domain/dto/income";
 import { Income } from "../../../domain/entities/income/Income";
 import { Balance } from "../../../domain/shared/Balance";
 import { Description } from "../../../domain/shared/Description";

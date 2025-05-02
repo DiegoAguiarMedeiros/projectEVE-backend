@@ -1,8 +1,8 @@
+import { DeleteDTO } from "../../../../domain/dto/transaction";
 import { Interface as ITransactionRepo} from "../../../../domain/repositories/transaction/Interface";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
-import { DeleteDTO } from "./DeleteDTO";
 import { DeleteErrors } from "./DeleteErrors";
 import { DeleteResponse } from "./DeleteResponse";
 

@@ -4,8 +4,8 @@ import { TextUtils } from "../../../../../shared/utils/TextUtils";
 import { BaseController } from "../../shared/BaseController";
 import { DecodedExpressRequest } from "../../shared/DecodedExpressRequest";
 import { CreateUseCase } from "../../../../../application/useCases/envelope/create/CreateUseCase";
-import { CreateDTO } from "../../../../../application/useCases/envelope/create/CreateDTO";
 import { CreateErrors } from "../../../../../application/useCases/envelope/create/CreateErrors";
+import { CreateDTO } from "../../../../../domain/dto/envelope";
 
 export class CreateController extends BaseController {
 
@@ -18,16 +18,15 @@ export class CreateController extends BaseController {
 
 
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
-    let dto: CreateDTO = req.body as CreateDTO;
     const { id } = req.decoded;
-    dto = {
-      ...dto,
-      id: new UniqueEntityID(),
-      name: TextUtils.sanitize(dto.name),
+    const dto: CreateDTO = {
+      name: TextUtils.sanitize(req.body.name),
       userId: id,
       active: true,
       is_editable: true,
-      balance: 0
+      balance: 0,
+      color: "",
+      percentage: 0
     }
 
     try {

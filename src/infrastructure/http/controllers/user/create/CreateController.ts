@@ -5,8 +5,8 @@ import { TextUtils } from '../../../../../shared/utils/TextUtils';
 import { BaseController } from '../../shared/BaseController';
 import { DecodedExpressRequest } from '../../shared/DecodedExpressRequest';
 import { CreateUseCase } from '../../../../../application/useCases/user/create/CreateUseCase';
-import { CreateDTO } from '../../../../../application/useCases/user/create/CreateDTO';
 import { CreateErrors } from '../../../../../application/useCases/user/create/CreateErrors';
+import { CreateDTO } from '../../../../../domain/dto/user';
 
 export class CreateController extends BaseController {
   private useCase: CreateUseCase;
@@ -17,13 +17,11 @@ export class CreateController extends BaseController {
   }
 
   async executeImpl(req: DecodedExpressRequest, res: express.Response): Promise<any> {
-    let dto: CreateDTO = req.body as CreateDTO;
 
-    dto = {
-      id: new UniqueEntityID(),
-      name: TextUtils.sanitize(dto.name),
-      email: TextUtils.sanitize(dto.email),
-      password: dto.password
+    const dto: CreateDTO = {
+      name: TextUtils.sanitize(req.body.name),
+      email: TextUtils.sanitize(req.body.email),
+      password: req.body.password
     }
 
     try {
