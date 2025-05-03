@@ -13,6 +13,8 @@ import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { PaymentDay } from "../../../../domain/shared/PaymentDay";
 import { CreateDTO } from "../../../../domain/dto/fixedExpense";
+import { CreateErrors } from "./CreateErrors";
+import { EnvelopeDTO } from "../../../../domain/dto/envelope";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private repo: IFixedExpenseRepo;
@@ -25,8 +27,16 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
 
+    console.log("request", request);
     const IdOrError = Id.create(new UniqueEntityID());
-    const EnvelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId));
+    const envelope = await this.envelopeRepo.getById(request.envelope.id, request.envelope.userId);
+
+    if (!envelope) {
+      return left(new CreateErrors.EnvelopeNotFound(request.envelope.id)) as CreateResponse;
+    }
+
+
+    const EnvelopeIdOrError = Id.create(new UniqueEntityID(request.envelope.id));
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
     const PaymentDayOrError = PaymentDay.create({ paymentDay: request.paymentDay });
@@ -41,7 +51,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     }
 
     const id: Id = IdOrError.getValue();
-    const envelopeId: Id = EnvelopeIdOrError.getValue();
+    const envelopeDTO: EnvelopeDTO = EnvelopeMap.toDTO(envelope);
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
     const paymentDay: PaymentDay = PaymentDayOrError.getValue();
@@ -50,7 +60,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
       const fixedExpenseOrError: Result<FixedExpense> = FixedExpense.create({
         id,
-        envelopeId,
+        envelope: envelopeDTO,
         description,
         amount,
         paymentDay,

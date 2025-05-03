@@ -1,15 +1,17 @@
 
+import { EnvelopeDTO } from "../../dto/envelope";
 import { Balance } from "../../shared/Balance";
 import { Guard } from "../../shared/core/Guard";
 import { Result } from "../../shared/core/Result";
 import { Description } from "../../shared/Description";
 import { Id } from "../../shared/Id";
 import { PaymentDay } from "../../shared/PaymentDay";
+import { Envelope } from "../envelope/Envelope";
 
 
 interface FixedExpenseProps {
   id: Id;
-  envelopeId: Id;
+  envelope: EnvelopeDTO;
   description: Description;
   amount: Balance;
   paymentDay: PaymentDay;
@@ -22,8 +24,11 @@ export class FixedExpense {
   get id(): Id {
     return this.props.id;
   }
-  get envelopeId(): Id {
-    return this.props.envelopeId;
+  get envelope(): EnvelopeDTO{
+    return this.props.envelope;
+  }
+  public updateEnvelope(envelope: EnvelopeDTO): void {
+    this.props.envelope = envelope;
   }
   get description(): Description {
     return this.props.description;
@@ -53,7 +58,7 @@ export class FixedExpense {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.id, argumentName: "id" },
-      { argument: props.envelopeId, argumentName: "envelopeId" },
+      { argument: props.envelope, argumentName: "envelope" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },
       { argument: props.paymentDay, argumentName: "paymentDay" },

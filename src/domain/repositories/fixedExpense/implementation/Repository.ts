@@ -52,6 +52,12 @@ export class Repository implements Interface {
       limit: limit,
       offset: offset,
       order: [[safeOrderBy, safeOrder]],
+      include: [
+        {
+          model: this.models.Envelope, 
+          as: 'Envelope', 
+        },
+      ],
     });
     return data.map((e: any) => Mapper.toDomain(e));
   }
@@ -65,7 +71,12 @@ export class Repository implements Interface {
                   )`),
         },
       },
-      raw: true,
+      include: [
+        {
+          model: this.models.Envelope, 
+          as: 'Envelope', 
+        },
+      ],
     });
     return Mapper.toDomain(data) ?? null;
   }

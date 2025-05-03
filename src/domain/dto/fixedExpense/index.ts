@@ -1,20 +1,24 @@
+import { EnvelopeDTO, EnvelopeIdDTO } from "../envelope";
+
 export interface FixedExpenseDTO {
-    id: string;
-    envelopeId: string;
-    description: string;
-    amount: number;
-    paymentDay: number;
+  id: string;
+  envelope: EnvelopeDTO;
+  description: string;
+  amount: number;
+  paymentDay: number;
 }
 
 export interface FixedExpenseUpdateFiledDTO extends Omit<
-FixedExpenseDTO, 'id' 
+  FixedExpenseDTO, 'id'
 > { }
 
 export interface FixedExpenseIdDTO extends Omit<
-    FixedExpenseDTO, 'envelopeId' | 'description' | 'amount' | 'paymentDay'
+  FixedExpenseDTO, 'envelope' | 'description' | 'amount' | 'paymentDay'
 > { }
 
-export interface CreateDTO extends Omit<FixedExpenseDTO, 'id'> { }
+export interface CreateDTO extends Omit<FixedExpenseDTO, 'id' | 'envelope'> {
+  envelope: EnvelopeIdDTO;
+}
 
 export interface DeleteDTO extends FixedExpenseIdDTO { userId: string; }
 

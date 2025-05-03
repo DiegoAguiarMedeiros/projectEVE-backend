@@ -4,6 +4,7 @@ import { CreateErrors } from "./CreateErrors";
 
 export type CreateResponse = Either<
   CreateErrors.NameTakenError |
+  CreateErrors.EnvelopeNotFound |
   AppError.UnexpectedError |
   Result<any>,
   Result<void>

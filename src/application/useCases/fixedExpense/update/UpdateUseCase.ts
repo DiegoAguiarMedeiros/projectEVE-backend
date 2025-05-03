@@ -1,6 +1,7 @@
 
 import { UpdateDTO } from "../../../../domain/dto/fixedExpense";
 import { Interface as IFixedExpenseRepo } from "../../../../domain/repositories/fixedExpense/Interface";
+import { Interface as IEnvelopeRepo } from "../../../../domain/repositories/envelope/Interface";
 import { Balance } from "../../../../domain/shared/Balance";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
@@ -9,25 +10,38 @@ import { Description } from "../../../../domain/shared/Description";
 import { Id } from "../../../../domain/shared/Id";
 import { PaymentDay } from "../../../../domain/shared/PaymentDay";
 import { UniqueEntityID } from "../../../../domain/shared/UniqueEntityID";
-import { FixedExpenseMap as Mapper} from "../../../../shared/mappers/fixedExpense";
+import { EnvelopeMap } from "../../../../shared/mappers/envelope";
+import { FixedExpenseMap as Mapper } from "../../../../shared/mappers/fixedExpense";
 import { UpdateErrors } from "./UpdateErrors";
 import { UpdateResponse } from "./UpdateResponse";
+import { EnvelopeDTO } from "../../../../domain/dto/envelope";
 
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: IFixedExpenseRepo;
+    private envelopeRepo: IEnvelopeRepo;
 
-    constructor(repo: IFixedExpenseRepo) {
+    constructor(repo: IFixedExpenseRepo, envelopeRepo: IEnvelopeRepo) {
         this.repo = repo;
+        this.envelopeRepo = envelopeRepo;
     }
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
 
-            const fixedExpense = Mapper.toDomain(await this.repo.getById(data.request.id.toString(), data.request.userId.toString()));
+            const fixedExpense = await this.repo.getById(data.request.id.toString(), data.request.userId.toString());
 
-            const EnvelopeIdOrError = Id.create(new UniqueEntityID(data.fieldUpdate.envelopeId ? data.fieldUpdate.envelopeId : fixedExpense.envelopeId.value));
-            EnvelopeIdOrError.isFailure ? console.error(EnvelopeIdOrError.getErrorValue()) : '';
-            
+            if (!fixedExpense) {
+                return left(
+                    new UpdateErrors.NotFound(data.request.id.toString())
+                ) as UpdateResponse;
+            }
+
+            const envelope = await this.envelopeRepo.getById(data.fieldUpdate.envelope.id, data.request.userId);
+
+            if (!envelope) {
+                return left(new UpdateErrors.EnvelopeNotFound(data.fieldUpdate.envelope.id)) as UpdateResponse;
+            }
+
             const DescriptionOrError = Description.create({ description: data.fieldUpdate.description ? data.fieldUpdate.description : fixedExpense.description.value });
             DescriptionOrError.isFailure ? console.error(DescriptionOrError.getErrorValue()) : '';
 
@@ -38,21 +52,17 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             PaymentDayOrError.isFailure ? console.error(PaymentDayOrError.getErrorValue()) : '';
 
             const dtoResult = Result.combine([
-                EnvelopeIdOrError,DescriptionOrError, AmountOrError, PaymentDayOrError
+                 DescriptionOrError, AmountOrError, PaymentDayOrError
             ]);
 
             if (dtoResult.isFailure) {
                 return left(Result.fail<void>(dtoResult.getErrorValue())) as UpdateResponse;
             }
 
-            if (!fixedExpense) {
-                return left(
-                    new UpdateErrors.NotFound(data.request.id.toString())
-                ) as UpdateResponse;
-            }
 
-            const envelopeId: Description = DescriptionOrError.getValue();
-            if (data.fieldUpdate.envelopeId) fixedExpense.updateDescription(envelopeId)
+
+            const envelopeDTO: EnvelopeDTO = EnvelopeMap.toDTO(envelope);
+            if (data.fieldUpdate.envelope) fixedExpense.updateEnvelope(envelopeDTO)
 
             const description: Description = DescriptionOrError.getValue();
             if (data.fieldUpdate.description) fixedExpense.updateDescription(description)

@@ -32,6 +32,12 @@ export namespace UpdateErrors {
             } as UseCaseError)
         }
     }
-
+    export class EnvelopeNotFound extends Result<UseCaseError> {
+        constructor(name: string) {
+            super(false, {
+                message: `The envelope ${name} was not found!`
+            } as UseCaseError)
+        }
+    }
 
 }
