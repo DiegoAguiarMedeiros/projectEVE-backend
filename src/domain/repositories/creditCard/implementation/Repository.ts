@@ -23,8 +23,9 @@ export class Repository implements Interface {
         return !!data;
     }
     async update(id: string, data: CreditCard): Promise<boolean> {
+        const rawData = await Mapper.toPersistence(data);
         const [updatedRows] = await this.model.update(
-            data, 
+            rawData,
             {
                 where: {
                     id,

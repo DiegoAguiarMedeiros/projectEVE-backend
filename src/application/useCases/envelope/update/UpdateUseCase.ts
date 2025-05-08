@@ -1,7 +1,11 @@
 
+import { request } from "http";
 import { UpdateDTO } from "../../../../domain/dto/envelope";
 import { Envelope } from "../../../../domain/entities/envelope/Envelope";
+import { Percentage } from "../../../../domain/entities/envelope/Percentage";
 import { Interface as IEnvelopeRepo } from "../../../../domain/repositories/envelope/Interface";
+import { Balance } from "../../../../domain/shared/Balance";
+import { Color } from "../../../../domain/shared/Color";
 import { AppError } from "../../../../domain/shared/core/AppError";
 import { left, Result, right } from "../../../../domain/shared/core/Result";
 import { UseCase } from "../../../../domain/shared/core/UseCase";
@@ -20,12 +24,6 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
 
-            const checkname = await this.repo.checkName(data.fieldUpdate.name, data.request.userId.toString());
-            if (checkname) {
-                return left(
-                    new UpdateErrors.NameAlreadyExist(data.fieldUpdate.name)
-                ) as UpdateResponse;
-            }
             const envelope = await this.repo.getById(data.request.id.toString(), data.request.userId.toString());
             if (!envelope) {
                 return left(
@@ -34,19 +32,38 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             }
 
 
+            const checkname = await this.repo.checkName(data.fieldUpdate.name, data.request.userId.toString());
+
+            if (checkname && envelope.name.value !== data.fieldUpdate.name) {
+                return left(
+                    new UpdateErrors.NameAlreadyExist(data.fieldUpdate.name)
+                ) as UpdateResponse;
+            }
+
+
             const nameOrError = Name.create({ name: data.fieldUpdate.name });
+            const colorOrError = Color.create({ color: data.fieldUpdate.color });
+            const percentageOrError = Percentage.create({ percentage: data.fieldUpdate.percentage });
+
+
             const dtoResult = Result.combine([
-                nameOrError
+                nameOrError,  colorOrError, percentageOrError
             ]);
-            
+
             if (dtoResult.isFailure) {
                 return left(Result.fail<void>(dtoResult.getErrorValue())) as UpdateResponse;
             }
             const name: Name = nameOrError.getValue();
-            envelope.updateName(name);
+            const color: Color = colorOrError.getValue();
+            const percentage: Percentage = percentageOrError.getValue();
 
-            
-            if (envelope.is_editable) {
+            envelope.updateName(name);
+            envelope.updateColor(color);
+            envelope.updatePercentage(percentage);
+            envelope.updateActive(data.fieldUpdate.active);
+
+
+            if (envelope.is_editable || envelope.name.value === data.fieldUpdate.name) {
                 const update = await this.repo.update(data.request.id.toString(), envelope);
                 if (update) return right(Result.ok<void>()) as UpdateResponse;
 
@@ -62,6 +79,6 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
         } catch (err) {
             return left(new AppError.UnexpectedError(err)) as UpdateResponse;
         }
-    }     
+    }
 
 }

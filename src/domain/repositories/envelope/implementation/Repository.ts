@@ -23,9 +23,9 @@ export class Repository implements Interface {
         return !!data;
     }
     async update(id: string, data: Envelope): Promise<boolean> {
-
+        const rawData = await Mapper.toPersistence(data);
         const [updatedRows] = await this.model.update(
-            { name: data.name }, 
+            rawData,
             {
                 where: {
                     id,
@@ -67,7 +67,7 @@ export class Repository implements Interface {
         });
         return Mapper.toDomain(data) ?? null;
     }
-    
+
     async getByName(name: string, userId: string): Promise<Envelope | null> {
         const data = await this.model.findOne({
             where: {

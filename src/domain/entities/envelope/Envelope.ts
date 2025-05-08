@@ -30,6 +30,9 @@ export class Envelope {
   get active(): boolean {
     return this.props.active;
   }
+  public updateActive(active: boolean): void {
+    this.props.active = active;
+  }
   get is_editable(): boolean {
     return this.props.is_editable;
   }
