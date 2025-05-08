@@ -22,6 +22,31 @@ transactionRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.getAll.execute(req, res)
 );
+/**
+ * @swagger
+ * /transaction/envelope/{id}:
+ *   get:
+ *     summary: Get all Transactions by envelope
+ *     tags: [Transaction]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Transactions ID
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: transaction[]
+ *       401:
+ *         description: Unauthorized
+  */
+transactionRouter.get('/envelope/:id',
+  middleware.ensureAuthenticated(),
+  (req, res) => transactionController.getAllByEnvelope.execute(req, res)
+);
 
 /**
  * @swagger
@@ -116,7 +141,7 @@ transactionRouter.delete(
 /**
  * @swagger
  * /transaction/{id}:
- *   patch:
+ *   put:
  *     summary: Update an Transactions
  *     tags: [Transaction]
  *     parameters:
@@ -179,10 +204,51 @@ transactionRouter.delete(
  *         description: Transactions not found
  */
 
-transactionRouter.patch(
+transactionRouter.put(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.update.execute(req, res)
+);
+
+/**
+ * @swagger
+ * /transaction/{id}/change-status:
+ *   patch:
+ *     summary: Change Transactions status
+ *     tags: [Transaction]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Transactions ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 description: Transactions Status
+ *                 enum:
+ *                   - Pending
+ *                   - Completed
+ *     responses:
+ *       200:
+ *         description: Transactions updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Transactions not found
+ */
+
+transactionRouter.patch(
+  '/:id/change-status',
+  middleware.ensureAuthenticated(),
+  (req, res) => transactionController.updateStatus.execute(req, res)
 );
 
 /**

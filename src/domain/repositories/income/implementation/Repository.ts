@@ -13,14 +13,13 @@ export class Repository implements Interface {
         this.model = this.models.Income;
     }
 
-    async update(id: string, userId: string, data: Income): Promise<boolean> {
+    async update(id: string, data: Income): Promise<boolean> {
         const rawData = await Mapper.toPersistence(data);
         const [updatedRows] = await this.model.update(
             rawData,
             {
                 where: {
                     id,
-                    user_id: userId,
                 },
             }
         );

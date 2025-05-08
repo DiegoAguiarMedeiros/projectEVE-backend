@@ -18,9 +18,11 @@ export class CreateController extends BaseController {
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
     const { id } = req.decoded;
     const dto : CreateDTO  = {
-      userId: id,
       creditCardId: req.body.creditCardId,
-      envelopeId: req.body.envelopeId,
+      envelope: {
+        id: req.body.envelope.id,
+        userId: id,
+      },
       description: TextUtils.sanitize(req.body.description),
       amount: req.body.amount,
       paymentMethod: req.body.paymentMethod,

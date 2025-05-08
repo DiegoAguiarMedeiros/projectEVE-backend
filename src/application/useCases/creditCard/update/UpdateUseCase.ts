@@ -54,7 +54,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
                 ) as UpdateResponse;
             }
 
-            const updateCreditCard = await this.repo.update(data.request.id.toString(), data.request.userId.toString(), creditCard);
+            const updateCreditCard = await this.repo.update(data.request.id.toString(), creditCard);
             if (updateCreditCard) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(

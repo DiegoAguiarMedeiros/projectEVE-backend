@@ -1,7 +1,7 @@
 import { Result } from "../../../../domain/shared/core/Result"
 import { UseCaseError } from "../../../../domain/shared/core/UseCaseError"
 
-export namespace UpdateErrors {
+export namespace UpdateStatusErrors {
 
     export class AlreadyExist extends Result<UseCaseError> {
         constructor(name: string) {

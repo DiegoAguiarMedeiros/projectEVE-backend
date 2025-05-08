@@ -22,13 +22,12 @@ export class Repository implements Interface {
         });
         return !!data;
     }
-    async update(id: string, userId: string, data: CreditCard): Promise<boolean> {
+    async update(id: string, data: CreditCard): Promise<boolean> {
         const [updatedRows] = await this.model.update(
             data, 
             {
                 where: {
                     id,
-                    user_id: userId,
                 },
             }
         );

@@ -2,8 +2,9 @@ import { Op, Sequelize } from "sequelize";
 import { Interface } from "../Interface";
 import { TransactionMap as Mapper } from "../../../../shared/mappers/transaction";
 import { Transaction } from "../../../entities/transaction/Transaction";
+import { TransactionStatus } from "../../../entities/transaction/TransactionStatus";
 
-export class  Repository implements Interface {
+export class Repository implements Interface {
 
     private models: any;
     private model: any;
@@ -12,8 +13,20 @@ export class  Repository implements Interface {
         this.models = models;
         this.model = this.models.Transaction;
     }
+    async updateStatus(id: string, status: TransactionStatus): Promise<boolean> {
+        const [updatedRows] = await this.model.update(
+            { status },
+            {
+                where: {
+                    id,
+                },
+            },
+        );
+        return updatedRows > 0;
+    }
 
-    async update(id: string, userId: string, data: Transaction): Promise<boolean> {
+
+    async update(id: string, data: Transaction): Promise<boolean> {
 
         const rawData = await Mapper.toPersistence(data);
         const [updatedRows] = await this.model.update(
@@ -21,11 +34,6 @@ export class  Repository implements Interface {
             {
                 where: {
                     id,
-                    envelope_id: {
-                        [Op.in]: Sequelize.literal(`(
-                        SELECT id FROM "envelope" WHERE user_id = '${userId}'
-                      )`),
-                    },
                 },
             },
         );
@@ -34,6 +42,9 @@ export class  Repository implements Interface {
         }
         return true;
     }
+     
+
+
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Transaction[]> {
 
         const limit = pageSize || undefined;
@@ -53,25 +64,63 @@ export class  Repository implements Interface {
             limit: limit,
             offset: offset,
             order: [[safeOrderBy, safeOrder]],
+            include: [
+                {
+                    model: this.models.Envelope,
+                    as: 'Envelope',
+                },
+            ],
         });
+        return data.map((e: any) => Mapper.toDomain(e));
+    }
+    async getAllByEnvelope(id: string, envelope: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Transaction[]> {
+
+        const limit = pageSize || undefined;
+        const offset = page ? (page - 1) * (pageSize || 10) : 0;
+        const allowedColumns = ["description", "amount", "date", "payment_method", "type", "status", "created_at"];
+        const allowedOrders = ["asc", "desc"];
+
+        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
+        const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
+        const data = await this.model.findAll({
+            limit,
+            offset,
+            order: [[safeOrderBy, safeOrder]],
+            include: [
+                {
+                    model: this.models.Envelope,
+                    as: 'Envelope',
+                    where: {
+                        id: envelope,
+                        user_id: id,
+                    },
+                    required: true,
+                },
+            ],
+        });
+
         return data.map((e: any) => Mapper.toDomain(e));
     }
 
     async getById(id: string, userId: string): Promise<Transaction | null> {
-
         const data = await this.model.findOne({
             where: {
                 id,
-                envelope_id: {
-                    [Op.in]: Sequelize.literal(`(
-                      SELECT id FROM "envelope" WHERE user_id = '${userId}'
-                    )`),
-                },
             },
-            raw: true,
+            include: [
+                {
+                    model: this.models.Envelope,
+                    as: 'Envelope',
+                    where: {
+                        user_id: userId,
+                    },
+                    required: true, 
+                },
+            ],
         });
         return Mapper.toDomain(data) ?? null;
     }
+
 
     async create(transaction: Transaction): Promise<void> {
 

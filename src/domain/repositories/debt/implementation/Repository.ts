@@ -13,18 +13,13 @@ export class Repository implements Interface {
         this.model = this.models.Debt;
     }
 
-    async update(id: string, userId: string, data: Debt): Promise<boolean> {
+    async update(id: string, data: Debt): Promise<boolean> {
         const rawData = await Mapper.toPersistence(data);
         const [updatedRows] = await this.model.update(
             rawData,
             {
                 where: {
                     id,
-                    envelope_id: {
-                        [Op.in]: Sequelize.literal(`(
-                        SELECT id FROM "envelope" WHERE user_id = '${userId}'
-                      )`),
-                    },
                 },
             }
         );

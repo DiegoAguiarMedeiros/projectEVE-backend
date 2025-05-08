@@ -47,7 +47,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
 
             
             if (envelope.is_editable) {
-                const update = await this.repo.update(data.request.id.toString(), data.request.userId.toString(), envelope);
+                const update = await this.repo.update(data.request.id.toString(), envelope);
                 if (update) return right(Result.ok<void>()) as UpdateResponse;
 
                 return left(

@@ -27,8 +27,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
 
-    console.log("request", request);
     const IdOrError = Id.create(new UniqueEntityID());
+
     const envelope = await this.envelopeRepo.getById(request.envelope.id, request.envelope.userId);
 
     if (!envelope) {
@@ -36,13 +36,13 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     }
 
 
-    const EnvelopeIdOrError = Id.create(new UniqueEntityID(request.envelope.id));
+    
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
     const PaymentDayOrError = PaymentDay.create({ paymentDay: request.paymentDay });
 
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, EnvelopeIdOrError, IdOrError, PaymentDayOrError
+      DescriptionOrError, AmountOrError,  IdOrError, PaymentDayOrError
     ]);
 
 

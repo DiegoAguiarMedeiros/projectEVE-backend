@@ -1,24 +1,25 @@
 
+import { EnvelopeDTO } from "../../dto/envelope";
 import { Balance } from "../../shared/Balance";
 import { Guard } from "../../shared/core/Guard";
 import { Result } from "../../shared/core/Result";
 import { Description } from "../../shared/Description";
 import { Id } from "../../shared/Id";
 import { PaymentMethod } from "./PaymentMethod";
-import { TransactionsStatus } from "./TransactionsStatus";
-import { TransactionsType } from "./TransactionsType";
+import { TransactionStatus } from "./TransactionStatus";
+import { TransactionType } from "./TransactionType";
 
 
-interface TransactionProps {
+export interface TransactionProps {
   id: Id;
   creditCardId?: Id;
-  envelopeId: Id;
+  envelope: EnvelopeDTO;
   description: Description;
   amount: Balance;
   paymentMethod: PaymentMethod;
   date: Date;
-  type: TransactionsType;
-  status: TransactionsStatus;
+  type: TransactionType;
+  status: TransactionStatus;
 }
 
 
@@ -34,11 +35,11 @@ export class Transaction {
   public updateCreditCardId(creditCardId?: Id): void {
     this.props.creditCardId = creditCardId;
   }
-  get envelopeId(): Id {
-    return this.props.envelopeId;
+  get envelope(): EnvelopeDTO {
+    return this.props.envelope;
   }
-  public updateEnvelopeId(envelopeId: Id): void {
-    this.props.envelopeId = envelopeId;
+  public updateEnvelope(envelope: EnvelopeDTO): void {
+    this.props.envelope = envelope;
   }
   get description(): Description {
     return this.props.description;
@@ -64,16 +65,16 @@ export class Transaction {
   public updateDate(date: Date): void {
     this.props.date = date;
   }
-  get type(): TransactionsType {
+  get type(): TransactionType {
     return this.props.type;
   }
-  public updateType(type: TransactionsType): void {
+  public updateType(type: TransactionType): void {
     this.props.type = type;
   }
-  get status(): TransactionsStatus {
+  get status(): TransactionStatus {
     return this.props.status;
   }
-  public updateStatus(status: TransactionsStatus): void {
+  public updateStatus(status: TransactionStatus): void {
     this.props.status = status;
   }
 
@@ -85,8 +86,7 @@ export class Transaction {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.id, argumentName: "id" },
-      { argument: props.creditCardId, argumentName: "creditCardId" },
-      { argument: props.envelopeId, argumentName: "envelopeId" },
+      { argument: props.envelope, argumentName: "envelope" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },
       { argument: props.date, argumentName: "date" },
