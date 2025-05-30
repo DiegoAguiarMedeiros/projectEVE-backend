@@ -1,0 +1,73 @@
+import { UserDTO } from "../dtos";
+import { Id } from "../../../../shared/domain/Id";
+import { Name } from "../../../../shared/domain/Name";
+import { Mapper } from "../../../../shared/mappers/Mapper";
+import { Email } from "../domain/Email";
+import { Password } from "../domain/Password";
+import { User } from "../domain/User";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
+
+
+export class UserMap implements Mapper<User> {
+  public static toDTO(user: User): UserDTO {
+    return {
+      name: user.name.value,
+      isEmailVerified: user.isEmailVerified,
+      isAdminUser: user.isAdminUser,
+      email: user.email.value,
+      password: user.password.value,
+      id: user.id.toString(),
+    };
+  }
+
+  public static toDomain(raw: any): User {
+
+    const NameOrError = Name.create({ name: raw.name });
+    NameOrError.isFailure ? console.error(NameOrError.getErrorValue()) : '';
+
+    const PasswordOrError = Password.create({
+      value: raw.password,
+      hashed: true,
+    });
+    PasswordOrError.isFailure ? console.error(PasswordOrError.getErrorValue()) : '';
+
+    const EmailOrError = Email.create(raw.email);
+    EmailOrError.isFailure ? console.error(EmailOrError.getErrorValue()) : '';
+
+
+    const userOrError = User.create(
+      {
+        name: NameOrError.getValue(),
+        isAdminUser: raw.is_admin_user,
+        isDeleted: raw.is_deleted,
+        isEmailVerified: raw.is_email_verified,
+        password: PasswordOrError.getValue(),
+        email: EmailOrError.getValue(),
+      }, new UniqueEntityID(raw.id));
+
+    userOrError.isFailure ? console.error(userOrError.getErrorValue()) : '';
+
+    return userOrError.getValue();
+  }
+
+  public static async toPersistence(user: User): Promise<any> {
+    let password: string = '';
+    if (!!user.password === true) {
+      if (user.password.isAlreadyHashed()) {
+        password = user.password.value;
+      } else {
+        password = await user.password.getHashedValue();
+      }
+    }
+
+    return {
+      id: user.id.toString(),
+      email: user.email.value,
+      is_email_verified: user.isEmailVerified,
+      name: user.name.value,
+      password: password,
+      is_admin_user: user.isAdminUser,
+      is_deleted: user.isDeleted,
+    };
+  }
+}
