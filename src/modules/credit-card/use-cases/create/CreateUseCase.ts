@@ -21,17 +21,15 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const nameOrError = Name.create({ name: request.name });
     const flagOrError = Flag.create({ flag: request.flag });
     const userIdOrError = Id.create(new UniqueEntityID(request.userId));
-    const idorError = Id.create(new UniqueEntityID());
 
     const dtoResult = Result.combine([
-      nameOrError, userIdOrError, idorError, flagOrError
+      nameOrError, userIdOrError, flagOrError
     ]);
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
-    const id: Id = idorError.getValue();
     const name: Name = nameOrError.getValue();
     const flag: Flag = flagOrError.getValue();
     const userId: Id = userIdOrError.getValue();
@@ -46,12 +44,11 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       }
 
       const creditCardOrError: Result<CreditCard> = CreditCard.create({
-        id,
         name,
         userId,
         flag,
         active: request.active,
-      });
+      }, new UniqueEntityID());
 
       if (creditCardOrError.isFailure) {
         return left(

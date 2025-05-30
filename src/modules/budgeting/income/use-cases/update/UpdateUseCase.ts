@@ -1,5 +1,5 @@
 
-import { Interface as IIncomesRepo} from "../../repos/Interface";
+import { Interface as IIncomesRepo } from "../../repos/Interface";
 import { Balance } from "../../../../../shared/domain/Balance";
 import { Description } from "../../../../../shared/domain/Description";
 import { IncomeMap } from "../../mappers";
@@ -19,14 +19,12 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
     }
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
-
-            const income = IncomeMap.toDomain(await this.repo.getById(data.request.id.toString(), data.request.userId.toString()));
+            const income = await this.repo.getById(data.request.id.toString(), data.request.userId.toString());
             if (!income) {
                 return left(
                     new UpdateErrors.NotFound(data.request.id.toString())
                 ) as UpdateResponse;
             }
-
             const DescriptionOrError = Description.create({ description: data.fieldUpdate.description ? data.fieldUpdate.description : income.description.value });
             DescriptionOrError.isFailure ? console.error(DescriptionOrError.getErrorValue()) : '';
 
@@ -37,7 +35,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             PaymentDayOrError.isFailure ? console.error(PaymentDayOrError.getErrorValue()) : '';
 
             const dtoResult = Result.combine([
-                DescriptionOrError, AmountOrError,PaymentDayOrError
+                DescriptionOrError, AmountOrError, PaymentDayOrError
             ]);
 
             if (dtoResult.isFailure) {

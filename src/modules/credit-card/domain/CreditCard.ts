@@ -1,25 +1,22 @@
 
 import { Guard } from "../../../shared/core/Guard";
 import { Result } from "../../../shared/core/Result";
+import { AggregateRoot } from "../../../shared/domain/AggregateRoot";
 import { Id } from "../../../shared/domain/Id";
 import { Name } from "../../../shared/domain/Name";
+import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Flag } from "./Flag";
 
 
 interface CreditCardProps {
-  id: Id;
   name: Name;
   flag: Flag;
   active: boolean;
   userId: Id;
 }
 
-export class CreditCard {
-  private props: CreditCardProps;
+export class CreditCard  extends AggregateRoot<CreditCardProps> {
 
-  get id(): Id {
-    return this.props.id;
-  }
   get flag(): Flag {
     return this.props.flag;
   }
@@ -39,11 +36,11 @@ export class CreditCard {
     return this.props.userId;
   }
 
-  private constructor(props: CreditCardProps) {
-    this.props = props;
+  private constructor(props: CreditCardProps, id?: UniqueEntityID) {
+    super(props, id);
   }
 
-  public static create(props: CreditCardProps): Result<CreditCard> {
+  public static create(props: CreditCardProps, id?: UniqueEntityID): Result<CreditCard> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.name, argumentName: "name" },
@@ -57,7 +54,7 @@ export class CreditCard {
     const casereditCard = new CreditCard(
       {
         ...props
-      }
+      },id
     );
 
     return Result.ok<CreditCard>(casereditCard);

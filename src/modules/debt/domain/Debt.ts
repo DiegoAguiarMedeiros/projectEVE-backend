@@ -1,14 +1,15 @@
 
 import { Guard } from "../../../shared/core/Guard";
 import { Result } from "../../../shared/core/Result";
+import { AggregateRoot } from "../../../shared/domain/AggregateRoot";
 import { Balance } from "../../../shared/domain/Balance";
 import { Description } from "../../../shared/domain/Description";
 import { Id } from "../../../shared/domain/Id";
 import { PaymentDay } from "../../../shared/domain/PaymentDay";
+import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { DebtsStatus } from "./DebtsStatus";
 
 interface DebtProps {
-  id: Id;
   envelopeId: Id;
   description: Description;
   amount: Balance;
@@ -19,12 +20,8 @@ interface DebtProps {
 }
 
 
-export class Debt {
-  private props: DebtProps;
+export class Debt extends AggregateRoot<DebtProps> {
 
-  get id(): Id {
-    return this.props.id;
-  }
   get envelopeId(): Id {
     return this.props.envelopeId;
   }
@@ -68,13 +65,13 @@ export class Debt {
     this.props.status = status;
   }
 
-  private constructor(props: DebtProps) {
-    this.props = props;
+  private constructor(props: DebtProps, id?: UniqueEntityID) {
+    super(props, id);
   }
 
-  public static create(props: DebtProps): Result<Debt> {
+  public static create(props: DebtProps, id?: UniqueEntityID): Result<Debt> {
+    
     const guardResult = Guard.againstNullOrUndefinedBulk([
-      { argument: props.id, argumentName: "id" },
       { argument: props.envelopeId, argumentName: "envelopeId" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },
@@ -91,7 +88,7 @@ export class Debt {
     const debt = new Debt(
       {
         ...props
-      }
+      },id
     );
 
     return Result.ok<Debt>(debt);

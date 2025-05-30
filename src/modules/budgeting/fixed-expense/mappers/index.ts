@@ -18,7 +18,7 @@ import { FixedExpenseDTO } from "../dtos";
 export class FixedExpenseMap implements Mapper<FixedExpense> {
   public static toDTO(fixedExpense: FixedExpense): FixedExpenseDTO {
     return {
-      id: fixedExpense.id.value,
+      id: fixedExpense.id.toString(),
       envelope: fixedExpense.envelope,
       description: fixedExpense.description.value,
       amount: fixedExpense.amount.value,
@@ -35,12 +35,11 @@ export class FixedExpenseMap implements Mapper<FixedExpense> {
 
     const EnvelopeNameOrError = Name.create({ name: raw.Envelope.name });
     const userIdOrError = Id.create(new UniqueEntityID(raw.Envelope.userId));
-    const EnvelopeIdOrError = Id.create(new UniqueEntityID(raw.Envelope.id));
     const EnvelopeColorOrError = Color.create({ color: raw.Envelope.color });
     const EnvelopePercentageOrError = Percentage.create({ percentage: raw.Envelope.percentage });
 
     const dtoResult = Result.combine([
-      EnvelopeNameOrError, userIdOrError, EnvelopeIdOrError,  EnvelopeColorOrError, EnvelopePercentageOrError
+      EnvelopeNameOrError, userIdOrError,   EnvelopeColorOrError, EnvelopePercentageOrError
     ]);
 
     if (dtoResult.isFailure) {
@@ -48,8 +47,6 @@ export class FixedExpenseMap implements Mapper<FixedExpense> {
     }
 
 
-
-    const envelopeId: Id = EnvelopeIdOrError.getValue();
     const envelopeName: Name = EnvelopeNameOrError.getValue();
     const userId: Id = userIdOrError.getValue();
     const envelopeColor: Color = EnvelopeColorOrError.getValue();
@@ -58,29 +55,22 @@ export class FixedExpenseMap implements Mapper<FixedExpense> {
     
 
     const EnvelopeOrError = Envelope.create({
-      id: envelopeId,
       name: envelopeName,
       color: envelopeColor,
       percentage: envelopePercentage,
       userId: userId,
-    });
-    EnvelopeIdOrError.isFailure ? console.error(EnvelopeIdOrError.getErrorValue()) : '';
-
-    const IdOrError = Id.create(raw.id);
-    IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
-
+    }, new UniqueEntityID(raw.envelope_id));
+    
     const PaymentDayOrError = PaymentDay.create({ paymentDay: raw.payment_day });
     PaymentDayOrError.isFailure ? console.error(PaymentDayOrError.getErrorValue()) : '';
 
     const fixedExpenseOrError = FixedExpense.create(
       {
-        id: IdOrError.getValue(),
         envelope: EnvelopeMap.toDTO(EnvelopeOrError.getValue()),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
         paymentDay: PaymentDayOrError.getValue(),
-      }
-    );
+      }, new UniqueEntityID(raw.id));
 
     fixedExpenseOrError.isFailure ? console.error(fixedExpenseOrError.getErrorValue()) : '';
 
@@ -90,7 +80,7 @@ export class FixedExpenseMap implements Mapper<FixedExpense> {
   public static async toPersistence(fixedExpense: FixedExpense): Promise<any> {
 
     return {
-      id: fixedExpense.id.value,
+      id: fixedExpense.id.toString(),
       envelope_id: fixedExpense.envelope.id,
       description: fixedExpense.description.value,
       amount: fixedExpense.amount.value,

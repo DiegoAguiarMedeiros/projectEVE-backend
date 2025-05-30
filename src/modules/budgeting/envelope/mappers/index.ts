@@ -5,12 +5,13 @@ import { Id } from "../../../../shared/domain/Id";
 import { Name } from "../../../../shared/domain/Name";
 import { Mapper } from "../../../../shared/mappers/Mapper";
 import { Envelope } from "../domain/Envelope";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 
 
 export class EnvelopeMap implements Mapper<Envelope> {
   public static toDTO(envelope: Envelope): EnvelopeDTO {
     return {
-      id: envelope.id.value,
+      id: envelope.id.toString(),
       name: envelope.name.value,
       color: envelope.color.value,
       userId: envelope.userId.value,
@@ -21,7 +22,6 @@ export class EnvelopeMap implements Mapper<Envelope> {
   public static toDomain(raw: any): Envelope {
     const NameOrError = Name.create({ name: raw.name });
     const UserIdOrError = Id.create(raw.user_id);
-    const IdOrError = Id.create(raw.id);
     const ColorOrError = Color.create({ color: raw.color });
     const PercentageOrError = Percentage.create({ percentage: raw.percentage });
 
@@ -44,9 +44,7 @@ export class EnvelopeMap implements Mapper<Envelope> {
         userId: UserIdOrError.getValue(),
         color: ColorOrError.getValue(),
         percentage: PercentageOrError.getValue(),
-        id: IdOrError.getValue(),
-      }
-    );
+      }, new UniqueEntityID(raw.id));
 
     if (envelopeOrError.isFailure) {
       throw new Error('Failed to create envelope');
@@ -57,7 +55,7 @@ export class EnvelopeMap implements Mapper<Envelope> {
   public static async toPersistence(envelope: Envelope): Promise<any> {
 
     return {
-      id: envelope.id.value,
+      id: envelope.id.toString(),
       name: envelope.name.value,
       color: envelope.color.value,
       percentage: envelope.percentage.value,

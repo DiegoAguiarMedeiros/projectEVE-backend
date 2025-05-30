@@ -73,7 +73,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(
-                new UpdateErrors.UpdateError(debt.id.value)
+                new UpdateErrors.UpdateError(debt.id.toString())
             ) as UpdateResponse;
 
 

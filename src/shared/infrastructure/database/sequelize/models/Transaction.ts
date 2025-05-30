@@ -2,6 +2,7 @@ import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
 import CreditCards from './CreditCard';
 import MonthlyEnvelope from './MonthlyEnvelope';
+import Debt from './Debt';
 
 class Transaction extends Model { }
 
@@ -17,6 +18,16 @@ Transaction.init({
         allowNull: true,
         references: {
             model: CreditCards,
+            key: 'id'
+        },
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+    },
+    debt_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: Debt,
             key: 'id'
         },
         onDelete: 'cascade',

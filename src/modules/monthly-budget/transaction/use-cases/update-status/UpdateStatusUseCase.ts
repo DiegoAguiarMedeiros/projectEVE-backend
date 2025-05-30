@@ -39,11 +39,11 @@ export class UpdateStatusUseCase implements UseCase<UpdateStatusDTO, Promise<Upd
 
             if (data.fieldUpdate.status) transaction.updateStatus(status)
 
-            const updateDebt = await this.repo.updateStatus(transaction.id.value,  transaction.status);
+            const updateDebt = await this.repo.updateStatus(transaction.id.toString(),  transaction.status);
             if (updateDebt) return right(Result.ok<void>()) as UpdateStatusResponse;
 
             return left(
-                new UpdateStatusErrors.UpdateError(transaction.id.value)
+                new UpdateStatusErrors.UpdateError(transaction.id.toString())
             ) as UpdateStatusResponse;
 
 

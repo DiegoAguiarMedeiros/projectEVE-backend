@@ -16,7 +16,7 @@ import { Transaction } from "../domain";
 export class TransactionMap implements Mapper<Transaction> {
   public static toDTO(transaction: Transaction): TransactionDTO {
     return {
-      id: transaction.id.value,
+      id: transaction.id.toString(),
       creditCardId: transaction.creditCardId?.value,
       envelope: transaction.envelope,
       description: transaction.description.value,
@@ -35,31 +35,23 @@ export class TransactionMap implements Mapper<Transaction> {
     const AmountOrError = Balance.create({ balance: raw.amount });
     AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
 
-    const IdOrError = Id.create(raw.id);
-    IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
-
     const CreditCardIdOrError = Id.create(raw.credit_card_id);
     CreditCardIdOrError.isFailure ? console.error(CreditCardIdOrError.getErrorValue()) : '';
 
-    const EvelopeIdOrError = Id.create(raw.Envelope.id);
-    EvelopeIdOrError.isFailure ? console.error(EvelopeIdOrError.getErrorValue()) : '';
-
     const EnvelopeNameOrError = Name.create({ name: raw.Envelope.name });
     const userIdOrError = Id.create(new UniqueEntityID(raw.Envelope.userId));
-    const EnvelopeIdOrError = Id.create(new UniqueEntityID(raw.Envelope.id));
     const EnvelopeColorOrError = Color.create({ color: raw.Envelope.color });
     const EnvelopePercentageOrError = Percentage.create({ percentage: raw.Envelope.percentage });
 
 
     const dtoResult = Result.combine([
-      EnvelopeNameOrError, userIdOrError, EnvelopeIdOrError,  EnvelopeColorOrError, EnvelopePercentageOrError
+      EnvelopeNameOrError, userIdOrError,   EnvelopeColorOrError, EnvelopePercentageOrError
     ]);
 
     if (dtoResult.isFailure) {
       console.error(dtoResult.getErrorValue())
     }
 
-    const envelopeId: Id = EnvelopeIdOrError.getValue();
     const envelopeName: Name = EnvelopeNameOrError.getValue();
     const userId: Id = userIdOrError.getValue();
     const envelopeColor: Color = EnvelopeColorOrError.getValue();
@@ -67,17 +59,15 @@ export class TransactionMap implements Mapper<Transaction> {
 
 
     const EnvelopeOrError = Envelope.create({
-      id: envelopeId,
       name: envelopeName,
       color: envelopeColor,
       percentage: envelopePercentage,
       userId: userId,
-    });
-    EnvelopeIdOrError.isFailure ? console.error(EnvelopeIdOrError.getErrorValue()) : '';
+    }, new UniqueEntityID(raw.envelope_id));
+    
 
     const debtOrError = Transaction.create(
       {
-        id: IdOrError.getValue(),
         creditCardId: CreditCardIdOrError.getValue(),
         envelope: EnvelopeMap.toDTO(EnvelopeOrError.getValue()),
         description: DescriptionOrError.getValue(),
@@ -86,8 +76,7 @@ export class TransactionMap implements Mapper<Transaction> {
         date: raw.date,
         type: raw.type,
         status: raw.status,
-      }
-    );
+      }, new UniqueEntityID(raw.id));
 
     debtOrError.isFailure ? console.error(debtOrError.getErrorValue()) : '';
 
@@ -97,7 +86,7 @@ export class TransactionMap implements Mapper<Transaction> {
   public static async toPersistence(transaction: Transaction): Promise<any> {
 
     return {
-      id: transaction.id.value,
+      id: transaction.id.toString(),
       credit_card_id: !transaction.creditCardId ? null : transaction.creditCardId?.value,
       envelope_id: transaction.envelope.id,
       description: transaction.description.value,

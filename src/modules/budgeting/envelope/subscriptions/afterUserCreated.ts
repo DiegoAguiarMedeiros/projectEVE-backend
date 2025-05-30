@@ -19,7 +19,7 @@ export class AfterUserCreated implements IHandle<UserCreated> {
     const { user } = event;
 
     try {
-      await this.create.execute({ userId: user.userId.id.toString() })
+      await this.create.execute({ userId: user.id.toString() })
       console.info(`[AfterUserCreated]: Successfully executed CreateEnvelope use case AfterUserCreated`)
     } catch (err) {
       console.info(`[AfterUserCreated]: Failed to execute CreateEnvelope use case AfterUserCreated.`)

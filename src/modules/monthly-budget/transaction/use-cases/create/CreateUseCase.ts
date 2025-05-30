@@ -29,12 +29,11 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
     const UserIdOrError = Id.create(new UniqueEntityID(request.envelope.userId));
-    const IdOrError = Id.create(new UniqueEntityID());
     const CreditCardIdOrError = Id.create(new UniqueEntityID(request.creditCardId));
     const EvelopeIdOrError = Id.create(new UniqueEntityID(request.envelope.id));
 
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, UserIdOrError, IdOrError, CreditCardIdOrError, EvelopeIdOrError
+      DescriptionOrError, AmountOrError, UserIdOrError, CreditCardIdOrError, EvelopeIdOrError
     ]);
 
     if (dtoResult.isFailure) {
@@ -49,7 +48,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
 
     const envelopeDTO: EnvelopeDTO = EnvelopeMap.toDTO(envelope);
-    const id: Id = IdOrError.getValue();
     const creditCardId: Id = CreditCardIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
@@ -61,7 +59,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     try {
 
       const transactionProps: TransactionProps = {
-        id,
         envelope: envelopeDTO,
         description,
         amount,
@@ -73,7 +70,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
       if (request.creditCardId) transactionProps.creditCardId = creditCardId;
 
-      const transactionOrError: Result<Transaction> = Transaction.create(transactionProps);
+      const transactionOrError: Result<Transaction> = Transaction.create(transactionProps, new UniqueEntityID());
 
       if (transactionOrError.isFailure) {
         return left(

@@ -1,27 +1,24 @@
 
 import { Guard } from "../../../../shared/core/Guard";
 import { Result } from "../../../../shared/core/Result";
+import { AggregateRoot } from "../../../../shared/domain/AggregateRoot";
 import { Balance } from "../../../../shared/domain/Balance";
 import { Id } from "../../../../shared/domain/Id";
 import { Percentage } from "../../../../shared/domain/Percentage";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 import { Reference } from "./Reference";
 
 
 
 interface MonthlyEnvelopeProps {
-  id: Id;
   balance: Balance;
   percentage: Percentage;
   reference: Reference;
   envelopeId: Id;
 }
 
-export class MonthlyEnvelope {
-  private props: MonthlyEnvelopeProps;
+export class MonthlyEnvelope extends AggregateRoot<MonthlyEnvelopeProps> {
 
-  get id(): Id {
-    return this.props.id;
-  }
   get balance(): Balance {
     return this.props.balance;
   }
@@ -45,11 +42,11 @@ export class MonthlyEnvelope {
   }
 
 
-  private constructor(props: MonthlyEnvelopeProps) {
-    this.props = props;
+  private constructor(props: MonthlyEnvelopeProps, id?: UniqueEntityID) {
+    super(props,id)
   }
 
-  public static create(props: MonthlyEnvelopeProps): Result<MonthlyEnvelope> {
+  public static create(props: MonthlyEnvelopeProps, id?: UniqueEntityID): Result<MonthlyEnvelope> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.envelopeId, argumentName: "envelopeId" },
@@ -65,7 +62,7 @@ export class MonthlyEnvelope {
     const envelope = new MonthlyEnvelope(
       {
         ...props
-      }
+      },id
     );
 
     return Result.ok<MonthlyEnvelope>(envelope);

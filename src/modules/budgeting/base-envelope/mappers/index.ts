@@ -4,6 +4,7 @@ import { Name } from "../../../../shared/domain/Name";
 import { BaseEnvelopeDTO } from "../../envelope/dtos";
 import { Mapper } from "../../../../shared/mappers/Mapper";
 import { BaseEnvelope } from "../domain/BaseEnvelope";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 
 
 
@@ -11,45 +12,39 @@ export class BaseEnvelopeMap implements Mapper<BaseEnvelope> {
   public static toDTO(envelope: BaseEnvelope): BaseEnvelopeDTO {
     return {
       name: envelope.name.value,
-      id: envelope.id.value,
+      id: envelope.id.toString(),
     };
   }
 
   public static toDomain(raw: any): BaseEnvelope {
     const NameOrError = Name.create({ name: raw.name });
-    const IdOrError = Id.create(raw.userId);
     const ColorOrError = Color.create({ color: raw.color });
 
     if (NameOrError.isFailure) {
       throw new Error('Invalid use name');
-    }
-    if (IdOrError.isFailure) {
-      throw new Error('Invalid use id');
     }
     
     if (ColorOrError.isFailure) {
       throw new Error('Invalid use color');
     }
 
-    const userOrError = BaseEnvelope.create(
+    const baseEnvelopeOrError = BaseEnvelope.create(
       {
         name: NameOrError.getValue(),
         color: ColorOrError.getValue(),
-        id: IdOrError.getValue(),
-      }
-    );
+      }, new UniqueEntityID(raw.id));
 
-    if (userOrError.isFailure) {
-      throw new Error('Failed to create user');
+    if (baseEnvelopeOrError.isFailure) {
+      throw new Error('Failed to create base envelope');
     }
-    return userOrError.getValue();
+    return baseEnvelopeOrError.getValue();
   }
 
   public static async toPersistence(baseEnvelope: BaseEnvelope): Promise<any> {
 
     return {
       name: baseEnvelope.name.value,
-      id: baseEnvelope.id.value,
+      id: baseEnvelope.id.toString(),
     };
   }
 }

@@ -5,12 +5,13 @@ import { Id } from "../../../shared/domain/Id";
 import { PaymentDay } from "../../../shared/domain/PaymentDay";
 import { Mapper } from "../../../shared/mappers/Mapper";
 import { Debt } from "../domain";
+import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 
 export class DebtMap implements Mapper<Debt> {
   public static toDTO(debt: Debt): DebtDTO {
     return {
-      id: debt.id.value,
-      envelopeId: debt.envelopeId.value,
+      id: debt.id.toString(),
+      envelopeId: debt.envelopeId.toString(),
       description: debt.description.value,
       amount: debt.amount.value,
       installmentsTotal: debt.installmentsTotal.value,
@@ -33,9 +34,6 @@ export class DebtMap implements Mapper<Debt> {
     const InstallmentsPaidOrError = Balance.create({ balance: raw.installments_paid });
     InstallmentsPaidOrError.isFailure ? console.error(InstallmentsPaidOrError.getErrorValue()) : '';
 
-    const IdOrError = Id.create(raw.id);
-    IdOrError.isFailure ? console.error(IdOrError.getErrorValue()) : '';
-
     const EvelopeIdOrError = Id.create(raw.envelope_id);
     EvelopeIdOrError.isFailure ? console.error(EvelopeIdOrError.getErrorValue()) : '';
 
@@ -45,7 +43,6 @@ export class DebtMap implements Mapper<Debt> {
 
     const debtOrError = Debt.create(
       {
-        id: IdOrError.getValue(),
         envelopeId: EvelopeIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
@@ -53,8 +50,7 @@ export class DebtMap implements Mapper<Debt> {
         installmentsPaid: InstallmentsPaidOrError.getValue(),
         paymentDay: PaymentDayOrError.getValue(),
         status: raw.status,
-      }
-    );
+      }, new UniqueEntityID(raw.id));
 
     debtOrError.isFailure ? console.error(debtOrError.getErrorValue()) : '';
 
@@ -64,8 +60,8 @@ export class DebtMap implements Mapper<Debt> {
   public static async toPersistence(debt: Debt): Promise<any> {
 
     return {
-      id: debt.id.value,
-      envelope_id: debt.envelopeId.value,
+      id: debt.id.toString(),
+      envelope_id: debt.envelopeId.toString(),
       description: debt.description.value,
       amount: debt.amount.value,
       installments_total: debt.installmentsTotal.value,

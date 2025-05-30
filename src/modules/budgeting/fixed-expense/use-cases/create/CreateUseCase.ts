@@ -27,22 +27,18 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
 
-    const IdOrError = Id.create(new UniqueEntityID());
-
     const envelope = await this.envelopeRepo.getById(request.envelope.id, request.envelope.userId);
 
     if (!envelope) {
       return left(new CreateErrors.EnvelopeNotFound(request.envelope.id)) as CreateResponse;
     }
-
-
     
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
     const PaymentDayOrError = PaymentDay.create({ paymentDay: request.paymentDay });
 
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError,  IdOrError, PaymentDayOrError
+      DescriptionOrError, AmountOrError, PaymentDayOrError
     ]);
 
 
@@ -50,7 +46,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
-    const id: Id = IdOrError.getValue();
     const envelopeDTO: EnvelopeDTO = EnvelopeMap.toDTO(envelope);
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
@@ -59,12 +54,11 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     try {
 
       const fixedExpenseOrError: Result<FixedExpense> = FixedExpense.create({
-        id,
         envelope: envelopeDTO,
         description,
         amount,
         paymentDay,
-      });
+      }, new UniqueEntityID());
 
       if (fixedExpenseOrError.isFailure) {
         return left(

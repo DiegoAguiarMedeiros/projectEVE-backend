@@ -1,26 +1,23 @@
 import { Guard } from "../../../../shared/core/Guard";
 import { Result } from "../../../../shared/core/Result";
+import { AggregateRoot } from "../../../../shared/domain/AggregateRoot";
 import { Color } from "../../../../shared/domain/Color";
 import { Id } from "../../../../shared/domain/Id";
 import { Name } from "../../../../shared/domain/Name";
 import { Percentage } from "../../../../shared/domain/Percentage";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 
 
 
 interface EnvelopeProps {
-  id: Id;
   name: Name;
   color: Color;
   percentage: Percentage;
   userId: Id;
 }
 
-export class Envelope {
-  private props: EnvelopeProps;
+export class Envelope extends AggregateRoot<EnvelopeProps> {
 
-  get id(): Id {
-    return this.props.id;
-  }
   get name(): Name {
     return this.props.name;
   }
@@ -43,11 +40,11 @@ export class Envelope {
     return this.props.userId;
   }
 
-  private constructor(props: EnvelopeProps) {
-    this.props = props;
+  private constructor(props: EnvelopeProps, id?: UniqueEntityID) {
+    super(props, id);
   }
 
-  public static create(props: EnvelopeProps): Result<Envelope> {
+  public static create(props: EnvelopeProps, id?: UniqueEntityID): Result<Envelope> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.name, argumentName: "name" },
@@ -61,7 +58,8 @@ export class Envelope {
     const envelope = new Envelope(
       {
         ...props
-      }
+      },
+      id
     );
 
     return Result.ok<Envelope>(envelope);

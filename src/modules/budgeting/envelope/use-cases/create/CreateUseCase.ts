@@ -24,20 +24,18 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
   async execute(request: CreateDTO): Promise<CreateResponse> {
     const nameOrError = Name.create({ name: request.name });
     const userIdOrError = Id.create(new UniqueEntityID(request.userId));
-    const idOrError = Id.create(new UniqueEntityID());
     const colorOrError = Color.create({ color: request.color });
     const percentageOrError = Percentage.create({ percentage: request.percentage });
 
 
     const dtoResult = Result.combine([
-      nameOrError, userIdOrError, idOrError, colorOrError, percentageOrError
+      nameOrError, userIdOrError,  colorOrError, percentageOrError
     ]);
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
-    const id: Id = idOrError.getValue();
     const name: Name = nameOrError.getValue();
     const userId: Id = userIdOrError.getValue();
     const color: Color = colorOrError.getValue();
@@ -53,12 +51,11 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       }
 
       const EnvelopeOrError: Result<Envelope> = Envelope.create({
-        id,
         name,
         userId,
         color,
         percentage
-      });
+      }, new UniqueEntityID());
 
       if (EnvelopeOrError.isFailure) {
         return left(

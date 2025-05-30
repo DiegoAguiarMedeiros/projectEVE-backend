@@ -3,6 +3,8 @@ import { Guard } from "../../../../shared/core/Guard";
 import { Result } from "../../../../shared/core/Result";
 import { Id } from "../../../../shared/domain/Id";
 import { Name } from "../../../../shared/domain/Name";
+import { AggregateRoot } from "../../../../shared/domain/AggregateRoot";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 
 /*
 #1877F2 Contas Fixas
@@ -16,17 +18,12 @@ import { Name } from "../../../../shared/domain/Name";
 */
 
 export interface BaseEnvelopeProps {
-  id: Id;
   name: Name;
   color: Color;
 }
 
-export class BaseEnvelope {
-  private props: BaseEnvelopeProps;
+export class BaseEnvelope extends AggregateRoot<BaseEnvelopeProps> {
 
-  get id(): Id {
-    return this.props.id;
-  }
   get name(): Name {
     return this.props.name;
   }
@@ -35,16 +32,15 @@ export class BaseEnvelope {
     return this.props.color;
   }
 
-  private constructor(props: BaseEnvelopeProps) {
-    this.props = props;
+  private constructor(props: BaseEnvelopeProps, id?: UniqueEntityID) {
+    super(props, id)
   }
 
-  public static create(props: BaseEnvelopeProps): Result<BaseEnvelope> {
+  public static create(props: BaseEnvelopeProps, id?: UniqueEntityID): Result<BaseEnvelope> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.color, argumentName: "color" },
       { argument: props.name, argumentName: "name" },
-      { argument: props.id, argumentName: "id" },
     ]);
 
     if (guardResult.isFailure) {
@@ -54,7 +50,7 @@ export class BaseEnvelope {
     const baseEnvelope = new BaseEnvelope(
       {
         ...props
-      }
+      },id
     );
 
     return Result.ok<BaseEnvelope>(baseEnvelope);

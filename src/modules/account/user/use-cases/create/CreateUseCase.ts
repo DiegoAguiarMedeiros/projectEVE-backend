@@ -74,7 +74,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
           name: item.name.value,
           color: item.color.value,
           percentage:0,
-          userId: user.id.value,
+          userId: user.id.toString(),
         })
 
       });*/

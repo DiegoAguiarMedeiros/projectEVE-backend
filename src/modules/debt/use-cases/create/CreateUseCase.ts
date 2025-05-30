@@ -28,7 +28,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const AmountOrError = Balance.create({ balance: request.amount });
     const InstallmentsTotalOrError = Balance.create({ balance: request.installmentsTotal });
     const InstallmentsPaidOrError = Balance.create({ balance: request.installmentsPaid });
-    const IdOrError = Id.create(new UniqueEntityID());
     
     
     const envelopeRaw= await this.envelopeRepo.getByName('Dívidas',request.userId)
@@ -37,18 +36,17 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       return left(Result.fail<void>(`The envelope was not found`))
     }
     const envelope = EnvelopeMap.toDomain(envelopeRaw);
-    const EnvelopeIdOrError = Id.create(new UniqueEntityID(envelope.id.value));
+    const EnvelopeIdOrError = Id.create(new UniqueEntityID(envelope.id.toString()));
 
     const PaymentDayOrError = PaymentDay.create({ paymentDay: request.paymentDay });
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, IdOrError,EnvelopeIdOrError,  InstallmentsTotalOrError, InstallmentsPaidOrError,PaymentDayOrError
+      DescriptionOrError, AmountOrError, EnvelopeIdOrError,  InstallmentsTotalOrError, InstallmentsPaidOrError,PaymentDayOrError
     ]);
     
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
     
-    const id: Id = IdOrError.getValue();
     const envelopeId: Id = EnvelopeIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
@@ -61,7 +59,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     try {
 
       const debtOrError: Result<Debt> = Debt.create({
-        id,
         envelopeId,
         description,
         amount,
@@ -69,7 +66,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         installmentsPaid,
         paymentDay,
         status,
-      });
+      }, new UniqueEntityID());
 
       if (debtOrError.isFailure) {
         return left(

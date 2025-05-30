@@ -1,9 +1,11 @@
 
 import { Guard } from "../../../../shared/core/Guard";
 import { Result } from "../../../../shared/core/Result";
+import { AggregateRoot } from "../../../../shared/domain/AggregateRoot";
 import { Balance } from "../../../../shared/domain/Balance";
 import { Description } from "../../../../shared/domain/Description";
 import { Id } from "../../../../shared/domain/Id";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 import { EnvelopeDTO } from "../../../budgeting/envelope/dtos";
 import { PaymentMethod } from "./PaymentMethod";
 import { TransactionStatus } from "./TransactionStatus";
@@ -11,8 +13,8 @@ import { TransactionType } from "./TransactionType";
 
 
 export interface TransactionProps {
-  id: Id;
   creditCardId?: Id;
+  debtId?: Id;
   envelope: EnvelopeDTO;
   description: Description;
   amount: Balance;
@@ -23,17 +25,20 @@ export interface TransactionProps {
 }
 
 
-export class Transaction {
-  private props: TransactionProps;
+export class Transaction  extends AggregateRoot<TransactionProps> {
 
-  get id(): Id {
-    return this.props.id;
-  }
   get creditCardId(): Id | undefined{
     return this.props.creditCardId;
   }
   public updateCreditCardId(creditCardId?: Id): void {
     this.props.creditCardId = creditCardId;
+  }
+
+  get debtId(): Id | undefined{
+    return this.props.debtId;
+  }
+  public updateDebtId(debtId?: Id): void {
+    this.props.debtId = debtId;
   }
   get envelope(): EnvelopeDTO {
     return this.props.envelope;
@@ -78,14 +83,13 @@ export class Transaction {
     this.props.status = status;
   }
 
-  private constructor(props: TransactionProps) {
-    this.props = props;
+  private constructor(props: TransactionProps, id?: UniqueEntityID) {
+    super(props, id);
   }
 
-  public static create(props: TransactionProps): Result<Transaction> {
+  public static create(props: TransactionProps, id?: UniqueEntityID): Result<Transaction> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
-      { argument: props.id, argumentName: "id" },
       { argument: props.envelope, argumentName: "envelope" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },
@@ -101,7 +105,7 @@ export class Transaction {
     const transaction = new Transaction(
       {
         ...props
-      }
+      },id
     );
 
     return Result.ok<Transaction>(transaction);

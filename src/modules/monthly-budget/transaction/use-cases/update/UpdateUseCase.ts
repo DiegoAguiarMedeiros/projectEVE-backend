@@ -80,11 +80,11 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             if (data.fieldUpdate.type) transaction.updateType(type)
             if (data.fieldUpdate.status) transaction.updateStatus(status)
 
-            const updateData = await this.repo.update(transaction.id.value, transaction);
+            const updateData = await this.repo.update(transaction.id.toString(), transaction);
             if (updateData) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(
-                new UpdateErrors.UpdateError(transaction.id.value)
+                new UpdateErrors.UpdateError(transaction.id.toString())
             ) as UpdateResponse;
 
 

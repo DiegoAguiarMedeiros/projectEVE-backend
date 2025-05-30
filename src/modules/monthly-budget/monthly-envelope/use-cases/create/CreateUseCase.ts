@@ -26,34 +26,30 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const referenceOrError = Reference.create({ reference: request.reference });
     const userIdOrError = Id.create(new UniqueEntityID(request.userId));
     const envelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId));
-    const idOrError = Id.create(new UniqueEntityID());
     const percentageOrError = Percentage.create({ percentage: request.percentage });
 
 
     const dtoResult = Result.combine([
-      referenceOrError, balanceOrError,userIdOrError, idOrError, percentageOrError,envelopeIdOrError
+      referenceOrError, balanceOrError,userIdOrError, percentageOrError,envelopeIdOrError
     ]);
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
-    const id: Id = idOrError.getValue();
     const envelopeId: Id = envelopeIdOrError.getValue();
     const balance: Balance = balanceOrError.getValue();
     const reference: Reference = referenceOrError.getValue();
-    const userId: Id = userIdOrError.getValue();
     const percentage: Percentage = percentageOrError.getValue();
 
     try {
 
       const MonthlyEnvelopeOrError: Result<MonthlyEnvelope> = MonthlyEnvelope.create({
-        id,
         percentage,
         balance: balance,
         reference: reference,
         envelopeId: envelopeId,
-      });
+      }, new UniqueEntityID());
 
       if (MonthlyEnvelopeOrError.isFailure) {
         return left(

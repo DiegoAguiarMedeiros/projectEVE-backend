@@ -53,7 +53,6 @@ export class Repository implements Interface {
             offset: offset,
             order: [[orderStatement, safeOrder]],
         });
-
         return data.map((e: any) => Mapper.toDomain(e));
     }
 

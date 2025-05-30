@@ -24,11 +24,6 @@ interface UserProps {
 
 export class User extends AggregateRoot<UserProps> {
 
-  get userId (): Id {
-    return Id.create(this._id)
-      .getValue();
-  }
-
   get email(): Email {
     return this.props.email;
   }
