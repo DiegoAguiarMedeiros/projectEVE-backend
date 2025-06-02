@@ -5,4 +5,5 @@ import { MonthlyEnvelope } from "../domain";
 
 
 export interface Interface extends ICRUD<MonthlyEnvelope> {
+    getByReferenceAndEnvelopeId(reference: string, envelopeId: string): Promise<MonthlyEnvelope | null>;
 }

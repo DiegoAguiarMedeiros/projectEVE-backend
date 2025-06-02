@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { BaseController } from "../../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../../shared/infrastructure/http/models/DecodedExpressRequest";
-import { CreateDTO } from "../../dtos";
+import { CreateMonthlyWithTansactionDTO } from "../../dtos";
 import { CreateErrors } from "./CreateErrors";
 import { CreateUseCase } from "./CreateUseCase";
 
@@ -16,13 +16,16 @@ export class CreateController extends BaseController {
 
 
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
-    const { id } = req.decoded;
-    const dto: CreateDTO = {
-      userId: id,
-      percentage: 0,
-      balance: 0,
-      reference: "",
-      envelopeId: "",
+    const dto: CreateMonthlyWithTansactionDTO = {
+      createMonthlyEnvelope: req.body.createMonthlyEnvelope,
+      percentage: req.body.percentage,
+      balance: req.body.balance,
+      reference: req.body.reference,
+      envelopeId: req.body.envelope,
+      description: req.body.description,
+      amount: req.body.amount,
+      date: req.body.date,
+      debtId: req.body.debtId,
     }
 
     try {

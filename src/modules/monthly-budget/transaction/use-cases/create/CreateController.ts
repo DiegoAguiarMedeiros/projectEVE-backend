@@ -19,10 +19,7 @@ export class CreateController extends BaseController {
     const { id } = req.decoded;
     const dto : CreateDTO  = {
       creditCardId: req.body.creditCardId,
-      envelope: {
-        id: req.body.envelope.id,
-        userId: id,
-      },
+      monthlyEnvelopeId: req.body.monthlyEnvelopeId,
       description: TextUtils.sanitize(req.body.description),
       amount: req.body.amount,
       paymentMethod: req.body.paymentMethod,

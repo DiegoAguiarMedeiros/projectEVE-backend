@@ -1,35 +1,34 @@
 
-import { EnvelopeDTO, EnvelopeIdDTO } from "../../../budgeting/envelope/dtos";
 import { PaymentMethod, TransactionStatus, TransactionType } from "../domain";
 
 
 export interface TransactionDTO {
-    id: string;
-    creditCardId?: string;
-    envelope: EnvelopeDTO;
-    description: string;
-    amount: number;
-    paymentMethod: PaymentMethod;
-    date: Date;
-    type: TransactionType;
-    status: TransactionStatus;
+  id: string;
+  creditCardId?: string;
+  debtId?: string;
+  monthlyEnvelopeId: string;
+  description: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  date: Date;
+  type: TransactionType;
+  status: TransactionStatus;
 }
 
 
 
 export interface TransactionUpdateFiledDTO extends Omit<
-  TransactionDTO,  'id' 
+  TransactionDTO, 'id'
 > { }
 export interface TransactionUpdateStatusDTO extends Omit<
-  TransactionDTO,  'id' | 'creditCardId' | 'envelope' | 'description' | 'amount' | 'paymentMethod' | 'date' | 'type'
+  TransactionDTO, 'id' | 'creditCardId' | 'monthlyEnvelopeId' | 'description' | 'amount' | 'paymentMethod' | 'date' | 'type'
 > { }
 
 export interface TransactionIdDTO extends Omit<
-  TransactionDTO, 'creditCardId' | 'envelope' | 'description' | 'amount' | 'paymentMethod' | 'date' | 'type' | 'status'
+  TransactionDTO, 'creditCardId' | 'monthlyEnvelopeId'| 'description' | 'amount' | 'paymentMethod' | 'date' | 'type' | 'status'
 > { }
 
-export interface CreateDTO extends Omit<TransactionDTO, 'id' | 'envelope'> {
-  envelope: EnvelopeIdDTO;
+export interface CreateDTO extends Omit<TransactionDTO, 'id'> {
 }
 export interface DeleteDTO extends TransactionIdDTO { userId: string; }
 

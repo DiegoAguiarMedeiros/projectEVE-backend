@@ -59,12 +59,12 @@ export class MonthlyEnvelope extends AggregateRoot<MonthlyEnvelopeProps> {
       return Result.fail<MonthlyEnvelope>('MonthlyEnvelope :' + guardResult.getErrorValue());
     }
 
-    const envelope = new MonthlyEnvelope(
+    const monthlyEnvelope = new MonthlyEnvelope(
       {
         ...props
       },id
     );
 
-    return Result.ok<MonthlyEnvelope>(envelope);
+    return Result.ok<MonthlyEnvelope>(monthlyEnvelope);
   }
 }

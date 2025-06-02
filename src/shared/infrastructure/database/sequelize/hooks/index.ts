@@ -16,6 +16,12 @@ const dispatchEventsCallback = (model: any, primaryKeyField: string) => {
   User.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
   User.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
 
+  Debt.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debt.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debt.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debt.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debt.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
+
 
   console.info('[Hooks]: Sequelize hooks for aggregates registered.');
 })();

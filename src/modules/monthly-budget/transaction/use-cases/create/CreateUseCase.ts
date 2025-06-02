@@ -17,38 +17,30 @@ import { Transaction,PaymentMethod, TransactionType, TransactionStatus, Transact
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private repo: ITransactionRepo;
-  private envelopeRepo: IEnvelopeRepo;
 
-  constructor(repo: ITransactionRepo, envelopeRepo: IEnvelopeRepo) {
+  constructor(repo: ITransactionRepo) {
     this.repo = repo;
-    this.envelopeRepo = envelopeRepo;
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
 
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
-    const UserIdOrError = Id.create(new UniqueEntityID(request.envelope.userId));
     const CreditCardIdOrError = Id.create(new UniqueEntityID(request.creditCardId));
-    const EvelopeIdOrError = Id.create(new UniqueEntityID(request.envelope.id));
+    const DebtIdOrError = Id.create(new UniqueEntityID(request.debtId));
+    const MonthlyEnvelopeIdOrError = Id.create(new UniqueEntityID(request.monthlyEnvelopeId));
 
     const dtoResult = Result.combine([
-      DescriptionOrError, AmountOrError, UserIdOrError, CreditCardIdOrError, EvelopeIdOrError
+      DescriptionOrError, AmountOrError, CreditCardIdOrError,MonthlyEnvelopeIdOrError, DebtIdOrError
     ]);
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
-    const envelope = await this.envelopeRepo.getById(request.envelope.id, request.envelope.userId);
-
-    if (!envelope) {
-      return left(new CreateErrors.EnvelopeNotFound(request.envelope.id)) as CreateResponse;
-    }
-
-
-    const envelopeDTO: EnvelopeDTO = EnvelopeMap.toDTO(envelope);
     const creditCardId: Id = CreditCardIdOrError.getValue();
+    const debtId: Id = DebtIdOrError.getValue();
+    const monthlyEnvelopeId: Id = MonthlyEnvelopeIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
     const paymentMethod: PaymentMethod = request.paymentMethod;
@@ -59,16 +51,18 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     try {
 
       const transactionProps: TransactionProps = {
-        envelope: envelopeDTO,
         description,
         amount,
         paymentMethod,
         date,
         type,
         status,
+        monthlyEnvelopeId,
+        
       }
 
       if (request.creditCardId) transactionProps.creditCardId = creditCardId;
+      if (request.debtId) transactionProps.debtId = debtId;
 
       const transactionOrError: Result<Transaction> = Transaction.create(transactionProps, new UniqueEntityID());
 

@@ -3,4 +3,5 @@ import { Debt } from "../domain";
 
 
 export interface Interface extends ICRUD<Debt> {
+    getOnlyById(id: string): Promise<Debt | null>;
 }

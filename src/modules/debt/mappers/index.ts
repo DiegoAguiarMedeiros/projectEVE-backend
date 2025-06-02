@@ -11,7 +11,7 @@ export class DebtMap implements Mapper<Debt> {
   public static toDTO(debt: Debt): DebtDTO {
     return {
       id: debt.id.toString(),
-      envelopeId: debt.envelopeId.toString(),
+      envelopeId: debt.envelopeId.value,
       description: debt.description.value,
       amount: debt.amount.value,
       installmentsTotal: debt.installmentsTotal.value,
@@ -61,7 +61,7 @@ export class DebtMap implements Mapper<Debt> {
 
     return {
       id: debt.id.toString(),
-      envelope_id: debt.envelopeId.toString(),
+      envelope_id: debt.envelopeId.value,
       description: debt.description.value,
       amount: debt.amount.value,
       installments_total: debt.installmentsTotal.value,

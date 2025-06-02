@@ -23,7 +23,7 @@ export class UpdateController extends BaseController {
             fieldUpdate: {
                 description: req.body.description,
                 creditCardId: req.body.creditCardId,
-                envelope: req.body.envelope,
+                monthlyEnvelopeId: req.body.monthlyEnvelopeId,
                 amount: req.body.amount,
                 paymentMethod: req.body.paymentMethod,
                 date: req.body.date,

@@ -56,7 +56,7 @@ Transaction.init({
         allowNull: false
     },
     payment_method: {
-        type: DataTypes.ENUM('CreditCard', 'DebitCard', 'Cash', 'BankTransfer', 'Pix'),
+        type: DataTypes.ENUM('CreditCard', 'DebitCard', 'Cash', 'BankTransfer', 'Pix', 'Ticket'),
         allowNull: false
     },
     type: {
@@ -65,7 +65,7 @@ Transaction.init({
         defaultValue: 'Debit'
     },
     status: {
-        type: DataTypes.ENUM('Pending', 'Completed'),
+        type: DataTypes.ENUM('Pending', 'Completed','Overdue', 'Cancelled'),
         allowNull: false,
         defaultValue: 'Pending'
     }

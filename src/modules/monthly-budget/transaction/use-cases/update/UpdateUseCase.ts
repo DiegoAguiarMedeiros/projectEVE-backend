@@ -18,11 +18,9 @@ import { EnvelopeMap } from "../../../../budgeting/envelope/mappers";
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: ITransactionRepo;
-    private envelopeRepo: IEnvelopeRepo;
 
-    constructor(repo: ITransactionRepo, envelopeRepo: IEnvelopeRepo) {
+    constructor(repo: ITransactionRepo) {
         this.repo = repo;
-        this.envelopeRepo = envelopeRepo;
     }
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
@@ -32,12 +30,6 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
                 return left(
                     new UpdateErrors.NotFound(data.request.id.toString())
                 ) as UpdateResponse;
-            }
-
-            const envelope = await this.envelopeRepo.getById(data.fieldUpdate.envelope.id, data.request.userId);
-
-            if (!envelope) {
-                return left(new UpdateErrors.EnvelopeNotFound(data.fieldUpdate.envelope.id)) as UpdateResponse;
             }
 
             const DescriptionOrError = Description.create({ description: data.fieldUpdate.description ? data.fieldUpdate.description : transaction.description.value });
@@ -71,8 +63,6 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
                 transaction.updateCreditCardId()
             }
 
-            const envelopeDTO: EnvelopeDTO = EnvelopeMap.toDTO(envelope);
-            if (data.fieldUpdate.envelope) transaction.updateEnvelope(envelopeDTO)
             if (data.fieldUpdate.description) transaction.updateDescription(description)
             if (data.fieldUpdate.amount) transaction.updateAmount(amount)
             if (data.fieldUpdate.paymentMethod) transaction.updatePaymentMethod(paymentMethod)

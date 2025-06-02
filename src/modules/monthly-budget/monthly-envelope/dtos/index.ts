@@ -24,8 +24,15 @@ export interface MonthlyEnvelopeIdDTO extends Omit<
   userId: string;
 }
 
-export interface CreateDTO extends MonthlyEnvelopeWithoutIdDTO {
-  userId: string;
+export interface CreateDTO extends MonthlyEnvelopeWithoutIdDTO {}
+
+export interface CreateMonthlyWithTansactionDTO extends MonthlyEnvelopeWithoutIdDTO {
+  createMonthlyEnvelope: boolean;
+  monthlyEnvelopeId?: string;
+  description: string;
+  amount: number;
+  date: Date;
+  debtId: string;
 }
 
 export interface DeleteDTO extends MonthlyEnvelopeIdDTO { }

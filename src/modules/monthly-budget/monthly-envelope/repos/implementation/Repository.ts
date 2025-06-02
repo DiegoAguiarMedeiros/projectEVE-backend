@@ -12,6 +12,7 @@ export class Repository implements Interface {
         this.model = this.models.MonthlyEnvelope;
     }
 
+
     async update(id: string, data: MonthlyEnvelope): Promise<boolean> {
         const rawData = await Mapper.toPersistence(data);
         const [updatedRows] = await this.model.update(
@@ -52,6 +53,16 @@ export class Repository implements Interface {
             where: {
                 id,
                 user_id: userId,
+            },
+            raw: true,
+        });
+        return Mapper.toDomain(data) ?? null;
+    }
+    async getByReferenceAndEnvelopeId(reference: string, envelopeId: string): Promise<MonthlyEnvelope | null> {
+        const data = await this.model.findOne({
+            where: {
+                envelope_id: envelopeId,
+                reference,
             },
             raw: true,
         });

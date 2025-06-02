@@ -1,3 +1,3 @@
-export type TransactionStatus = 'Pending'| 'Completed';
+export type TransactionStatus = 'Pending'| 'Completed'|'Overdue'| 'Cancelled';
 
-export const allTransactionStatus: TransactionStatus[] = ['Pending', 'Completed']
+export const allTransactionStatus: TransactionStatus[] = ['Pending', 'Completed','Overdue', 'Cancelled']

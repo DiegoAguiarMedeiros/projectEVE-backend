@@ -18,13 +18,9 @@ import { User } from "../../domain/User";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private repo: IUserRepo;
-  private baseEnvelopeRepo: IBaseEnvelopeRepo;
-  private createEnvelopeUseCase: CreateEnvelopeUseCase;
 
-  constructor(repo: IUserRepo, baseEnvelopeRepo: IBaseEnvelopeRepo, createEnvelopeUseCase: CreateEnvelopeUseCase) {
+  constructor(repo: IUserRepo) {
     this.repo = repo;
-    this.baseEnvelopeRepo = baseEnvelopeRepo;
-    this.createEnvelopeUseCase = createEnvelopeUseCase;
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
@@ -67,17 +63,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
 
       await this.repo.create(user);
-
- /*     const data = await this.baseEnvelopeRepo.getAll();
-      await data.forEach(item => {
-        this.createEnvelopeUseCase.execute({
-          name: item.name.value,
-          color: item.color.value,
-          percentage:0,
-          userId: user.id.toString(),
-        })
-
-      });*/
 
       return right(Result.ok<void>())
 

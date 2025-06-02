@@ -66,7 +66,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         installmentsPaid,
         paymentDay,
         status,
-      }, new UniqueEntityID());
+      });
 
       if (debtOrError.isFailure) {
         return left(

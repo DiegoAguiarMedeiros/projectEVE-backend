@@ -15,7 +15,7 @@ import { TransactionType } from "./TransactionType";
 export interface TransactionProps {
   creditCardId?: Id;
   debtId?: Id;
-  envelope: EnvelopeDTO;
+  monthlyEnvelopeId: Id;
   description: Description;
   amount: Balance;
   paymentMethod: PaymentMethod;
@@ -40,12 +40,13 @@ export class Transaction  extends AggregateRoot<TransactionProps> {
   public updateDebtId(debtId?: Id): void {
     this.props.debtId = debtId;
   }
-  get envelope(): EnvelopeDTO {
-    return this.props.envelope;
+  get monthlyEnvelopeId(): Id{
+    return this.props.monthlyEnvelopeId;
   }
-  public updateEnvelope(envelope: EnvelopeDTO): void {
-    this.props.envelope = envelope;
+  public updateMonthlyEnvelopeId(monthlyEnvelopeId: Id): void {
+    this.props.monthlyEnvelopeId = monthlyEnvelopeId;
   }
+
   get description(): Description {
     return this.props.description;
   }
@@ -90,7 +91,7 @@ export class Transaction  extends AggregateRoot<TransactionProps> {
   public static create(props: TransactionProps, id?: UniqueEntityID): Result<Transaction> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
-      { argument: props.envelope, argumentName: "envelope" },
+      { argument: props.monthlyEnvelopeId, argumentName: "monthlyEnvelopeId" },
       { argument: props.description, argumentName: "description" },
       { argument: props.amount, argumentName: "amount" },
       { argument: props.date, argumentName: "date" },

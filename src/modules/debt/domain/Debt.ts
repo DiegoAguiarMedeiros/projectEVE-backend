@@ -8,6 +8,7 @@ import { Id } from "../../../shared/domain/Id";
 import { PaymentDay } from "../../../shared/domain/PaymentDay";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { DebtsStatus } from "./DebtsStatus";
+import { DebtCreated } from "./events/debtCreated";
 
 interface DebtProps {
   envelopeId: Id;
@@ -70,7 +71,7 @@ export class Debt extends AggregateRoot<DebtProps> {
   }
 
   public static create(props: DebtProps, id?: UniqueEntityID): Result<Debt> {
-    
+
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.envelopeId, argumentName: "envelopeId" },
       { argument: props.description, argumentName: "description" },
@@ -84,13 +85,17 @@ export class Debt extends AggregateRoot<DebtProps> {
     if (guardResult.isFailure) {
       return Result.fail<Debt>('Debt :' + guardResult.getErrorValue());
     }
-
+    const isNewDebt = !!id === false;
     const debt = new Debt(
       {
         ...props
-      },id
+      }, id
     );
 
+
+    if (isNewDebt) {
+      debt.addDomainEvent(new DebtCreated(debt));
+    }
     return Result.ok<Debt>(debt);
   }
 }

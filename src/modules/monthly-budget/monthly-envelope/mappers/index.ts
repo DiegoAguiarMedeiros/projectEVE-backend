@@ -59,7 +59,7 @@ export class MonthlyEnvelopeMap implements Mapper<MonthlyEnvelope> {
 
     return {
       id: data.id.toString(),
-      envelope_id: data.envelopeId.toString(),
+      envelope_id: data.envelopeId.value,
       balance: data.balance.value,
       percentage: data.percentage.value,
       reference: data.reference.value,

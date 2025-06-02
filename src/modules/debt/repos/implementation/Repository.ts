@@ -50,7 +50,16 @@ export class Repository implements Interface {
         });
         return data.map((e: any) => Mapper.toDomain(e));
     }
+    async getOnlyById(id: string): Promise<Debt | null> {
 
+        const data = await this.model.findOne({
+            where: {
+                id,
+            },
+            raw: true,
+        });
+        return Mapper.toDomain(data) ?? null;
+    }
     async getById(id: string, userId: string): Promise<Debt | null> {
 
         const data = await this.model.findOne({
