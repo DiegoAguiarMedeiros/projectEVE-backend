@@ -1,24 +1,26 @@
 
 import express from 'express'
-import { creditCardRouter } from '../../../../modules/credit-card/infra/http/routes';
-import { authRouter, userRouter } from '../../../../modules/account/user/infra/http/routes';
-import { envelopeRouter } from '../../../../modules/budgeting/envelope/infra/http/routes';
-import { fixedExpenseRouter } from '../../../../modules/budgeting/fixed-expense/infra/http/routes';
-import { incomeRouter } from '../../../../modules/budgeting/income/infra/http/routes';
-import { debtRouter } from '../../../../modules/debt/infra/http/routes';
-import { monthlyEnvelopeRouter } from '../../../../modules/monthly-budget/monthly-envelope/infra/http/routes';
-import { transactionRouter } from '../../../../modules/monthly-budget/transaction/infra/http/routes';
+import { creditCardsRouter } from '../../../../modules/credit-cards/infra/http/routes';
+import { authRouter, usersRouter } from '../../../../modules/users/infra/http/routes';
+import { envelopesRouter } from '../../../../modules/envelopes/infra/http/routes';
+import { fixedExpensesRouter } from '../../../../modules/fixed-expenses/infra/http/routes';
+import { goalsRouter } from '../../../../modules/goals/infra/http/routes';
+import { incomesRouter } from '../../../../modules/incomes/infra/http/routes';
+import { processedIncomesRouter } from '../../../../modules/processed-incomes/infra/http/routes';
+import { debtsRouter } from '../../../../modules/debts/infra/http/routes';
+import { transactionsRouter } from '../../../../modules/transactions/infra/http/routes';
 
-const v1Router = express.Router();
+const Router = express.Router();
 
-v1Router.use('/auth', authRouter);
-v1Router.use('/user', userRouter);
-v1Router.use('/envelope', envelopeRouter);
-v1Router.use('/credit-card', creditCardRouter);
-v1Router.use('/debt', debtRouter);
-v1Router.use('/monthly-envelope', monthlyEnvelopeRouter);
-v1Router.use('/fixed-expense', fixedExpenseRouter);
-v1Router.use('/income', incomeRouter);
-v1Router.use('/transaction', transactionRouter);
+Router.use('/auth', authRouter);
+Router.use('/users', usersRouter);
+Router.use('/incomes', incomesRouter);
+Router.use('/processed-incomes', processedIncomesRouter);
+Router.use('/credit-cards', creditCardsRouter);
+Router.use('/debts', debtsRouter);
+Router.use('/envelopes', envelopesRouter);
+Router.use('/fixed-expenses', fixedExpensesRouter);
+Router.use('/goals', goalsRouter);
+Router.use('/transactions', transactionsRouter);
 
-export { v1Router }
+export { Router }

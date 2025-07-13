@@ -1,5 +1,5 @@
-import { JWTClaims, JWTToken, RefreshToken } from "../../../modules/account/user/domain/JWT";
-import { User } from "../../../modules/account/user/domain/User";
+import { JWTClaims, JWTToken, RefreshToken } from "../../../modules/users/domain/JWT";
+import { User } from "../../../modules/users/domain/User";
 
 
 

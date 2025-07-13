@@ -15,6 +15,10 @@ BaseEnvelope.init({
     type: DataTypes.TEXT,
     allowNull: false
   },
+  order: {
+    type: DataTypes.INTEGER,
+    allowNull: true
+  },
   color: {
     type: DataTypes.STRING(7),
     allowNull: true,
@@ -26,9 +30,9 @@ BaseEnvelope.init({
   sequelize,
   modelName: 'BaseEnvelope',
   tableName: 'base_envelope',
-  createdAt: 'created_at', 
+  createdAt: 'created_at',
   updatedAt: 'updated_at',
-  timestamps: true 
+  timestamps: true
 });
 
 export default BaseEnvelope;

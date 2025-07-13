@@ -1,0 +1,97 @@
+import { Guard } from "../../../shared/core/Guard";
+import { Result } from "../../../shared/core/Result";
+import { AggregateRoot } from "../../../shared/domain/AggregateRoot";
+import { Balance } from "../../../shared/domain/Balance";
+import { Description } from "../../../shared/domain/Description";
+import { Id } from "../../../shared/domain/Id";
+import { PaymentDay } from "../../../shared/domain/PaymentDay";
+import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
+import { ProcessedIncomeCreated } from "./events/ProcessedIncomeCreated";
+import { Month } from "./Month";
+import { Year } from "./Year";
+
+
+
+interface ProcessedIncomesProps {
+  userId: Id;
+  month: Month;
+  year: Year;
+  totalIncomeProcessed: Balance;
+  auxId?: Id;
+  processedAt: Date;
+  isReprocessed: boolean;
+  isSplitted: boolean;
+}
+
+
+export class ProcessedIncomes extends AggregateRoot<ProcessedIncomesProps> {
+
+  get userId(): Id {
+    return this.props.userId;
+  }
+
+  get month(): Month {
+    return this.props.month;
+  }
+  public updateMonth(month: Month): void {
+    this.props.month = month;
+  }
+  get year(): Year {
+    return this.props.year;
+  }
+  public updateYear(year: Year): void {
+    this.props.year = year;
+  }
+
+  get totalIncomeProcessed(): Balance {
+    return this.props.totalIncomeProcessed;
+  }
+  public updateTotalIncomeProcessed(totalIncomeProcessed: Balance): void {
+    this.props.totalIncomeProcessed = totalIncomeProcessed;
+  }
+
+  get auxId(): Id | undefined {
+    return this.props.auxId;
+  }
+  get processedAt(): Date {
+    return this.props.processedAt;
+  }
+  get isReprocessed(): boolean {
+    return this.props.isReprocessed;
+  }
+  get isSplitted(): boolean {
+    return this.props.isSplitted;
+  }
+  private constructor(props: ProcessedIncomesProps, id?: UniqueEntityID) {
+    super(props, id);
+  }
+
+  public static create(props: ProcessedIncomesProps, id?: UniqueEntityID): Result<ProcessedIncomes> {
+
+    const guardResult = Guard.againstNullOrUndefinedBulk([
+      { argument: props.userId, argumentName: "userId" },
+      { argument: props.month, argumentName: "month" },
+      { argument: props.year, argumentName: "year" },
+      { argument: props.totalIncomeProcessed, argumentName: "totalIncomeProcessed" },
+      { argument: props.isReprocessed, argumentName: "isReprocessed" },
+      { argument: props.isSplitted, argumentName: "isSplitted" },
+    ]);
+
+    if (guardResult.isFailure) {
+      return Result.fail<ProcessedIncomes>('ProcessedIncomes :' + guardResult.getErrorValue());
+    }
+
+    const isNewProcessedIncomes = !!id === false;
+    const processedIncome = new ProcessedIncomes(
+      {
+        ...props
+      }, id
+    );
+
+    if (isNewProcessedIncomes) {
+      processedIncome.addDomainEvent(new ProcessedIncomeCreated(processedIncome));
+    }
+
+    return Result.ok<ProcessedIncomes>(processedIncome);
+  }
+}

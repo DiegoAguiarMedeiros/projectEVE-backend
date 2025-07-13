@@ -1,14 +1,14 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
-import Envelope from './Envelope';
+import Envelope from './Envelopes';
 
-class FixedExpense extends Model {
+class FixedExpenses extends Model {
     static associate(models: any) {
-        FixedExpense.belongsTo(Envelope, { foreignKey: 'envelope_id' });
+        FixedExpenses.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
     }
 }
 
-FixedExpense.init({
+FixedExpenses.init({
     id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
@@ -40,11 +40,11 @@ FixedExpense.init({
             min: 1,
             max: 31,
         }
-    },
+    }
 }, {
     sequelize,
-    modelName: 'FixedExpense',
-    tableName: 'fixed_expense',
+    modelName: 'FixedExpenses',
+    tableName: 'fixed_expenses',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     timestamps: true
@@ -55,4 +55,4 @@ FixedExpense.init({
 
 
 
-export default FixedExpense;
+export default FixedExpenses;

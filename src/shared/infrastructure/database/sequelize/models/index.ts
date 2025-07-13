@@ -3,8 +3,6 @@ import * as path from 'path'
 import sequelize from '../config/config';
 import * as Sequelize from 'sequelize'
 
-
-// turns base_user => BaseUser
 function toCamelCase(str: string) {
   if (typeof str !== 'string') {
     throw new TypeError('Expected a string');
@@ -29,8 +27,7 @@ let modelsLoaded = false;
 const createModels = () => {
   if (modelsLoaded) return models;
 
-  // Get all models
-  const modelsList = fs.readdirSync(path.resolve(__dirname, "./"))
+  fs.readdirSync(path.resolve(__dirname, "./"))
     .filter((t) => (~t.indexOf('.ts') || ~t.indexOf('.js')) && !~t.indexOf("index") && !~t.indexOf(".map"))
     .map((model) => {
       const modelImport = require(path.join(__dirname, model));
@@ -39,13 +36,11 @@ const createModels = () => {
         : new modelImport(sequelize, Sequelize.DataTypes);
     });
 
-  const modelNames = Object.keys(sequelize.models); // Acessa os nomes dos modelos
-
   Object.keys(sequelize.models).forEach((modelsListName) => {
     const modelName = toCamelCase(modelsListName);
     models[modelName] = sequelize.models[modelsListName];
   });
-  // Create the relationships for the models;
+
   Object.keys(models).forEach((modelName) => {
     if (models[modelName].associate) {
       models[modelName].associate(models);

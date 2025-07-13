@@ -8,19 +8,31 @@ const dispatchEventsCallback = (model: any, primaryKeyField: string) => {
 }
 
 (async function createHooksForAggregateRoots() {
-  const { User, Transaction, Debt, MonthlyEnvelope } = models;
+  const { Users,  Debts, Transactions, ProcessedIncome } = models;
 
-  User.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
-  User.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
-  User.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
-  User.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
-  User.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
+  Users.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Users.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
+  Users.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Users.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
+  Users.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
 
-  Debt.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
-  Debt.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
-  Debt.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
-  Debt.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
-  Debt.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debts.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debts.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debts.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debts.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
+  Debts.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
+
+  Transactions.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Transactions.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
+  Transactions.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Transactions.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
+  Transactions.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
+
+  ProcessedIncome.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
+  ProcessedIncome.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
+  ProcessedIncome.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
+  ProcessedIncome.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
+  ProcessedIncome.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
 
 
   console.info('[Hooks]: Sequelize hooks for aggregates registered.');
