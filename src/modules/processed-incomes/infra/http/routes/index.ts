@@ -44,5 +44,25 @@ processedIncomesRouter.post('/',
   (req, res) => processedIncomesController.create.execute(req, res)
 )
 
+/**
+ * @swagger
+ * /processed-incomes/months:
+ *   get:
+ *     summary: Get all Processed Incomes Month
+ *     tags: [Processed Incomes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: YearMonths[]
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Debt not found
+  */
+processedIncomesRouter.get('/months',
+  middleware.ensureAuthenticated(),
+  (req, res) => processedIncomesController.getProcessedMonth.execute(req, res)
+);
 
 export { processedIncomesRouter };

@@ -24,17 +24,29 @@ transactionsRouter.get('/',
 );
 /**
  * @swagger
- * /transactions/envelope/{id}:
+ * /transactions/envelope/{year}/{month}/{id}:
  *   get:
  *     summary: Get all Transactions by envelope
  *     tags: [Transactions]
  *     parameters:
  *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: year of transactions
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: month of transactions
+ *       - in: path
  *         name: id
  *         required: true
  *         schema:
  *           type: string
- *         description: The Transactions ID
+ *         description: The Envelope ID
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -43,7 +55,7 @@ transactionsRouter.get('/',
  *       401:
  *         description: Unauthorized
   */
-transactionsRouter.get('/envelope/:id',
+transactionsRouter.get('/envelope/:year/:month/:id',
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.getAllByEnvelope.execute(req, res)
 );

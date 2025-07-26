@@ -1,7 +1,8 @@
-import { Sequelize } from "sequelize";
+import { col, fn, literal, Sequelize } from "sequelize";
 import { ProcessedIncomesMap as Mapper } from "../../mappers";
 import { Interface } from "../Interface";
 import { ProcessedIncomes } from "../../domain/ProcessedIncomes";
+import { YearMonths, Month } from "../../dtos";
 
 export class Repository implements Interface {
 
@@ -78,11 +79,41 @@ export class Repository implements Interface {
         return Mapper.toDomain(data) ?? null;
     }
 
-    async getTotalIncomeByUserId(userId: string): Promise<number> {
-        return await this.model.sum('amount', {
-            where: { user_id: userId }
+
+
+
+    async getProcessedMonth(userId: string): Promise<YearMonths> {
+        const rows = await this.model.findAll({
+            attributes: ['year', 'month'],
+            where: { user_id: userId },
+            raw: true,
         });
+        console.log("rows",rows)
+        const result: YearMonths = {};
+        console.log("result",result)
+        
+        for (const row of rows) {
+            const year = Number(row.year);
+            const month = Number(row.month) as Month;
+            
+            if (!result[year]) {
+                result[year] = [];
+            }
+            
+            if (!result[year].includes(month)) {
+                result[year].push(month);
+            }
+        }
+        
+        // opcional: ordena os meses
+        for (const year in result) {
+            result[Number(year)] = result[Number(year)].sort((a, b) => a - b);
+        }
+        
+        console.log("result",result)
+        return result;
     }
+
 
     async create(processedIncome: ProcessedIncomes): Promise<void> {
         const rawData = await Mapper.toPersistence(processedIncome);

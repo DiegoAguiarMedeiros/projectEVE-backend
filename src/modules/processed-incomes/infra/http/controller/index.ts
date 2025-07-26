@@ -1,4 +1,5 @@
 import { createController } from "../../../use-cases/create";
+import { getProcessedMonthController } from "../../../use-cases/get-processed-month";
 //import { deleteController } from "../../../use-cases/delete";
 //import { getAllController } from "../../../use-cases/get-all";
 //import { getTotalController } from "../../../use-cases/get-total";
@@ -7,7 +8,7 @@ import { createController } from "../../../use-cases/create";
 
 const processedIncomesController = {
     create:createController,
-    //getAll:getAllController,
+    getProcessedMonth:getProcessedMonthController,
     //getTotal:getTotalController,
     //get:getByIdController,
     //delete:deleteController,
