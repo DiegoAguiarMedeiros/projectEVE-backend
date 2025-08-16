@@ -6,6 +6,7 @@ import { left, right, Result } from "../../../../shared/core/Result";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { DeleteErrors } from "./DeleteErrors";
 import { DeleteResponse } from "./DeleteResponse";
+import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 
 
@@ -18,15 +19,19 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
     async execute(request: DeleteDTO): Promise<DeleteResponse> {
 
         try {
-            const creditCard = await this.repo.getById(request.id, request.userId);
+            const incomes = await this.repo.getById(request.id, request.userId);
 
-            if (!creditCard) {
+            if (!incomes) {
                 return left(
                     new DeleteErrors.NotFound(request.id)
                 ) as DeleteResponse;
             }
 
-            await this.repo.delete(request.id);
+            incomes.delete()
+            const deleted = await this.repo.delete(request.id);
+
+            DomainEvents.dispatchEventsForAggregate(incomes.id);
+            
             return right(Result.ok<void>()) as DeleteResponse;
 
         } catch (err) {

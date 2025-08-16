@@ -17,14 +17,10 @@ export class CreateController extends BaseController {
 
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
     const { id } = req.decoded;
-    const dto : CreateDTO  = {
+    const dto: CreateDTO = {
       description: TextUtils.sanitize(req.body.description),
-      amount: req.body.amount,
-      envelopeId: req.body.envelopeId,
-      paymentMethod: req.body.paymentMethod,
-      date: req.body.date,
-      type: req.body.type,
-      status: req.body.status,
+      userId: id,
+      ...req.body,
     }
     try {
       const result = await this.useCase.execute(dto);

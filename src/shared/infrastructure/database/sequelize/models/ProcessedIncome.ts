@@ -20,6 +20,10 @@ ProcessedIncome.init({
         onDelete: 'cascade',
         onUpdate: 'cascade'
     },
+    day: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
     month: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -50,8 +54,8 @@ ProcessedIncome.init({
     },
 }, {
     sequelize,
-    tableName: 'processed_incomes',
     modelName: 'ProcessedIncome',
+    tableName: 'processed_incomes',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     timestamps: true

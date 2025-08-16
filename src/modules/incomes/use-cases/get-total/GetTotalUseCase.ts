@@ -13,7 +13,7 @@ export class GetTotalUseCase implements UseCase<{ userId: string }, Promise<GetT
         this.repo = repo;
     }
     async execute({ userId }: { userId: string }): Promise<GetTotalResponse> {
-        const totalIncomes = await this.repo.getTotalIncomeByUserId(userId);
+        const totalIncomes = await this.repo.getTotal(userId);
 
         return right(Result.ok<{ total: number }>(
             {

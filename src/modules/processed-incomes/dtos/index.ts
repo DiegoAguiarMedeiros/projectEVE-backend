@@ -1,6 +1,7 @@
 export interface ProcessedIncomesDTO {
   id: string;
   userId: string;
+  day: number;
   month: number;
   year: number;
   totalIncomeProcessed: number;
@@ -12,11 +13,11 @@ export interface ProcessedIncomesDTO {
 
 
 export interface ProcessedIncomeUpdateFiledDTO extends Omit<
-  ProcessedIncomesDTO, 'id' | 'userId' | 'month' | 'year' | 'totalIncomeProcessed' | 'processedAt' | 'isSplitted'
+  ProcessedIncomesDTO, 'id' | 'userId' | 'day' | 'month' | 'year' | 'totalIncomeProcessed' | 'processedAt' | 'isSplitted'
 > { }
 
 export interface ProcessedIncomeIdDTO extends Omit<
-  ProcessedIncomesDTO, 'userId' | 'month' | 'year' | 'totalIncomeProcessed' | 'processedAt' | 'isReprocessed' | 'isSplitted'
+  ProcessedIncomesDTO, 'userId' | 'day' | 'month' | 'year' | 'totalIncomeProcessed' | 'processedAt' | 'isReprocessed' | 'isSplitted'
 > { }
 
 export interface CreateDTO extends Omit<ProcessedIncomesDTO, 'id' | 'processedAt' | 'isReprocessed'> {

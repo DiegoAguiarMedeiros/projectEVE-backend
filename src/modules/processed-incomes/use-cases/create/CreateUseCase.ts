@@ -13,6 +13,7 @@ import { CreateResponse } from "./CreateResponse";
 import { ProcessedIncomes } from "../../domain";
 import { Year } from "../../domain/Year";
 import { Month } from "../../domain/Month";
+import { Day } from "../../domain/Day";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private repo: IProcessedIncomesRepo;
@@ -24,10 +25,11 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
   async execute(request: CreateDTO): Promise<CreateResponse> {
     const YearOrError = Year.create({ year: request.year });
     const MonthOrError = Month.create({ month: request.month });
+    const DayOrError = Day.create({ day: request.day });
     const TotalIncomeProcessedOrError = Balance.create({ balance: request.totalIncomeProcessed });
     const UserIdOrError = Id.create(new UniqueEntityID(request.userId));
     const dtoResult = Result.combine([
-      YearOrError, MonthOrError, UserIdOrError, TotalIncomeProcessedOrError
+      YearOrError, MonthOrError, UserIdOrError, TotalIncomeProcessedOrError,DayOrError
     ]);
 
     if (dtoResult.isFailure) {
@@ -37,6 +39,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const userId: Id = UserIdOrError.getValue();
     const year: Year = YearOrError.getValue();
     const month: Month = MonthOrError.getValue();
+    const day: Day = DayOrError.getValue();
     const totalIncomeProcessed: Balance = TotalIncomeProcessedOrError.getValue();
 
   
@@ -46,6 +49,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         userId,
         year,
         month,
+        day,
         totalIncomeProcessed,
         processedAt: new Date(),
         isReprocessed: false,

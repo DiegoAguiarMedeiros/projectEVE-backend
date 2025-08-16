@@ -41,7 +41,7 @@ export class TransactionsMap implements Mapper<Transactions> {
         envelopeId: EnvelopeIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
-        date: raw.date,
+        date: new Date(raw.date),
         type: raw.type,
         status: raw.status,
         paymentMethod: raw.payment_method,

@@ -80,12 +80,12 @@ export class Repository implements Interface {
     await this.model.create(rawData);
   }
 
-  async delete(id: string): Promise<void> {
-    await this.model.destroy({
-      where: {
-        id,
-      },
+  async delete(id: string): Promise<boolean> {
+    const deletedCount = await this.model.destroy({
+      where: { id },
     });
+
+    return deletedCount > 0;
   }
 
 }

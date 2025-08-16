@@ -1,21 +1,22 @@
-import { Request, Response } from "express"
+import { Response } from "express";
+import { GetAllUseCase } from "./GetAllUseCase";
 import { BaseController } from "../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/models/DecodedExpressRequest";
-import { GetProcessedMonthUseCase } from "./GetProcessedMonthUseCase";
-import { GetProcessedMonthResponse } from "./GetProcessedMonthResponse";
-import { YearMonths } from "../../dtos";
+import { EnvelopesDTO } from "../../dtos";
 
-export class GetProcessedMonthController extends BaseController {
-    private useCase: GetProcessedMonthUseCase;
+export class GetAllController extends BaseController {
+    private useCase: GetAllUseCase;
 
-    constructor(useCase: GetProcessedMonthUseCase) {
+    constructor(useCase: GetAllUseCase) {
         super();
         this.useCase = useCase;
     }
     protected async executeImpl(req: DecodedExpressRequest, res: Response): Promise<any> {
         try {
             const { id } = req.decoded;
-            const result = await this.useCase.execute({ userId: id });
+            const { year, month } = req.params;
+            const result = await this.useCase.execute({ id, year: Number(year), month: Number(month) });
+
             if (result.isLeft()) {
                 const error = result.value;
                 switch (error.constructor) {
@@ -26,8 +27,8 @@ export class GetProcessedMonthController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: YearMonths = result.value.getValue() as YearMonths;
-                return this.ok<YearMonths>(res, dto);
+                const dto: EnvelopesDTO[] = result.value.getValue() as EnvelopesDTO[];
+                return this.ok<EnvelopesDTO[]>(res, dto);
             }
 
         } catch (err) {

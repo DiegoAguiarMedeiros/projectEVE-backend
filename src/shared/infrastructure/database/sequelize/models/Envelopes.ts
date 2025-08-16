@@ -2,11 +2,11 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
 import Users from './Users';
-import Debt from './Debts';
 
 class Envelopes extends Model {
   static associate(models: any) {
-    Users.hasMany(models.Debts, { foreignKey: 'envelope_id' });
+    Users.hasMany(models.Envelopes, { foreignKey: 'user_id' });
+    this.hasMany(models.EnvelopesAmounts, { foreignKey: 'envelope_id', as: 'EnvelopesAmounts' });
   }
 }
 
@@ -16,16 +16,6 @@ Envelopes.init({
     defaultValue: DataTypes.UUIDV4,
     allowNull: false,
     primaryKey: true
-  },
-  user_id: {
-    type: DataTypes.UUID,
-    allowNull: false,
-    references: {
-      model: Users,
-      key: 'id'
-    },
-    onDelete: 'cascade',
-    onUpdate: 'cascade'
   },
   name: {
     type: DataTypes.TEXT,

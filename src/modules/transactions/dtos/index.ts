@@ -27,7 +27,9 @@ export interface TransactionsIdDTO extends Omit<
   TransactionsDTO, 'description' | 'amount' | 'date' | 'type' | 'status' | 'paymentMethod' | 'envelopeId'
 > { }
 
-export interface CreateDTO extends Omit<TransactionsDTO, 'id'> { }
+export interface CreateDTO extends Omit<TransactionsDTO, 'id'> {
+  userId: string;
+ }
 export interface DeleteDTO extends TransactionsIdDTO { userId: string; }
 
 export interface GetByIdDTO extends TransactionsIdDTO { userId: string; }

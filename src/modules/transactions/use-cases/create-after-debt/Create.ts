@@ -8,6 +8,7 @@ import { CreateErrors } from "./CreateErrors";
 import { Debt } from "../../../debts/domain/Debt";
 import { CreateUseCase } from "../create/CreateUseCase";
 import { Interface as IDebtRepo } from "../../../debts/repos/Interface";
+import { Interface as IenvelopeRepo } from "../../../envelopes/repos/Interface";
 import pLimit from 'p-limit';
 
 
@@ -21,41 +22,42 @@ type Response = Either<
 export class Create implements UseCase<CreateDTO, Promise<Response>> {
   private debtRepo: IDebtRepo;
   private createTransactionUseCase: CreateUseCase
-
-  constructor(debtRepo: IDebtRepo, createTransactionUseCase: CreateUseCase) {
+  private envelopeRepo: IenvelopeRepo;
+  constructor(debtRepo: IDebtRepo, createTransactionUseCase: CreateUseCase, envelopeRepo: IenvelopeRepo) {
     this.debtRepo = debtRepo;
     this.createTransactionUseCase = createTransactionUseCase;
+    this.envelopeRepo = envelopeRepo;
   }
 
   public async execute(request: CreateDTO): Promise<Response> {
 
-    let debt: Debt | null = null;
     const { debtId } = request;
 
     try {
-      try {
-        debt = await this.debtRepo.getOnlyById(debtId);
-      } catch (err) {
-        console.error("Error fetching debt or envelope:", err);
-        return left(new CreateErrors.DebtDoesntExistError(debtId));
-      }
+      const debt = await this.debtRepo.getOnlyById(debtId);
 
       if (!debt) {
         console.error("Debt not found for ID:", debtId);
         return left(new CreateErrors.DebtDoesntExistError(debtId));
       }
 
+      const envelope = await this.envelopeRepo.getOnlyById(debt.envelopeId.value);
+
+      if (!envelope) {
+        console.error("envelope not found for ID:", debt.envelopeId.value);
+        return left(new CreateErrors.EnvelopeNotFound(debt.envelopeId.value));
+      }
+
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
-      const currentMonth = currentDate.getMonth();
-      const limit = pLimit(10); 
+      const currentMonth = currentDate.getMonth() - 1;
+      const limit = pLimit(10);
       const promises = [];
 
       for (let i = debt.installmentsPaid.value + 1; i <= debt.installmentsTotal.value; i++) {
         const date = new Date(currentYear, currentMonth + i);
-        const month = date.getMonth() + 1;
+        const month = date.getMonth();
         const year = date.getFullYear();
-        const reference = `${month < 10 ? '0' + month : month}/${year}`;
 
         promises.push(
           limit(() => {
@@ -66,7 +68,8 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
               type: "Debit",
               status: "Pending",
               envelopeId: debt!.envelopeId.value,
-              paymentMethod: 'Ticket'
+              paymentMethod: 'Ticket',
+              userId: envelope.userId.value
             })
           })
         );

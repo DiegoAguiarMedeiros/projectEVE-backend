@@ -95,8 +95,6 @@ export class Repository implements Interface {
         const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
         const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
 
-        console.log("Start Date:", startDate);
-        console.log("End Date:", endDate);
         const data = await this.model.findAll({
             limit,
             offset,
@@ -120,7 +118,6 @@ export class Repository implements Interface {
             ],
         });
         
-        console.log("data:", data);
         return data.map((e: any) => Mapper.toDomain(e));
     }
 
@@ -130,16 +127,6 @@ export class Repository implements Interface {
             where: {
                 id,
             },
-            include: [
-                {
-                    model: this.models.Envelope,
-                    as: 'Envelope',
-                    where: {
-                        user_id: userId,
-                    },
-                    required: true,
-                },
-            ],
         });
         return Mapper.toDomain(data) ?? null;
     }
@@ -150,14 +137,13 @@ export class Repository implements Interface {
         const rawData = await Mapper.toPersistence(transaction);
         await this.model.create(rawData);
     }
-
-    async delete(id: string): Promise<void> {
-
-        await this.model.destroy({
-            where: {
-                id,
-            },
+    
+    async delete(id: string): Promise<boolean> {
+        const deletedCount = await this.model.destroy({
+            where: { id },
         });
+
+        return deletedCount > 0;
     }
 
 }

@@ -1,0 +1,27 @@
+import { UseCaseError } from "../../../../shared/core/UseCaseError";
+import { Result } from "../../../../shared/core/Result";
+
+export namespace UpdateErrors {
+
+  export class UserDoesntExistError extends Result<UseCaseError> {
+    constructor (userId: string) {
+      super(false, {
+        message: `A user for user id ${userId} was not found`
+      } as UseCaseError)
+    }
+  }
+  export class IncomeNotFound extends Result<UseCaseError> {
+    constructor (id: string) {
+      super(false, {
+        message: `Income id ${id} was not found`
+      } as UseCaseError)
+    }
+  }
+  export class EnvelopeNotFound extends Result<UseCaseError> {
+    constructor (name: string) {
+      super(false, {
+        message: `Envelope name ${name} was not found`
+      } as UseCaseError)
+    }
+  }
+}

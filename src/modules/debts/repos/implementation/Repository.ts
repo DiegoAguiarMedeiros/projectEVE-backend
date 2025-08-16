@@ -12,6 +12,11 @@ export class Repository implements Interface {
         this.models = models;
         this.model = this.models.Debts;
     }
+    async getTotal(envelopeId: string): Promise<number> {
+        return await this.model.sum('amount', {
+            where: { envelope_id: envelopeId }
+        });
+    }
 
     async update(id: string, data: Debt): Promise<boolean> {
         const rawData = await Mapper.toPersistence(data);
@@ -64,10 +69,11 @@ export class Repository implements Interface {
         });
         return Mapper.toDomain(data) ?? null;
     }
+    
     async getById(id: string, userId: string): Promise<Debt | null> {
 
         const envelopes = await this.models.Envelopes.findAll({
-            where: { user_id: userId, name: 'goals' },
+            where: { user_id: userId, name: 'debts' },
             attributes: ['id'],
             raw: true,
         });
@@ -87,14 +93,12 @@ export class Repository implements Interface {
         const rawData = await Mapper.toPersistence(data);
         await this.model.create(rawData);
     }
-
-    async delete(id: string): Promise<void> {
-
-        await this.model.destroy({
-            where: {
-                id,
-            },
+    async delete(id: string): Promise<boolean> {
+        const deletedCount = await this.model.destroy({
+            where: { id },
         });
+
+        return deletedCount > 0;
     }
 
 }

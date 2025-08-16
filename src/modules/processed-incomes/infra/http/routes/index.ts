@@ -17,6 +17,9 @@ const processedIncomesRouter = express.Router();
  *           schema:
  *             type: object
  *             properties:
+ *               day:
+ *                 type: number
+ *                 description: Day
  *               month:
  *                 type: number
  *                 description: Month

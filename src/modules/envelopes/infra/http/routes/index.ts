@@ -24,6 +24,39 @@ envelopesRouter.get('/',
   middleware.ensureAuthenticated(),
   (req, res) => envelopeController.getAll.execute(req, res)
 );
+/**
+ * @swagger
+ * /envelopes/{year}/{month}:
+ *   get:
+ *     summary: Get all envelope
+ *     tags: [Envelopes] 
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The year of the envelopes
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The month of the envelopes
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: envelopes[]
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Enelopes not found
+  */
+envelopesRouter.get('/:year/:month',
+  middleware.ensureAuthenticated(),
+  (req, res) => envelopeController.getAllMonthly.execute(req, res)
+);
 
 /**
  * @swagger

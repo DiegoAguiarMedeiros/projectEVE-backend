@@ -58,7 +58,6 @@ export class DebtMap implements Mapper<Debt> {
   }
 
   public static async toPersistence(debt: Debt): Promise<any> {
-    console.log("toPersistence debt",debt)
     return {
       id: debt.id.toString(),
       description: debt.description.value,

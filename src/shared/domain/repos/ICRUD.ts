@@ -3,5 +3,5 @@ export interface ICRUD<T> {
   create(data: T): Promise<void>;
   getById(id: string, userId: string): Promise<T | null>;
   update(id: string, data: T): Promise<boolean>;
-  delete(id: string): Promise<void>
+  delete(id: string): Promise<boolean>
 }

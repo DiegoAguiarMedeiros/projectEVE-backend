@@ -6,6 +6,8 @@ import { Description } from "../../../shared/domain/Description";
 import { Id } from "../../../shared/domain/Id";
 import { PaymentDay } from "../../../shared/domain/PaymentDay";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
+import { IncomesCreated } from "./events/IncomesCreated";
+import { IncomesDeleted } from "./events/IncomesDeleted";
 
 
 
@@ -40,6 +42,9 @@ export class Incomes extends AggregateRoot<IncomesProps> {
   public updatepaymentDay(paymentDay: PaymentDay): void {
     this.props.paymentDay = paymentDay;
   }
+  public delete(): void {
+    this.addDomainEvent(new IncomesDeleted(this));
+  }
 
   private constructor(props: IncomesProps, id?: UniqueEntityID) {
     super(props, id);
@@ -57,12 +62,15 @@ export class Incomes extends AggregateRoot<IncomesProps> {
     if (guardResult.isFailure) {
       return Result.fail<Incomes>('Incomes :' + guardResult.getErrorValue());
     }
-
+    const isNewIncome = !!id === false;
     const income = new Incomes(
       {
         ...props
       }, id
     );
+    if (isNewIncome) {
+      income.addDomainEvent(new IncomesCreated(income));
+    }
 
     return Result.ok<Incomes>(income);
   }

@@ -3,6 +3,7 @@ export interface EnvelopesDTO {
   name: string;
   color: string;
   order: number;
+  amount?: number;
   percentage: number;
   userId: string;
 }
@@ -18,11 +19,11 @@ export interface EnvelopesWithoutIdDTO extends Omit<
   EnvelopesDTO, 'id'
 > { }
 export interface EnvelopesUpdateFiledDTO extends Omit<
-  EnvelopesDTO, 'id' | 'userId' | 'order'
+  EnvelopesDTO, 'id' | 'userId' | 'order' | 'amount'
 > { }
 
 export interface EnvelopesIdDTO extends Omit<
-  EnvelopesDTO, 'name' | 'color' | 'percentage' | 'order'
+  EnvelopesDTO, 'name' | 'color' | 'percentage' | 'order' | 'amount'
 > { }
 
 export interface CreateDTO extends EnvelopesWithoutIdDTO { }

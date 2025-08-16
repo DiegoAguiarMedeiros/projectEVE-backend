@@ -68,8 +68,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         status,
       });
 
-
-      console.log("debtOrError",debtOrError)
       
       if (debtOrError.isFailure) {
         return left(
@@ -78,7 +76,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       }
       
       const debt: Debt = debtOrError.getValue();
-      console.log("debt",debt)
       await this.debtRepo.create(debt);
 
       return right(Result.ok<void>())

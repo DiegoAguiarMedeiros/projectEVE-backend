@@ -88,9 +88,7 @@ export class Repository implements Interface {
             where: { user_id: userId },
             raw: true,
         });
-        console.log("rows",rows)
         const result: YearMonths = {};
-        console.log("result",result)
         
         for (const row of rows) {
             const year = Number(row.year);
@@ -105,12 +103,10 @@ export class Repository implements Interface {
             }
         }
         
-        // opcional: ordena os meses
         for (const year in result) {
             result[Number(year)] = result[Number(year)].sort((a, b) => a - b);
         }
         
-        console.log("result",result)
         return result;
     }
 
@@ -120,12 +116,12 @@ export class Repository implements Interface {
         await this.model.create(rawData);
     }
 
-    async delete(id: string): Promise<void> {
-        await this.model.destroy({
-            where: {
-                id,
-            },
+    async delete(id: string): Promise<boolean> {
+        const deletedCount = await this.model.destroy({
+            where: { id },
         });
+
+        return deletedCount > 0;
     }
 
 }

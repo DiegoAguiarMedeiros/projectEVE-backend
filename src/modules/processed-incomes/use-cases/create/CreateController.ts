@@ -19,12 +19,8 @@ export class CreateController extends BaseController {
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
     const { id } = req.decoded;
     const dto: CreateDTO = {
+      ...req.body,
       userId: id,
-      month: req.body.month,
-      year: req.body.year,
-      auxId: req.body.auxId,
-      totalIncomeProcessed: req.body.totalIncomeProcessed,
-      isSplitted: req.body.isSplitted
     }
     try {
       const result = await this.useCase.execute(dto);

@@ -10,4 +10,11 @@ export namespace CreateErrors {
       } as UseCaseError)
     }
   }
+  export class EnvelopeNotFound extends Result<UseCaseError> {
+    constructor (envelope: string) {
+      super(false, {
+        message: `Envelope id ${envelope} was not found`
+      } as UseCaseError)
+    }
+  }
 }

@@ -16,7 +16,6 @@ export class GetProcessedMonthUseCase implements UseCase<{ userId: string; }, Pr
     }
     async execute({ userId }: { userId: string; }): Promise<GetProcessedMonthResponse> {
         const processedMonth = await this.repo.getProcessedMonth(userId);
-        console.log("processedMonth",processedMonth)
         return right(Result.ok<YearMonths>(processedMonth));
     }
 

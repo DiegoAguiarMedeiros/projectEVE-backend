@@ -68,7 +68,7 @@ export class Repository implements Interface {
         return Mapper.toDomain(data) ?? null;
     }
 
-    async getTotalIncomeByUserId(userId: string): Promise<number> {
+    async getTotal(userId: string): Promise<number> {
         return await this.model.sum('amount', {
             where: { user_id: userId }
         });
@@ -79,12 +79,13 @@ export class Repository implements Interface {
         await this.model.create(rawData);
     }
 
-    async delete(id: string): Promise<void> {
-        await this.model.destroy({
-            where: {
-                id,
-            },
+    async delete(id: string): Promise<boolean> {
+        const deletedCount = await this.model.destroy({
+            where: { id },
         });
+
+        return deletedCount > 0;
     }
+
 
 }

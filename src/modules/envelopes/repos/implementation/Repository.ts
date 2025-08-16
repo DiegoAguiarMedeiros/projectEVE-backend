@@ -1,4 +1,5 @@
 
+import { Op } from "sequelize";
 import { Envelopes } from "../../domain/Envelopes";
 import { EnvelopesMap as Mapper } from "../../mappers";
 import { Interface } from "../Interface";
@@ -12,6 +13,7 @@ export class Repository implements Interface {
         this.models = models;
         this.model = this.models.Envelopes;
     }
+
 
     async checkName(name: string, userId: string): Promise<boolean> {
         const data = await this.model.findOne({
@@ -54,6 +56,35 @@ export class Repository implements Interface {
             limit: limit,
             offset: offset,
             order: ['order'],
+
+        });
+        return data.map((item: any) => Mapper.toDomain(item));
+    }
+
+    async getAllMonthly(id: string, year: number, month: number): Promise<Envelopes[]> {
+
+        const found = await this.models.EnvelopesAmounts.findAll({
+            attributes: ['amount'],
+            where: {
+                month, year
+            }
+        });
+        const data = await this.model.findAll({
+            where: {
+                user_id: id,
+            },
+            order: ['order'],
+            include: [
+                {
+                    model: this.models.EnvelopesAmounts,
+                    as: 'EnvelopesAmounts',
+                    required: true,
+                    attributes: ['amount'],
+                    where: {
+                        month, year
+                    },
+                }
+            ]
         });
         return data.map((item: any) => Mapper.toDomain(item));
     }
@@ -68,8 +99,6 @@ export class Repository implements Interface {
         return Mapper.toDomain(data) ?? null;
     }
     async getById(id: string, userId: string): Promise<Envelopes | null> {
-        console.log("id", id)
-        console.log("userId", userId)
         const data = await this.model.findOne({
             where: {
                 id,
@@ -77,7 +106,6 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        console.log("data", data)
         return Mapper.toDomain(data) ?? null;
     }
 
@@ -97,12 +125,47 @@ export class Repository implements Interface {
         await this.model.create(rawData);
     }
 
-    async delete(id: string): Promise<void> {
-        await this.model.destroy({
-            where: {
-                id,
-            },
+
+    async createAmount(envelopeId: string, amount: number, year: number, month: number): Promise<void> {
+        await this.models.EnvelopesAmounts.create({
+            envelope_id: envelopeId,
+            amount,
+            year,
+            month,
         });
+    }
+
+    async addAmount(envelopeId: string, amount: number, year: number, month: number): Promise<void> {
+        await this.models.EnvelopesAmounts.update(
+            { amount },
+            {
+                where: {
+                    envelope_id: envelopeId,
+                    year,
+                    month
+                },
+            },
+        );
+    }
+    async getAmount(envelopeId: string, year: number, month: number): Promise<number | null> {
+        const data = await this.models.EnvelopesAmounts.findOne({
+            where: {
+                envelope_id: envelopeId,
+                year,
+                month
+            },
+            attributes: ['amount'],
+            raw: true,
+        });
+        return data?.amount || null;
+    }
+
+    async delete(id: string): Promise<boolean> {
+        const deletedCount = await this.model.destroy({
+            where: { id },
+        });
+
+        return deletedCount > 0;
     }
 
 }

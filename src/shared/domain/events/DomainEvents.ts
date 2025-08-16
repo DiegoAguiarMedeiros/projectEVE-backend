@@ -17,7 +17,6 @@ export class DomainEvents {
 
   public static markAggregateForDispatch(aggregate: AggregateRoot<any>): void {
     const aggregateFound = !!this.findMarkedAggregateByID(aggregate.id);
-
     if (!aggregateFound) {
       this.markedAggregates.push(aggregate);
     }

@@ -8,7 +8,7 @@ const dispatchEventsCallback = (model: any, primaryKeyField: string) => {
 }
 
 (async function createHooksForAggregateRoots() {
-  const { Users,  Debts, Transactions, ProcessedIncome } = models;
+  const { Users,  Debts, Transactions, ProcessedIncome, Incomes } = models;
 
   Users.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
   Users.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
@@ -33,6 +33,12 @@ const dispatchEventsCallback = (model: any, primaryKeyField: string) => {
   ProcessedIncome.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
   ProcessedIncome.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
   ProcessedIncome.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
+
+  Incomes.addHook('afterCreate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Incomes.addHook('afterDestroy', (m: any) => dispatchEventsCallback(m, 'id'));
+  Incomes.addHook('afterUpdate', (m: any) => dispatchEventsCallback(m, 'id'));
+  Incomes.addHook('afterSave', (m: any) => dispatchEventsCallback(m, 'id'));
+  Incomes.addHook('afterUpsert', (m: any) => dispatchEventsCallback(m, 'id'));
 
 
   console.info('[Hooks]: Sequelize hooks for aggregates registered.');

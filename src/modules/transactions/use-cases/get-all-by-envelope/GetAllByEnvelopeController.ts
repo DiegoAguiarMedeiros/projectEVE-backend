@@ -23,9 +23,6 @@ export class GetAllByEnvelopeController extends BaseController {
             const orderBy = `${req.query.orderBy}`;
             const order = `${req.query.order}`;
 
-            console.log("year", params.year);
-            console.log("month", params.month);
-
             const result = await this.useCase.execute({ id, page, pageSize, orderBy, order, envelope: params.id, year: params.year, month: params.month });
 
             if (result.isLeft()) {

@@ -8,6 +8,7 @@ import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { ProcessedIncomes } from "../domain";
 import { Month } from "../domain/Month";
 import { Year } from "../domain/Year";
+import { Day } from "../domain/Day";
 
 
 export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
@@ -15,6 +16,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
     return {
       id: income.id.toString(),
       userId: income.userId.value,
+      day: income.day.value,
       month: income.month.value,
       year: income.year.value,
       totalIncomeProcessed: income.totalIncomeProcessed.value,
@@ -28,6 +30,9 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
   public static toDomain(raw: any): ProcessedIncomes {
     const YearOrError = Year.create({ year: raw.year });
     YearOrError.isFailure ? console.error(YearOrError.getErrorValue()) : '';
+    
+    const DayOrError = Day.create({ day: raw.day });
+    DayOrError.isFailure ? console.error(DayOrError.getErrorValue()) : '';
     
     const MonthOrError = Month.create({ month: raw.month });
     MonthOrError.isFailure ? console.error(MonthOrError.getErrorValue()) : '';
@@ -45,6 +50,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
       {
         userId: UserIdOrError.getValue(),
         year: YearOrError.getValue(),
+        day: DayOrError.getValue(),
         month: MonthOrError.getValue(),
         totalIncomeProcessed: TotalIncomeProcessedOrError.getValue(),
         auxId: raw.aux_id ? AuxIdOrError.getValue() : undefined,
@@ -62,6 +68,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
     return {
       id: processdIncome.id.toString(),
       user_id: processdIncome.userId.value,
+      day: processdIncome.day.value,
       month: processdIncome.month.value,
       year: processdIncome.year.value,
       total_income_processed: processdIncome.totalIncomeProcessed.value,

@@ -6,14 +6,14 @@ import { EnvelopesDTO } from "../../dtos";
 import { EnvelopesMap as Mapper } from "../../mappers";
 
 
-export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
+export class GetAllUseCase implements UseCase<{ id: string, year: number, month: number }, Promise<GetAllResponse>> {
     private envelopeRepo: IEnvelopesRepo;
 
     constructor(envelopeRepo: IEnvelopesRepo) {
         this.envelopeRepo = envelopeRepo;
     }
-    async execute(id: string): Promise<GetAllResponse> {
-        const data = await this.envelopeRepo.getAll(id);
+    async execute(request: { id: string, year: number, month: number }): Promise<GetAllResponse> {
+        const data = await this.envelopeRepo.getAllMonthly(request.id, request.year,request.month);
         return right(Result.ok<EnvelopesDTO[]>(
             data.map((item: any) => Mapper.toDTO(item))
         ));

@@ -6,6 +6,7 @@ import { Description } from "../../../shared/domain/Description";
 import { Id } from "../../../shared/domain/Id";
 import { PaymentDay } from "../../../shared/domain/PaymentDay";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
+import { Day } from "./Day";
 import { ProcessedIncomeCreated } from "./events/ProcessedIncomeCreated";
 import { Month } from "./Month";
 import { Year } from "./Year";
@@ -14,6 +15,7 @@ import { Year } from "./Year";
 
 interface ProcessedIncomesProps {
   userId: Id;
+  day: Day;
   month: Month;
   year: Year;
   totalIncomeProcessed: Balance;
@@ -30,6 +32,9 @@ export class ProcessedIncomes extends AggregateRoot<ProcessedIncomesProps> {
     return this.props.userId;
   }
 
+  get day(): Day {
+    return this.props.day;
+  }
   get month(): Month {
     return this.props.month;
   }
@@ -70,6 +75,7 @@ export class ProcessedIncomes extends AggregateRoot<ProcessedIncomesProps> {
 
     const guardResult = Guard.againstNullOrUndefinedBulk([
       { argument: props.userId, argumentName: "userId" },
+      { argument: props.day, argumentName: "day" },
       { argument: props.month, argumentName: "month" },
       { argument: props.year, argumentName: "year" },
       { argument: props.totalIncomeProcessed, argumentName: "totalIncomeProcessed" },

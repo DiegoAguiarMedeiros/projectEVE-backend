@@ -16,6 +16,7 @@ interface EnvelopesProps {
   percentage: Percentage;
   userId: Id;
   order: Balance;
+  amount?: Balance;
 }
 
 export class Envelopes extends AggregateRoot<EnvelopesProps> {
@@ -31,6 +32,9 @@ export class Envelopes extends AggregateRoot<EnvelopesProps> {
   }
   get order(): Balance {
     return this.props.order;
+  }
+  get amount(): Balance | undefined {
+    return this.props.amount;
   }
   public updateColor(color: Color): void {
     this.props.color = color;
