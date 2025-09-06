@@ -14,18 +14,14 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
 
 (async () => {
   await models.sequelize.sync({ alter: true });
-  // start app ...
-
-
 
   const app = express();
 
-  const corsOptions = {
-    origin: ['http://localhost:3039', 'http://192.168.70.2:3039'],
-    credentials: true,
-  };
-
-  app.use(cors(corsOptions));
+  app.use(cors({
+    origin: ['http://192.168.1.3:3039','http://localhost:3000'],
+    credentials: true
+  }));
+  
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(compression());
@@ -42,7 +38,7 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
     },
     servers: [
       {
-        url: 'http://localhost:3000/api',
+        url: 'http://192.168.1.3:3000/api',
         description: 'Development server',
       },
     ],
@@ -76,6 +72,7 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
       path.resolve(__dirname, '../../../modules/fixed-expenses/infra/http/routes/*.js'),
       path.resolve(__dirname, '../../../modules/goals/infra/http/routes/*.js'),
       path.resolve(__dirname, '../../../modules/transactions/infra/http/routes/*.js'),
+      path.resolve(__dirname, '../../../modules/graph/infra/http/routes/*.js'),
     ],
   };
 

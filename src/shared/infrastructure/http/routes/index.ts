@@ -9,6 +9,7 @@ import { incomesRouter } from '../../../../modules/incomes/infra/http/routes';
 import { processedIncomesRouter } from '../../../../modules/processed-incomes/infra/http/routes';
 import { debtsRouter } from '../../../../modules/debts/infra/http/routes';
 import { transactionsRouter } from '../../../../modules/transactions/infra/http/routes';
+import { graphRouter } from '../../../../modules/graph/infra/http/routes';
 
 const Router = express.Router();
 
@@ -22,5 +23,6 @@ Router.use('/envelopes', envelopesRouter);
 Router.use('/fixed-expenses', fixedExpensesRouter);
 Router.use('/goals', goalsRouter);
 Router.use('/transactions', transactionsRouter);
+Router.use('/graph', graphRouter);
 
 export { Router }

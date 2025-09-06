@@ -47,6 +47,7 @@ export class Middleware {
     public ensureAuthenticated() {
         return async (req: any, res: any, next: any) => {
             const { accessToken, refreshToken } = req.cookies;
+
             if (!accessToken || !refreshToken) {
                 return res.status(400).json({ message: 'No access token provided' });
             }

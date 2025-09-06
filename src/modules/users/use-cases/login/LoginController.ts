@@ -35,14 +35,14 @@ export class LoginController extends BaseController {
 
         res.cookie('accessToken', dto.accessToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production', // Requer HTTPS em produção
+          secure: false, 
           sameSite: 'strict',
           maxAge: 60 * 60 * 1000, 
         });
     
         res.cookie('refreshToken', dto.refreshToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: false,
           sameSite: 'strict',
           maxAge: 30 * 24 * 60 * 60 * 1000,
         });

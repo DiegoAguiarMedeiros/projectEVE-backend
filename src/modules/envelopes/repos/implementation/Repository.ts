@@ -1,8 +1,9 @@
 
-import { Op } from "sequelize";
+import { col, fn, Op } from "sequelize";
 import { Envelopes } from "../../domain/Envelopes";
 import { EnvelopesMap as Mapper } from "../../mappers";
 import { Interface } from "../Interface";
+import { AnalyticsCurrentEnvelopesDTO } from "../../../graph/dtos";
 
 export class Repository implements Interface {
 
@@ -62,13 +63,6 @@ export class Repository implements Interface {
     }
 
     async getAllMonthly(id: string, year: number, month: number): Promise<Envelopes[]> {
-
-        const found = await this.models.EnvelopesAmounts.findAll({
-            attributes: ['amount'],
-            where: {
-                month, year
-            }
-        });
         const data = await this.model.findAll({
             where: {
                 user_id: id,
@@ -88,6 +82,51 @@ export class Repository implements Interface {
         });
         return data.map((item: any) => Mapper.toDomain(item));
     }
+    
+    async getAnalyticsCurrentEnvelopes(id: string, year: number, month: number): Promise<AnalyticsCurrentEnvelopesDTO> {
+        const data = await this.model.findAll({
+            attributes: [
+                'name',
+                'color',
+                [col('EnvelopesAmounts.amount'), 'envelope_amount'],
+                [fn('SUM', col('Transactions.amount')), 'total_amount'],
+            ],
+            where: {
+                user_id: id,
+            },
+            include: [
+                {
+                    model: this.models.EnvelopesAmounts,
+                    as: 'EnvelopesAmounts',
+                    required: false,
+                    attributes: [],
+                    where: {
+                        month,
+                        year,
+                    },
+                },
+                {
+                    model: this.models.Transactions,
+                    as: 'Transactions',
+                    required: false,
+                    attributes: [],
+                    where: {
+                        date: {
+                            [Op.gte]: new Date(year, month - 1, 1),
+                            [Op.lt]: new Date(year, month, 1),
+                        },
+                        type: 'Credit',
+                    },
+                }
+            ],
+            group: ['Envelopes.id', 'EnvelopesAmounts.amount'],
+            order: ['order'],
+            raw: true,
+        });
+
+        return Mapper.toAnalyticsCurrentEnvelopesDTO(data);
+    }
+
 
     async getOnlyById(id: string): Promise<Envelopes | null> {
         const data = await this.model.findOne({

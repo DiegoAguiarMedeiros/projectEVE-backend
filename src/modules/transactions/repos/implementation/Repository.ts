@@ -117,7 +117,7 @@ export class Repository implements Interface {
                 },
             ],
         });
-        
+
         return data.map((e: any) => Mapper.toDomain(e));
     }
 
@@ -132,12 +132,180 @@ export class Repository implements Interface {
     }
 
 
+    async getIncomesMonthOverview(year: number, month: number, userId: string): Promise<number> {
+        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
+
+        return await this.model.sum('amount', {
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    attributes: [],
+                    as: "Envelope",
+                    where: {
+                        user_id: userId,
+                    }
+                }
+            ],
+            where: {
+                type: "Credit",
+                date: {
+                    [Op.between]: [startDate, endDate],
+                },
+            },
+        });
+    }
+
+
+    async getGoalsMonthOverview(year: number, month: number, userId: string): Promise<number> {
+        const { fn, col, literal, where } = this.model.sequelize;
+
+        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
+
+        return await this.model.sum('amount', {
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    attributes: [],
+                    as: "Envelope",
+                    where: {
+                        user_id: userId,
+                        name: "goals"
+                    }
+                }
+            ],
+            where: {
+                type: "Credit",
+                date: {
+                    [Op.between]: [startDate, endDate],
+                },
+            },
+        });
+
+    }
+    async getExpensesMonthOverview(year: number, month: number, userId: string): Promise<number> {
+        const { fn, col, literal, where } = this.model.sequelize;
+
+        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
+
+        return await this.model.sum('amount', {
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    attributes: [],
+                    as: "Envelope",
+                    where: {
+                        user_id: userId,
+                    }
+                }
+            ],
+            where: {
+                type: "Debit",
+                date: {
+                    [Op.between]: [startDate, endDate],
+                },
+            },
+        });
+    }
+    async getIncomesByYear(year: number, userId: string): Promise<number[]> {
+        const { fn, col, literal, where } = this.model.sequelize;
+
+        const data = await this.model.findAll({
+            attributes: [
+                [fn("EXTRACT", literal("MONTH FROM date")), "month"],
+                [fn("SUM", col("amount")), "amount"]
+            ],
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    attributes: [],
+                    as: "Envelope",
+                    where: {
+                        user_id: userId,
+                    }
+                }
+            ],
+            where: {
+                type: "Credit",
+                [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
+            },
+            group: [literal("EXTRACT(MONTH FROM date)")],
+            raw: true,
+            order: [literal("EXTRACT(MONTH FROM date) ASC")]
+        });
+        return Mapper.toAnalyticsEnvelopesByYear(data);
+    }
+
+
+    async getGoalsByYear(year: number, userId: string): Promise<number[]> {
+        const { fn, col, literal, where } = this.model.sequelize;
+
+        const data = await this.model.findAll({
+            attributes: [
+                [fn("EXTRACT", literal("MONTH FROM date")), "month"],
+                [fn("SUM", col("amount")), "amount"]
+            ],
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    attributes: [],
+                    as: "Envelope",
+                    where: {
+                        user_id: userId,
+                        name: "goals"
+                    }
+                }
+            ],
+            where: {
+                type: "Credit",
+                [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
+            },
+            group: [literal("EXTRACT(MONTH FROM date)")],
+            raw: true,
+            order: [literal("EXTRACT(MONTH FROM date) ASC")]
+        });
+
+        return Mapper.toAnalyticsEnvelopesByYear(data);
+    }
+    async getExpensesByYear(year: number, userId: string): Promise<number[]> {
+        const { fn, col, literal, where } = this.model.sequelize;
+
+        const data = await this.model.findAll({
+            attributes: [
+                [fn("EXTRACT", literal("MONTH FROM date")), "month"],
+                [fn("SUM", col("amount")), "amount"]
+            ],
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    attributes: [],
+                    as: "Envelope",
+                    where: {
+                        user_id: userId,
+                    }
+                }
+            ],
+            where: {
+                type: "Debit",
+                [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
+            },
+            group: [literal("EXTRACT(MONTH FROM date)")],
+            raw: true,
+            order: [literal("EXTRACT(MONTH FROM date) ASC")]
+        });
+        return Mapper.toAnalyticsEnvelopesByYear(data);
+    }
+
+
+
     async create(transaction: Transactions): Promise<void> {
 
         const rawData = await Mapper.toPersistence(transaction);
         await this.model.create(rawData);
     }
-    
+
     async delete(id: string): Promise<boolean> {
         const deletedCount = await this.model.destroy({
             where: { id },

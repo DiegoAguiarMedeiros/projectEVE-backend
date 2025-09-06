@@ -89,26 +89,27 @@ export class Repository implements Interface {
             raw: true,
         });
         const result: YearMonths = {};
-        
+
         for (const row of rows) {
             const year = Number(row.year);
             const month = Number(row.month) as Month;
-            
+
             if (!result[year]) {
                 result[year] = [];
             }
-            
+
             if (!result[year].includes(month)) {
                 result[year].push(month);
             }
         }
-        
+
         for (const year in result) {
             result[Number(year)] = result[Number(year)].sort((a, b) => a - b);
         }
-        
+
         return result;
     }
+
 
 
     async create(processedIncome: ProcessedIncomes): Promise<void> {

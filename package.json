@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Backend do projetoEVE",
   "main": "index.ts",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
     "start": "node dist/index.js",

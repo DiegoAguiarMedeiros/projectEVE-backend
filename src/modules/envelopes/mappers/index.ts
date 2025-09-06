@@ -7,9 +7,41 @@ import { Mapper } from "../../../shared/mappers/Mapper";
 import { Envelopes } from "../domain/Envelopes";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Balance } from "../../../shared/domain/Balance";
+import { AnalyticsCurrentEnvelopesDTO } from "../../graph/dtos";
+import { MONTHS } from "../../../shared/constants/months";
 
 
 export class EnvelopesMap implements Mapper<Envelopes> {
+
+  public static toAnalyticsCurrentEnvelopesDTO(raw: any): AnalyticsCurrentEnvelopesDTO {
+    const result = raw.reduce(
+      (
+        acc: { labels: string[]; colors: string[]; subValues: number[]; values: number[]; },
+        item: { name: any; color: any; 'envelope_amount': any; 'total_amount': any }
+      ) => {
+        const sub = parseFloat(item['envelope_amount'] ?? '0');
+        const val = parseFloat(item['total_amount'] ?? '0');
+
+        acc.labels.push(String(item.name));
+        acc.colors.push(String(item.color));
+        acc.values.push(val);
+
+        const usedPercent = val > 0 ? ((val - sub) / val) * 100 : 0;
+        acc.subValues.push(Number(usedPercent.toFixed(2)));
+        return acc;
+      },
+      { labels: [], colors: [], subValues: [], values: [], usagePercentages: [] }
+    );
+
+    return {
+      labels: result.labels,
+      colors: result.colors,
+      subValues: result.subValues,
+      values: result.values,
+    };
+  }
+
+
   public static toDTO(envelope: Envelopes): EnvelopesDTO {
     return {
       id: envelope.id.toString(),

@@ -5,7 +5,7 @@ import CreditCards from './CreditCards';
 
 class Transactions extends Model {
     static associate(models: any) {
-        Transactions.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
+        this.belongsTo(models.Envelopes, { foreignKey: 'envelope_id', as: 'Envelope' });
     }
 }
 
@@ -55,7 +55,7 @@ Transactions.init({
 }, {
     sequelize,
     modelName: 'Transactions',
-    tableName: 'transaction',
+    tableName: 'transactions',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
     timestamps: true

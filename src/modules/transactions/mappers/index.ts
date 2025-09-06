@@ -9,9 +9,16 @@ import { Name } from "../../../shared/domain/Name";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Mapper } from "../../../shared/mappers/Mapper";
 import { Transactions } from "../domain";
+import { MONTHS } from "../../../shared/constants/months";
 
 
 export class TransactionsMap implements Mapper<Transactions> {
+
+  public static toAnalyticsEnvelopesByYear(data: any[]): number[] {
+    const rowMap = new Map(data.map(r => [Number(r.month), Number(r.amount)]));
+    return MONTHS.map((_, index) => rowMap.get(index + 1) ?? 0);
+  }
+
   public static toDTO(transactions: Transactions): TransactionsDTO {
     return {
       id: transactions.id.toString(),

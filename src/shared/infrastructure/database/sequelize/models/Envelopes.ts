@@ -7,6 +7,7 @@ class Envelopes extends Model {
   static associate(models: any) {
     Users.hasMany(models.Envelopes, { foreignKey: 'user_id' });
     this.hasMany(models.EnvelopesAmounts, { foreignKey: 'envelope_id', as: 'EnvelopesAmounts' });
+    this.hasMany(models.Transactions, { foreignKey: 'envelope_id', as: 'Transactions' });
   }
 }
 
