@@ -43,7 +43,7 @@ export class Repository implements Interface {
     }
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Envelopes[]> {
         const limit = pageSize || undefined;
-        const offset = page ? (page - 1) * (pageSize || 10) : 0;
+        const offset = page ? (page ) * (pageSize || 10) : 0;
         const allowedColumns = ["name", "balance", "active", "created_at"];
         const allowedOrders = ["asc", "desc"];
 

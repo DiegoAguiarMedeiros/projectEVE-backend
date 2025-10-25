@@ -50,8 +50,8 @@ export class Pagination<T> extends ValueObject<PaginationProps<T>> {
       return Result.fail<Pagination<T>>('Page size: ' + maxPageSizeResult.getErrorValue());
     }
 
-    if (props.currentPage < 1) {
-      return Result.fail<Pagination<T>>('Current page cannot be less than 1');
+    if (props.currentPage < 0) {
+      return Result.fail<Pagination<T>>('Current page cannot be less than 0');
     }
 
     if (props.totalPages < 0) {

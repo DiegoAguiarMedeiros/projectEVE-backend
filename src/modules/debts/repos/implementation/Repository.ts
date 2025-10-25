@@ -36,7 +36,7 @@ export class Repository implements Interface {
 
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Debt[]> {
         const limit = pageSize || undefined;
-        const offset = page ? (page - 1) * (pageSize || 10) : 0;
+        const offset = page ? (page ) * (pageSize || 10) : 0;
         const allowedColumns = ["description", "amount", "installments_total", "installments_paid", "payment_day", "status", "created_at"];
         const allowedOrders = ["asc", "desc"];
         const envelopes = await this.models.Envelopes.findAll({
