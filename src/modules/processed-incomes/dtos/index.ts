@@ -1,6 +1,7 @@
 export interface ProcessedIncomesDTO {
   id: string;
   userId: string;
+  description: string;
   day: number;
   month: number;
   year: number;
@@ -36,5 +37,9 @@ export type Month = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
 export type YearMonths = {
   [year: number]: Month[];
+};
+
+export type ToalByYearMonths = {
+  total: number
 };
 

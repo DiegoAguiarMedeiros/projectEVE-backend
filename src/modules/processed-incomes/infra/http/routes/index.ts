@@ -17,6 +17,9 @@ const processedIncomesRouter = express.Router();
  *           schema:
  *             type: object
  *             properties:
+ *               description:
+ *                 type: string
+ *                 description: description
  *               day:
  *                 type: number
  *                 description: Day
@@ -66,6 +69,73 @@ processedIncomesRouter.post('/',
 processedIncomesRouter.get('/months',
   middleware.ensureAuthenticated(),
   (req, res) => processedIncomesController.getProcessedMonth.execute(req, res)
+);
+
+/**
+ * @swagger
+ * /processed-incomes/total/{year}/{month}:
+ *   get:
+ *     summary: Get total Processed Incomes by Month
+ *     tags: [Processed Incomes]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: year of processed income
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: month of processed income
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: total
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Debt not found
+  */
+processedIncomesRouter.get('/total/:year/:month',
+  middleware.ensureAuthenticated(),
+  (req, res) => processedIncomesController.getTotal.execute(req, res)
+);
+/**
+ * @swagger
+ * /processed-incomes/{year}/{month}:
+ *   get:
+ *     summary: Get total Processed Incomes by Month
+ *     tags: [Processed Incomes]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: year of processed income
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: month of processed income
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: total
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Debt not found
+  */
+processedIncomesRouter.get('/:year/:month',
+  middleware.ensureAuthenticated(),
+  (req, res) => processedIncomesController.getAll.execute(req, res)
 );
 
 export { processedIncomesRouter };

@@ -16,6 +16,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
     return {
       id: income.id.toString(),
       userId: income.userId.value,
+      description: income.description.value,
       day: income.day.value,
       month: income.month.value,
       year: income.year.value,
@@ -28,6 +29,9 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
   }
 
   public static toDomain(raw: any): ProcessedIncomes {
+    const DescriptionOrError = Description.create({ description: raw.description });
+    DescriptionOrError.isFailure ? console.error(DescriptionOrError.getErrorValue()) : '';
+
     const YearOrError = Year.create({ year: raw.year });
     YearOrError.isFailure ? console.error(YearOrError.getErrorValue()) : '';
     
@@ -48,6 +52,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
     
     const debtOrError = ProcessedIncomes.create(
       {
+        description: DescriptionOrError.getValue(),
         userId: UserIdOrError.getValue(),
         year: YearOrError.getValue(),
         day: DayOrError.getValue(),
@@ -67,6 +72,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
   public static async toPersistence(processdIncome: ProcessedIncomes): Promise<any> {
     return {
       id: processdIncome.id.toString(),
+      description: processdIncome.description.value,
       user_id: processdIncome.userId.value,
       day: processdIncome.day.value,
       month: processdIncome.month.value,

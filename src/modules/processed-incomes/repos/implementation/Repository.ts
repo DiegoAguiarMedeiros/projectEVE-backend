@@ -1,8 +1,9 @@
-import { col, fn, literal, Sequelize } from "sequelize";
+import { col, fn, literal, Op, Sequelize } from "sequelize";
 import { ProcessedIncomesMap as Mapper } from "../../mappers";
 import { Interface } from "../Interface";
 import { ProcessedIncomes } from "../../domain/ProcessedIncomes";
-import { YearMonths, Month } from "../../dtos";
+import { YearMonths, Month, ToalByYearMonths } from "../../dtos";
+import dayjs from "dayjs";
 
 export class Repository implements Interface {
 
@@ -33,7 +34,7 @@ export class Repository implements Interface {
 
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<ProcessedIncomes[]> {
         const limit = pageSize || undefined;
-        const offset = page ? (page ) * (pageSize || 10) : 0;
+        const offset = page ? (page) * (pageSize || 10) : 0;
 
         const allowedColumns = ["description", "amount", "payment_day", "created_at"];
         const allowedOrders = ["asc", "desc"];
@@ -50,6 +51,34 @@ export class Repository implements Interface {
         const data = await this.model.findAll({
             where: {
                 user_id: id,
+            },
+            limit: limit,
+            offset: offset,
+            order: [[orderStatement, safeOrder]],
+        });
+        return data.map((e: any) => Mapper.toDomain(e));
+    }
+
+    async getAllByYearMonth(id: string, year: number, month: number, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<ProcessedIncomes[]> {
+        const limit = pageSize || undefined;
+        const offset = page ? (page) * (pageSize || 10) : 0;
+
+        const allowedColumns = ["description", "amount", "payment_day", "created_at"];
+        const allowedOrders = ["asc", "desc"];
+
+        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
+        const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
+
+        const numericColumns = ["amount", "payment_day"];
+        const orderStatement = numericColumns.includes(safeOrderBy!)
+            ? Sequelize.col(safeOrderBy!)
+            : safeOrderBy;
+
+        const data = await this.model.findAll({
+            where: {
+                user_id: id,
+                month,
+                year
             },
             limit: limit,
             offset: offset,
@@ -123,6 +152,20 @@ export class Repository implements Interface {
         });
 
         return deletedCount > 0;
+    }
+
+    async getTotalbyMonth(year: number, month: number, userId: string): Promise<ToalByYearMonths> {
+        const { fn, col, literal, where } = this.model.sequelize;
+
+        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
+        const result: ToalByYearMonths = {
+            total: await this.model.sum('total_income_processed', {
+                where: { user_id: userId, month: month, year: year }
+            })
+        }
+        return result;
+
     }
 
 }

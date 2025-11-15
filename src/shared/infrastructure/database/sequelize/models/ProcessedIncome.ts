@@ -10,6 +10,10 @@ ProcessedIncome.init({
         primaryKey: true,
         defaultValue: DataTypes.UUIDV4,
     },
+    description: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+    },
     user_id: {
         type: DataTypes.UUID,
         allowNull: false,

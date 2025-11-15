@@ -15,6 +15,7 @@ import { Year } from "./Year";
 
 interface ProcessedIncomesProps {
   userId: Id;
+  description: Description;
   day: Day;
   month: Month;
   year: Year;
@@ -30,6 +31,12 @@ export class ProcessedIncomes extends AggregateRoot<ProcessedIncomesProps> {
 
   get userId(): Id {
     return this.props.userId;
+  }
+  get description(): Description {
+    return this.props.description;
+  }
+  public updateDescription(description: Description): void {
+    this.props.description = description;
   }
 
   get day(): Day {

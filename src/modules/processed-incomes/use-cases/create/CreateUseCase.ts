@@ -23,29 +23,32 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
+    const DescriptionOrError = Description.create({ description: request.description });
     const YearOrError = Year.create({ year: request.year });
     const MonthOrError = Month.create({ month: request.month });
     const DayOrError = Day.create({ day: request.day });
     const TotalIncomeProcessedOrError = Balance.create({ balance: request.totalIncomeProcessed });
     const UserIdOrError = Id.create(new UniqueEntityID(request.userId));
     const dtoResult = Result.combine([
-      YearOrError, MonthOrError, UserIdOrError, TotalIncomeProcessedOrError,DayOrError
+      YearOrError, MonthOrError, UserIdOrError, TotalIncomeProcessedOrError, DayOrError
     ]);
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
+    const description: Description = DescriptionOrError.getValue()
     const userId: Id = UserIdOrError.getValue();
     const year: Year = YearOrError.getValue();
     const month: Month = MonthOrError.getValue();
     const day: Day = DayOrError.getValue();
     const totalIncomeProcessed: Balance = TotalIncomeProcessedOrError.getValue();
 
-  
+
     try {
 
       const processedIncomeOrError: Result<ProcessedIncomes> = ProcessedIncomes.create({
+        description,
         userId,
         year,
         month,
