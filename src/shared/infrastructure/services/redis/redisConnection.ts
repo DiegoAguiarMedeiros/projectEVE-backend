@@ -1,24 +1,17 @@
 
 import { createClient } from 'redis';
 import { RedisClientType } from '@redis/client';
-import { authConfig, isProduction } from '../../../../config';
+import { authConfig } from '../../../../config';
 
 const port = authConfig.redisServerPort;
 const host = authConfig.redisServerURL;
-const redisConnection: RedisClientType = isProduction
-  ? createClient({
+const redisConnection: RedisClientType = createClient({
     url: authConfig.redisConnectionString,
     socket: {
       tls: true,
       rejectUnauthorized: false,
     }
   })
-  : createClient({
-    url: `${host}:${port}`, socket: {
-      tls: true,
-      rejectUnauthorized: false,
-    }
-  }); // creates a new client
 
 console.log("authConfig", authConfig)
 
