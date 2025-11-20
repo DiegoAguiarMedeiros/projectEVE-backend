@@ -14,7 +14,8 @@ socket.on("error", (e) => console.log("Erro:", e, Number(authConfig.redisServerP
 const redisConnection: RedisClientType = createClient({
   url: authConfig.redisConnectionString,
   socket: {
-    tls: false,
+    tls: false,            // obrigatório
+    connectTimeout: 10000  // opcional, só para evitar timeout rápido
   }
 })
 
