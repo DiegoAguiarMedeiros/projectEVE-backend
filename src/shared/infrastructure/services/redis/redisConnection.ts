@@ -5,7 +5,7 @@ import { authConfig } from '../../../../config';
 
 import net from 'net';
 
-const socket = net.createConnection(6379, "oregon-keyvalue.render.com");
+const socket = net.createConnection(6379, authConfig.redisConnectionString);
 
 socket.on("connect", () => console.log("Conectou!"));
 socket.on("error", (e) => console.log("Erro:", e));
