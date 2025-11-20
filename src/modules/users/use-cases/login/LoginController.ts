@@ -16,7 +16,7 @@ export class LoginController extends BaseController {
 
   async executeImpl(req: DecodedExpressRequest, res: express.Response): Promise<any> {
     const dto: LoginDTO = req.body as LoginDTO;
-    
+
     try {
       const result = await this.useCase.execute(dto);
       if (result.isLeft()) {
@@ -35,16 +35,16 @@ export class LoginController extends BaseController {
 
         res.cookie('accessToken', dto.accessToken, {
           httpOnly: true,
-          secure: false, 
-          sameSite: 'strict',
-          maxAge: 60 * 60 * 1000, 
+          secure: true,          
+          sameSite: 'none',       
+          path: '/',
         });
-    
+
         res.cookie('refreshToken', dto.refreshToken, {
           httpOnly: true,
-          secure: false,
-          sameSite: 'strict',
-          maxAge: 30 * 24 * 60 * 60 * 1000,
+          secure: true,          
+          sameSite: 'none',       
+          path: '/',
         });
 
         return this.ok(res);
