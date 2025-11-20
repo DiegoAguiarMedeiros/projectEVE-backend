@@ -7,10 +7,17 @@ const port = authConfig.redisServerPort;
 const host = authConfig.redisServerURL;
 const redisConnection: RedisClientType = isProduction
   ? createClient({
-    url: authConfig.redisConnectionString
+    url: authConfig.redisConnectionString,
+    socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    }
   })
   : createClient({
-    url: `${host}:${port}`
+    url: `${host}:${port}`, socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    }
   }); // creates a new client
 
 console.log("authConfig", authConfig)
