@@ -8,7 +8,6 @@ export class ProcessedIncomeUpdated implements IDomainEvent {
   public processedIncomes: ProcessedIncomes;
 
   constructor (processedIncomes: ProcessedIncomes) {
-    console.log("ProcessedIncomeUpdated constructor")
     this.dateTimeOccurred = new Date();
     this.processedIncomes = processedIncomes;
   }

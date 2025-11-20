@@ -50,7 +50,6 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
   public async execute(request: CreateDTO): Promise<Response> {
     try {
       const { processedIncomesId } = request;
-      console.log("execute Create create-after-processed-incomes", processedIncomesId)
 
       const processedIncomes = await this.processedIncomesRepo.getOnlyById(processedIncomesId);
 

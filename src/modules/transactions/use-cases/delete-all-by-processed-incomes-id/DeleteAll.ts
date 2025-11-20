@@ -36,7 +36,6 @@ export class DeleteAll implements UseCase<DeleteAllDTO, Promise<Response>> {
   }
 
   public async execute(request: DeleteAllDTO): Promise<Response> {
-    console.log("DeleteAll execute", request)
     try {
       const { processedIncomesId } = request;
 
@@ -48,7 +47,6 @@ export class DeleteAll implements UseCase<DeleteAllDTO, Promise<Response>> {
 
       const limit = pLimit(10);
       const promises: any[] = [];
-      console.log("transactions", transactions)
       transactions.forEach(transaction => {
         promises.push(
           limit(() => {

@@ -73,17 +73,13 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
       await this.repo.create(transaction);
       if (request.status === 'Completed' && request.amount > 0) {
 
-        console.log("CreateUseCase request", request)
         const envelopes = await this.envelopeRepo.getOnlyById(request.envelopeId);
         if (!envelopes) {
           return left(new CreateErrors.EnvelopeNotFound(request.envelopeId));
         }
-        console.log("CreateUseCase envelopes", envelopes)
         
         const envelopesAmount = await this.envelopeRepo.getAmount(request.envelopeId, request.date.getFullYear(), request.date.getMonth() + 1);
         
-        console.log("CreateUseCase envelopesAmount", envelopesAmount)
-
         let amountToAdd = 0;
         if (envelopesAmount === null) {
           amountToAdd = request.amount;
@@ -91,7 +87,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
           await this.envelopeRepo.createAmount(request.envelopeId, request.amount, request.date.getFullYear(), request.date.getMonth() + 1);
         } else {
 
-         console.log("CreateUseCase request.type", request.type)
           if (request.type === "Debit") {
             amountToAdd = envelopesAmount - request.amount;
           } else {
@@ -99,7 +94,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
             amountToAdd = envelopesAmount + request.amount;
           }
         }
-        console.log("CreateUseCase amountToAdd", amountToAdd)
         await this.envelopeRepo.addAmount(request.envelopeId, amountToAdd, request.date.getFullYear(), request.date.getMonth() + 1);
       }
 

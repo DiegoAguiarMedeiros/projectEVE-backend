@@ -1,4 +1,4 @@
-import { PaymentMethod,  TransactionsStatus } from "../../domain";
+import { PaymentMethod, TransactionsStatus } from "../../domain";
 import { Interface as ITransactionsRepo } from "../../repos/Interface";
 import { Interface as IEnvelopeRepo } from "../../../envelopes/repos/Interface";
 import { Balance } from "../../../../shared/domain/Balance";
@@ -12,13 +12,16 @@ import { TransactionsMap } from "../../mappers";
 import { UpdateErrors } from "./UpdateErrors";
 import { UpdateResponse } from "./UpdateResponse";
 import { UpdateDTO } from "../../dtos";
+import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: ITransactionsRepo;
+    private domainEvents: any;
 
-    constructor(repo: ITransactionsRepo) {
+    constructor(repo: ITransactionsRepo, domainEvents: DomainEvents) {
         this.repo = repo;
+        this.domainEvents = domainEvents;
     }
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
@@ -49,12 +52,18 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const date: Date = data.fieldUpdate.date ? data.fieldUpdate.date : transaction.date;
             const status: TransactionsStatus = data.fieldUpdate.status ? data.fieldUpdate.status : transaction.status;
 
+            const oldAmount = transaction.amount;
+
             if (data.fieldUpdate.description) transaction.updateDescription(description)
             if (data.fieldUpdate.amount) transaction.updateAmount(amount)
             if (data.fieldUpdate.date) transaction.updateDate(date)
             if (data.fieldUpdate.status) transaction.updateStatus(status)
 
+            transaction.update(transaction, oldAmount, transaction.amount, new UniqueEntityID(data.request.userId))
+
+
             const updateData = await this.repo.update(transaction.id.toString(), transaction);
+            this.domainEvents.dispatchEventsForAggregate(transaction.id);
             if (updateData) return right(Result.ok<void>()) as UpdateResponse;
 
             return left(

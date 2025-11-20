@@ -7,6 +7,7 @@ import { Description } from "../../../shared/domain/Description";
 import { Id } from "../../../shared/domain/Id";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { TransactionsCreated } from "./events/TransactionsCreated";
+import { TransactionsUpdated } from "./events/TransactionsUpdated";
 import { PaymentMethod } from "./PaymentMethod";
 import { TransactionsStatus } from "./TransactionsStatus";
 import { TransactionsType } from "./TransactionsType";
@@ -61,6 +62,14 @@ export class Transactions extends AggregateRoot<TransactionsProps> {
   }
   public updateStatus(status: TransactionsStatus): void {
     this.props.status = status;
+  }
+
+  public delete(): void {
+    // this.addDomainEvent(new IncomesDeleted(this));
+  }
+
+  public update(transactions: Transactions, oldAmount: Balance, newAmount: Balance, userId: UniqueEntityID): void {
+    this.addDomainEvent(new TransactionsUpdated(transactions, oldAmount, newAmount, userId));
   }
 
   private constructor(props: TransactionsProps, id?: UniqueEntityID) {
