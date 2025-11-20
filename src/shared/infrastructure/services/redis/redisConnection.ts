@@ -3,6 +3,14 @@ import { createClient } from 'redis';
 import { RedisClientType } from '@redis/client';
 import { authConfig } from '../../../../config';
 
+import net from 'net';
+
+const socket = net.createConnection(6379, "oregon-keyvalue.render.com");
+
+socket.on("connect", () => console.log("Conectou!"));
+socket.on("error", (e) => console.log("Erro:", e));
+
+
 const redisConnection: RedisClientType = createClient({
     url: authConfig.redisConnectionString,
     socket: {
@@ -22,5 +30,6 @@ redisConnection.connect().then(() => {
 redisConnection.on('connect', () => {
   console.info(`[Redis]: Connected to redis server at ${authConfig.redisConnectionString}`)
 });
+
 
 export { redisConnection }
