@@ -18,7 +18,7 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
   const app = express();
 
   app.use(cors({
-    origin: ['http://192.168.1.3:3039','http://localhost:3000','https://projecteve-backend.onrender.com'],
+    origin: ['http://192.168.1.3:3039','http://localhost:3000','https://projecteve-web.onrender.com/*'],
     credentials: true
   }));
   
