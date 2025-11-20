@@ -138,4 +138,45 @@ processedIncomesRouter.get('/:year/:month',
   (req, res) => processedIncomesController.getAll.execute(req, res)
 );
 
+
+
+/**
+ * @swagger
+ * /processed-incomes/{id}:
+ *   put:
+ *     summary: Update an Processed Incomes
+ *     tags: [Processed Incomes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Processed Incomes ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               description:
+ *                 type: string
+ *                 description: Name of the cardholder
+ *               totalIncomeProcessed:
+ *                 type: number
+ *                 description: Total of Processed Incomes
+ *     responses:
+ *       200:
+ *         description: Processed Incomes updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Processed Incomes not found
+ */
+processedIncomesRouter.put(
+  '/:id',
+  middleware.ensureAuthenticated(),
+  (req, res) => processedIncomesController.update.execute(req, res)
+);
 export { processedIncomesRouter };

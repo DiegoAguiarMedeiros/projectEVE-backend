@@ -4,7 +4,7 @@ import { getProcessedMonthController } from "../../../use-cases/get-processed-mo
 import { getAllController } from "../../../use-cases/get-all";
 import { getTotalController } from "../../../use-cases/get-total";
 //import { getByIdController } from "../../../use-cases/get-by-id";
-//import { updateController } from "../../../use-cases/update";
+import { updateController } from "../../../use-cases/update";
 
 const processedIncomesController = {
     create:createController,
@@ -13,7 +13,7 @@ const processedIncomesController = {
     getAll:getAllController,
     //get:getByIdController,
     //delete:deleteController,
-    //update:updateController,
+    update:updateController,
 }
 
 export default processedIncomesController;

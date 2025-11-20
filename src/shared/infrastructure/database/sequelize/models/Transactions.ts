@@ -16,6 +16,11 @@ Transactions.init({
         allowNull: false,
         primaryKey: true
     },
+    processed_incomes_id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        allowNull: true,
+    },
     description: {
         type: DataTypes.STRING(255),
         allowNull: false

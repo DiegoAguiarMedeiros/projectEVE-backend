@@ -14,6 +14,7 @@ import { Interface as IGoalsRepo } from "../../../goals/repos/Interface";
 import { Interface as IMonthlyEnvelopeRepo } from "../../repos/Interface";
 import { Envelopes } from "../../../envelopes/domain/Envelopes";
 import pLimit from 'p-limit';
+import { DeleteAll } from "../delete-all-by-processed-incomes-id/DeleteAll";
 
 
 type Response = Either<
@@ -29,24 +30,27 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
   private envelopsRepo: IEnvelopsRepo;
   private fixedExpensesRepo: IFixedExpensesRepo;
   private goalsRepo: IGoalsRepo;
+  private deleteAllByProcessedIncomes: DeleteAll
 
   constructor(processedIncomesRepo: IProcessedIncomesRepo,
     createUseCase: CreateUseCase,
     envelopsRepo: IEnvelopsRepo,
     fixedExpensesRepo: IFixedExpensesRepo,
-    goalsRepo: IGoalsRepo
+    goalsRepo: IGoalsRepo,
+    deleteAllByProcessedIncomes: DeleteAll
   ) {
     this.processedIncomesRepo = processedIncomesRepo;
     this.createUseCase = createUseCase;
     this.envelopsRepo = envelopsRepo;
     this.fixedExpensesRepo = fixedExpensesRepo;
     this.goalsRepo = goalsRepo;
+    this.deleteAllByProcessedIncomes = deleteAllByProcessedIncomes;
   }
 
   public async execute(request: CreateDTO): Promise<Response> {
-
     try {
       const { processedIncomesId } = request;
+      console.log("execute Create create-after-processed-incomes", processedIncomesId)
 
       const processedIncomes = await this.processedIncomesRepo.getOnlyById(processedIncomesId);
 
@@ -66,6 +70,10 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
       const goals = await this.goalsRepo.getAll(processedIncomes.userId.value);
 
 
+      if (processedIncomes.isReprocessed) {
+        await this.deleteAllByProcessedIncomes.execute({ processedIncomesId, userId: processedIncomes.userId.value })
+      }
+
 
 
       if (processedIncomes.isSplitted) {
@@ -77,6 +85,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
           promises.push(
             limit(() => {
               this.createUseCase.execute({
+                processedIncomesId: processedIncomesId,
                 envelopeId: envelope.id.toString(),
                 description: `Depósito salário ${processedIncomes?.month.value}/${processedIncomes?.year.value}`,
                 amount: (processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value) / 100,

@@ -12,9 +12,11 @@ import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>> {
     private repo: IIncomesRepo;
+    private domainEvents: any;
 
-    constructor(repo: IIncomesRepo) {
+    constructor(repo: IIncomesRepo, domainEvents: DomainEvents) {
         this.repo = repo;
+        this.domainEvents = domainEvents;
     }
     async execute(request: DeleteDTO): Promise<DeleteResponse> {
 
@@ -30,8 +32,8 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
             incomes.delete()
             const deleted = await this.repo.delete(request.id);
 
-            DomainEvents.dispatchEventsForAggregate(incomes.id);
-            
+            this.domainEvents.dispatchEventsForAggregate(incomes.id);
+
             return right(Result.ok<void>()) as DeleteResponse;
 
         } catch (err) {

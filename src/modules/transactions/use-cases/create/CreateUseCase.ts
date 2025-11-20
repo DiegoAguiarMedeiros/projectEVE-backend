@@ -24,18 +24,20 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
 
+    const ProcessedIncomesIdOrError = Id.create(new UniqueEntityID(request.processedIncomesId ? request.processedIncomesId : undefined));
     const EnvelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId));
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
 
     const dtoResult = Result.combine([
-      EnvelopeIdOrError, DescriptionOrError, AmountOrError
+      EnvelopeIdOrError, DescriptionOrError, AmountOrError, ProcessedIncomesIdOrError
     ]);
 
     if (dtoResult.isFailure) {
       return left(Result.fail<void>(dtoResult.getErrorValue())) as CreateResponse;
     }
 
+    const processedIncomesId: Id = ProcessedIncomesIdOrError.getValue();
     const envelopeId: Id = EnvelopeIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
@@ -47,6 +49,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     try {
 
       const transactionOrError: Result<Transactions> = Transactions.create({
+        processedIncomesId: request.processedIncomesId ? processedIncomesId : undefined,
         envelopeId,
         description,
         amount,
@@ -69,13 +72,17 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
       await this.repo.create(transaction);
       if (request.status === 'Completed' && request.amount > 0) {
+
+        console.log("CreateUseCase request", request)
         const envelopes = await this.envelopeRepo.getOnlyById(request.envelopeId);
         if (!envelopes) {
           return left(new CreateErrors.EnvelopeNotFound(request.envelopeId));
         }
-
+        console.log("CreateUseCase envelopes", envelopes)
+        
         const envelopesAmount = await this.envelopeRepo.getAmount(request.envelopeId, request.date.getFullYear(), request.date.getMonth() + 1);
-
+        
+        console.log("CreateUseCase envelopesAmount", envelopesAmount)
 
         let amountToAdd = 0;
         if (envelopesAmount === null) {
@@ -83,6 +90,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
           await this.envelopeRepo.createAmount(request.envelopeId, request.amount, request.date.getFullYear(), request.date.getMonth() + 1);
         } else {
+
+         console.log("CreateUseCase request.type", request.type)
           if (request.type === "Debit") {
             amountToAdd = envelopesAmount - request.amount;
           } else {
@@ -90,6 +99,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
             amountToAdd = envelopesAmount + request.amount;
           }
         }
+        console.log("CreateUseCase amountToAdd", amountToAdd)
         await this.envelopeRepo.addAmount(request.envelopeId, amountToAdd, request.date.getFullYear(), request.date.getMonth() + 1);
       }
 

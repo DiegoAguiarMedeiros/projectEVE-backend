@@ -3,7 +3,7 @@ import { IDomainEvent } from "./IDomainEvent";
 import { AggregateRoot } from "../AggregateRoot";
 import { UniqueEntityID } from "../UniqueEntityID";
 
-export class DomainEvents {
+export class DomainEvents  {
   private static handlersMap: { [key: string]: Array<(event: IDomainEvent) => Promise<void> | void> } = {};
   private static markedAggregates: AggregateRoot<any>[] = [];
 

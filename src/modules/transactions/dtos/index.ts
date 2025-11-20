@@ -6,6 +6,7 @@ import { PaymentMethod, TransactionsStatus } from "../domain";
 export interface TransactionsDTO {
   id: string;
   envelopeId: string;
+  processedIncomesId?: string;
   description: string;
   amount: number;
   date: Date;
@@ -17,19 +18,19 @@ export interface TransactionsDTO {
 
 
 export interface TransactionsUpdateFiledDTO extends Omit<
-  TransactionsDTO, 'id' | 'envelopeId'
+  TransactionsDTO, 'id' | 'envelopeId' | 'processedIncomesId'
 > { }
 export interface TransactionsUpdateStatusDTO extends Omit<
-  TransactionsDTO, 'id' | 'description' | 'amount' | 'date' | 'type'| 'paymentMethod' | 'envelopeId'
+  TransactionsDTO, 'id' | 'description' | 'amount' | 'date' | 'type' | 'paymentMethod' | 'envelopeId' | 'processedIncomesId'
 > { }
 
 export interface TransactionsIdDTO extends Omit<
-  TransactionsDTO, 'description' | 'amount' | 'date' | 'type' | 'status' | 'paymentMethod' | 'envelopeId'
+  TransactionsDTO, 'description' | 'amount' | 'date' | 'type' | 'status' | 'paymentMethod' | 'envelopeId' | 'processedIncomesId'
 > { }
 
 export interface CreateDTO extends Omit<TransactionsDTO, 'id'> {
   userId: string;
- }
+}
 export interface DeleteDTO extends TransactionsIdDTO { userId: string; }
 
 export interface GetByIdDTO extends TransactionsIdDTO { userId: string; }

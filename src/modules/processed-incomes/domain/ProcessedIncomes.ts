@@ -8,6 +8,7 @@ import { PaymentDay } from "../../../shared/domain/PaymentDay";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Day } from "./Day";
 import { ProcessedIncomeCreated } from "./events/ProcessedIncomeCreated";
+import { ProcessedIncomeUpdated } from "./events/ProcessedIncomeUpdated";
 import { Month } from "./Month";
 import { Year } from "./Year";
 
@@ -71,11 +72,17 @@ export class ProcessedIncomes extends AggregateRoot<ProcessedIncomesProps> {
   get isReprocessed(): boolean {
     return this.props.isReprocessed;
   }
+  public updateIsReprocessed(isReprocessed: boolean): void {
+    this.props.isReprocessed = isReprocessed;
+  }
   get isSplitted(): boolean {
     return this.props.isSplitted;
   }
   private constructor(props: ProcessedIncomesProps, id?: UniqueEntityID) {
     super(props, id);
+  }
+  public update(): void {
+    this.addDomainEvent(new ProcessedIncomeUpdated(this));
   }
 
   public static create(props: ProcessedIncomesProps, id?: UniqueEntityID): Result<ProcessedIncomes> {

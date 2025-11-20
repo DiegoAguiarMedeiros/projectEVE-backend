@@ -17,9 +17,10 @@ export interface TransactionsProps {
   amount: Balance;
   date: Date;
   type: TransactionsType;
-  paymentMethod:PaymentMethod;
+  paymentMethod: PaymentMethod;
   status: TransactionsStatus;
   envelopeId: Id;
+  processedIncomesId?: Id;
 }
 
 
@@ -27,6 +28,9 @@ export class Transactions extends AggregateRoot<TransactionsProps> {
 
   get envelopeId(): Id {
     return this.props.envelopeId || '';
+  }
+  get processedIncomesId(): Id | undefined {
+    return this.props.processedIncomesId;
   }
   get description(): Description {
     return this.props.description;

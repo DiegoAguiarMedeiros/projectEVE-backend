@@ -47,7 +47,7 @@ export class Repository implements Interface {
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Transactions[]> {
 
         const limit = pageSize || undefined;
-        const offset = page ? (page ) * (pageSize || 10) : 0;
+        const offset = page ? (page) * (pageSize || 10) : 0;
         const allowedColumns = ["description", "amount", "date", "payment_method", "type", "status", "created_at"];
         const allowedOrders = ["asc", "desc"];
 
@@ -84,7 +84,7 @@ export class Repository implements Interface {
         order?: string
     ): Promise<Transactions[]> {
         const limit = pageSize || undefined;
-        const offset = page ? (page ) * (pageSize || 10) : 0;
+        const offset = page ? (page) * (pageSize || 10) : 0;
         const allowedColumns = ["description", "amount", "date", "payment_method", "type", "status", "created_at"];
         const allowedOrders = ["asc", "desc"];
 
@@ -116,6 +116,18 @@ export class Repository implements Interface {
                     required: true,
                 },
             ],
+        });
+
+        return data.map((e: any) => Mapper.toDomain(e));
+    }
+    async getAllByProcessedIncomesId(
+        processedIncomesId: string,
+    ): Promise<Transactions[]> {
+
+        const data = await this.model.findAll({
+            where: {
+                    processed_incomes_id: processedIncomesId,
+            }
         });
 
         return data.map((e: any) => Mapper.toDomain(e));

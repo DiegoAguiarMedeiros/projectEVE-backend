@@ -14,11 +14,11 @@ export interface ProcessedIncomesDTO {
 
 
 export interface ProcessedIncomeUpdateFiledDTO extends Omit<
-  ProcessedIncomesDTO, 'id' | 'userId' | 'day' | 'month' | 'year' | 'totalIncomeProcessed' | 'processedAt' | 'isSplitted'
+  ProcessedIncomesDTO, 'id' | 'userId' | 'day' | 'month' | 'year' |  'processedAt' 
 > { }
 
 export interface ProcessedIncomeIdDTO extends Omit<
-  ProcessedIncomesDTO, 'userId' | 'day' | 'month' | 'year' | 'totalIncomeProcessed' | 'processedAt' | 'isReprocessed' | 'isSplitted'
+  ProcessedIncomesDTO, 'day' | 'month' | 'year' | 'totalIncomeProcessed' | 'processedAt' | 'isReprocessed' | 'isSplitted' | 'description'
 > { }
 
 export interface CreateDTO extends Omit<ProcessedIncomesDTO, 'id' | 'processedAt' | 'isReprocessed'> {
@@ -26,7 +26,8 @@ export interface CreateDTO extends Omit<ProcessedIncomesDTO, 'id' | 'processedAt
 
 export interface DeleteDTO extends ProcessedIncomeIdDTO { }
 
-export interface GetByIdDTO extends ProcessedIncomeIdDTO { }
+export interface GetByIdDTO extends ProcessedIncomeIdDTO {
+}
 
 export interface UpdateDTO {
   request: GetByIdDTO;

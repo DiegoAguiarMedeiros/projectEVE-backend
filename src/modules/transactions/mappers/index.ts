@@ -24,6 +24,7 @@ export class TransactionsMap implements Mapper<Transactions> {
       id: transactions.id.toString(),
       description: transactions.description.value,
       envelopeId: transactions.envelopeId.value,
+      processedIncomesId: transactions.processedIncomesId?.value,
       amount: transactions.amount.value,
       date: transactions.date,
       type: transactions.type,
@@ -33,6 +34,9 @@ export class TransactionsMap implements Mapper<Transactions> {
   }
 
   public static toDomain(raw: any): Transactions {
+
+    const ProcessedIncomesIdOrError = Id.create(new UniqueEntityID(raw.processed_incomes_id));
+    ProcessedIncomesIdOrError.isFailure ? console.error(ProcessedIncomesIdOrError.getErrorValue()) : '';
 
     const EnvelopeIdOrError = Id.create(new UniqueEntityID(raw.envelope_id));
     EnvelopeIdOrError.isFailure ? console.error(EnvelopeIdOrError.getErrorValue()) : '';
@@ -45,6 +49,7 @@ export class TransactionsMap implements Mapper<Transactions> {
 
     const debtOrError = Transactions.create(
       {
+        processedIncomesId: raw.processed_incomes_id ? ProcessedIncomesIdOrError.getValue() : undefined,
         envelopeId: EnvelopeIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
@@ -70,6 +75,7 @@ export class TransactionsMap implements Mapper<Transactions> {
       type: transactions.type,
       payment_method: transactions.paymentMethod,
       envelope_id: transactions.envelopeId.value,
+      processed_incomes_id: transactions.processedIncomesId?.value,
     };
   }
 }
