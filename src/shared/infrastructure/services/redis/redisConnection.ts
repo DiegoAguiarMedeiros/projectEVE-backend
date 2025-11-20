@@ -7,8 +7,8 @@ import net from 'net';
 
 const socket = net.createConnection(6379, authConfig.redisConnectionString);
 
-socket.on("connect", () => console.log("Conectou!"));
-socket.on("error", (e) => console.log("Erro:", e));
+socket.on("connect", () => console.log("Conectou!", authConfig.redisConnectionString));
+socket.on("error", (e) => console.log("Erro:", e, authConfig.redisConnectionString));
 
 
 const redisConnection: RedisClientType = createClient({
