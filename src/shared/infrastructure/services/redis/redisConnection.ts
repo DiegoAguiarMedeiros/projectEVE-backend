@@ -3,26 +3,11 @@ import { createClient } from 'redis';
 import { RedisClientType } from '@redis/client';
 import { authConfig } from '../../../../config';
 
-import net from 'net';
-
-const socket = net.createConnection(Number(authConfig.redisServerPort), authConfig.redisServerURL);
-
-socket.on("connect", () => console.log("Conectou!", Number(authConfig.redisServerPort), authConfig.redisServerURL));
-socket.on("error", (e) => console.log("Erro:", e, Number(authConfig.redisServerPort), authConfig.redisServerURL));
-
-
 const redisConnection: RedisClientType = createClient({
   url: authConfig.redisConnectionString,
   socket: {
     tls: false,            // obrigatório
     connectTimeout: 10000  // opcional, só para evitar timeout rápido
-  }
-})
-
-console.log("authConfig", authConfig, {
-  url: authConfig.redisConnectionString,
-  socket: {
-    tls: false,
   }
 })
 
