@@ -12,12 +12,11 @@ socket.on("error", (e) => console.log("Erro:", e));
 
 
 const redisConnection: RedisClientType = createClient({
-    url: authConfig.redisConnectionString,
-    socket: {
-      tls: true,
-      rejectUnauthorized: false,
-    }
-  })
+  url: authConfig.redisConnectionString,
+  socket: {
+    tls: false, 
+  }
+})
 
 console.log("authConfig", authConfig)
 
