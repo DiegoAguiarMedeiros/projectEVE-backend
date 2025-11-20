@@ -5,10 +5,10 @@ import { authConfig } from '../../../../config';
 
 import net from 'net';
 
-const socket = net.createConnection(6379, authConfig.redisConnectionString);
+const socket = net.createConnection(Number(authConfig.redisServerPort), authConfig.redisServerURL);
 
-socket.on("connect", () => console.log("Conectou!", authConfig.redisConnectionString));
-socket.on("error", (e) => console.log("Erro:", e, authConfig.redisConnectionString));
+socket.on("connect", () => console.log("Conectou!", Number(authConfig.redisServerPort), authConfig.redisServerURL));
+socket.on("error", (e) => console.log("Erro:", e, Number(authConfig.redisServerPort), authConfig.redisServerURL));
 
 
 const redisConnection: RedisClientType = createClient({
