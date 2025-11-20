@@ -22,6 +22,12 @@ console.log('PROJECT_EVE_DB_PORT',PROJECT_EVE_DB_PORT)
 const sequelize = new Sequelize(PROJECT_EVE_DB_NAME as string, PROJECT_EVE_DB_USER as string, PROJECT_EVE_DB_PASS as string, {
   host: PROJECT_EVE_DB_HOST_DOCKER,
   dialect: PROJECT_EVE_DB_DIALECT as any,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
   port: Number(PROJECT_EVE_DB_PORT),
   logging: false, // Defina como true para ver as queries SQL no console
 });
