@@ -14,11 +14,16 @@ socket.on("error", (e) => console.log("Erro:", e));
 const redisConnection: RedisClientType = createClient({
   url: authConfig.redisConnectionString,
   socket: {
-    tls: false, 
+    tls: false,
   }
 })
 
-console.log("authConfig", authConfig)
+console.log("authConfig", authConfig, {
+  url: authConfig.redisConnectionString,
+  socket: {
+    tls: false,
+  }
+})
 
 redisConnection.connect().then(() => {
   console.info(`[Redis]: Connected to redis server at ${authConfig.redisConnectionString}`)
