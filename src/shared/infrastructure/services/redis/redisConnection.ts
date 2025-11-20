@@ -13,6 +13,8 @@ const redisConnection: RedisClientType = isProduction
     url: `${host}:${port}`
   }); // creates a new client
 
+console.log("authConfig", authConfig)
+
 redisConnection.connect().then(() => {
   console.info(`[Redis]: Connected to redis server at ${host}:${port}`)
 })
