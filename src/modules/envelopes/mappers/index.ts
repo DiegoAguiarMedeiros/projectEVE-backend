@@ -51,6 +51,7 @@ export class EnvelopesMap implements Mapper<Envelopes> {
       amount: envelope.amount?.value,
       userId: envelope.userId.value,
       percentage: envelope.percentage.value,
+      used: envelope.used?.value,
     };
   }
 

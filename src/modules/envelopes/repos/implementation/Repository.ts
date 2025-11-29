@@ -43,7 +43,7 @@ export class Repository implements Interface {
     }
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Envelopes[]> {
         const limit = pageSize || undefined;
-        const offset = page ? (page ) * (pageSize || 10) : 0;
+        const offset = page ? (page) * (pageSize || 10) : 0;
         const allowedColumns = ["name", "balance", "active", "created_at"];
         const allowedOrders = ["asc", "desc"];
 
@@ -82,7 +82,52 @@ export class Repository implements Interface {
         });
         return data.map((item: any) => Mapper.toDomain(item));
     }
-    
+
+    async getUsedByEnvelopeID(id: string, year: number, month: number): Promise<number> {
+        const data = await this.model.findAll({
+            attributes: [
+                'name',
+                'color',
+                [col('EnvelopesAmounts.amount'), 'envelope_amount'],
+                [fn('SUM', col('Transactions.amount')), 'total_amount'],
+            ],
+            where: {
+                id,
+            },
+            include: [
+                {
+                    model: this.models.EnvelopesAmounts,
+                    as: 'EnvelopesAmounts',
+                    required: false,
+                    attributes: [],
+                    where: {
+                        month,
+                        year,
+                    },
+                },
+                {
+                    model: this.models.Transactions,
+                    as: 'Transactions',
+                    required: false,
+                    attributes: [],
+                    where: {
+                        date: {
+                            [Op.gte]: new Date(year, month - 1, 1),
+                            [Op.lt]: new Date(year, month, 1),
+                        },
+                        type: 'Credit',
+                    },
+                }
+            ],
+            group: ['Envelopes.id', 'EnvelopesAmounts.amount'],
+            order: ['order'],
+            raw: true,
+        });
+        const val = parseFloat(data[0].total_amount ?? '0');
+        const sub = parseFloat(data[0].envelope_amount ?? '0');
+        const usedPercent = val > 0 ? ((val - sub) / val) * 100 : 0;
+        return Number(usedPercent.toFixed(2));
+    }
     async getAnalyticsCurrentEnvelopes(id: string, year: number, month: number): Promise<AnalyticsCurrentEnvelopesDTO> {
         const data = await this.model.findAll({
             attributes: [
@@ -123,7 +168,6 @@ export class Repository implements Interface {
             order: ['order'],
             raw: true,
         });
-
         return Mapper.toAnalyticsCurrentEnvelopesDTO(data);
     }
 

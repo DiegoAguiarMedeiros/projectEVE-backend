@@ -5,6 +5,7 @@ import * as express from 'express'
 import { BaseController } from "../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/models/DecodedExpressRequest";
 import { LoginDTO, LoginResponseDTO } from "../../dtos";
+import { isProduction } from "../../../../config";
 
 export class LoginController extends BaseController {
   private useCase: LoginUserUseCase;
@@ -33,19 +34,27 @@ export class LoginController extends BaseController {
       } else {
         const dto: LoginResponseDTO = result.value.getValue() as LoginResponseDTO;
 
-        res.cookie('accessToken', dto.accessToken, {
-          httpOnly: true,
-          secure: true,          
-          sameSite: 'none',       
-          path: '/',
-        });
 
-        res.cookie('refreshToken', dto.refreshToken, {
-          httpOnly: true,
-          secure: true,          
-          sameSite: 'none',       
-          path: '/',
-        });
+
+        const cookieConfig: express.CookieOptions =
+          isProduction
+            ? {
+              httpOnly: true,
+              secure: true,
+              sameSite: 'none',
+              path: '/',
+            }
+            : {
+              httpOnly: true,
+              secure: false,
+              sameSite: 'strict',
+              path: '/',
+            };
+
+
+        res.cookie('accessToken', dto.accessToken, cookieConfig);
+
+        res.cookie('refreshToken', dto.refreshToken, cookieConfig);
 
         return this.ok(res);
       }

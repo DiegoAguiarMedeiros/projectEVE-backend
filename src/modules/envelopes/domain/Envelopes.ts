@@ -17,6 +17,7 @@ interface EnvelopesProps {
   userId: Id;
   order: Balance;
   amount?: Balance;
+  used?: Percentage;
 }
 
 export class Envelopes extends AggregateRoot<EnvelopesProps> {
@@ -44,6 +45,12 @@ export class Envelopes extends AggregateRoot<EnvelopesProps> {
   }
   public updatePercentage(percentage: Percentage): void {
     this.props.percentage = percentage;
+  }
+  get used(): Percentage | undefined {
+    return this.props.used;
+  }
+  public updateUsed(used: Percentage): void {
+    this.props.used = used;
   }
   get userId(): Id {
     return this.props.userId;

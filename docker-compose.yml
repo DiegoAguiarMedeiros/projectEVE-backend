@@ -36,6 +36,8 @@ services:
 
   redis:
     image: redis:latest
+    sysctls:
+      - vm.overcommit_memory=1
     ports:
       - "${PROJECT_EVE_REDIS_PORT}:${PROJECT_EVE_REDIS_PORT}"
     networks:

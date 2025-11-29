@@ -5,6 +5,7 @@ export interface EnvelopesDTO {
   order: number;
   amount?: number;
   percentage: number;
+  used?: number;
   userId: string;
 }
 
