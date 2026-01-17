@@ -16,6 +16,7 @@ export class UserMap implements Mapper<User> {
       email: user.email.value,
       password: user.password.value,
       id: user.id.toString(),
+      isRegistrationComplete: user.isRegistrationComplete,
     };
   }
 
@@ -40,6 +41,7 @@ export class UserMap implements Mapper<User> {
         isAdminUser: raw.is_admin_user,
         isDeleted: raw.is_deleted,
         isEmailVerified: raw.is_email_verified,
+        isRegistrationComplete: raw.is_registration_complete,
         password: PasswordOrError.getValue(),
         email: EmailOrError.getValue(),
       }, new UniqueEntityID(raw.id));
@@ -67,6 +69,7 @@ export class UserMap implements Mapper<User> {
       password: password,
       is_admin_user: user.isAdminUser,
       is_deleted: user.isDeleted,
+      is_registration_complete: user.isRegistrationComplete,
     };
   }
 }

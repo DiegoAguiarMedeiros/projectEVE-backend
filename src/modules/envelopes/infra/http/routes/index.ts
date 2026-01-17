@@ -84,6 +84,42 @@ envelopesRouter.post('/',
   (req, res) => envelopeController.create.execute(req, res)
 )
 
+/**
+ * @swagger
+ * /envelopes/transfer:
+ *   post:
+ *     summary: Transfer balance between envelopes
+ *     tags: [Envelopes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fromEnvelopeId:
+ *                 type: string
+ *               toEnvelopeId:
+ *                 type: string
+ *               amount:
+ *                 type: number
+ *               year:
+ *                 type: number
+ *               month:
+ *                 type: number
+ *     responses:
+ *       200:
+ *         description: Transfer successful
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ */
+envelopesRouter.post('/transfer',
+  middleware.ensureAuthenticated(),
+  (req, res) => envelopeController.transfer.execute(req, res)
+);
+
 
 /**
  * @swagger

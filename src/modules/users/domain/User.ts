@@ -18,6 +18,7 @@ interface UserProps {
   refreshToken?: RefreshToken;
   isDeleted?: boolean;
   lastLogin?: Date;
+  isRegistrationComplete?: boolean;
 }
 
 export class User extends AggregateRoot<UserProps> {
@@ -50,6 +51,14 @@ export class User extends AggregateRoot<UserProps> {
     return this.props.isAdminUser ?? false;
   }
 
+  get isRegistrationComplete(): boolean {
+    return this.props.isRegistrationComplete ?? false;
+  }
+
+  public completeRegistration(): void {
+    this.props.isRegistrationComplete = true;
+  }
+
   get lastLogin(): Date {
     return this.props.lastLogin ?? new Date('1900-01-01T00:00:00Z');
   }
@@ -74,7 +83,7 @@ export class User extends AggregateRoot<UserProps> {
     }
   }
 
-  private constructor (props: UserProps, id?: UniqueEntityID) {
+  private constructor(props: UserProps, id?: UniqueEntityID) {
     super(props, id)
   }
   public static create(props: UserProps, id?: UniqueEntityID): Result<User> {
@@ -95,6 +104,7 @@ export class User extends AggregateRoot<UserProps> {
         isDeleted: props.isDeleted ?? false,
         isEmailVerified: props.isEmailVerified ?? false,
         isAdminUser: props.isAdminUser ?? false,
+        isRegistrationComplete: props.isRegistrationComplete ?? false,
       },
       id
     );
@@ -104,7 +114,7 @@ export class User extends AggregateRoot<UserProps> {
       user.addDomainEvent(new UserCreated(user));
     }
 
-    
+
     return Result.ok<User>(user);
   }
 }

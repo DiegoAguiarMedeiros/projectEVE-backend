@@ -1,5 +1,5 @@
 
-import { UserMap  as Mapper} from "../../mappers";
+import { UserMap as Mapper } from "../../mappers";
 import { Email } from "../../domain/Email";
 import { User } from "../../domain/User";
 import { Interface } from "../Interface";
@@ -47,6 +47,25 @@ export class Repository implements Interface {
 
         if (!exists) {
             const rawUser = await Mapper.toPersistence(data);
+            await this.model.create(rawUser);
+        }
+
+        return;
+    }
+
+    async save(data: User): Promise<void> {
+        const rawUser = await Mapper.toPersistence(data);
+        const exists = await this.exists(data.email);
+
+        console.log(`[Repository] Saving user ${data.email.value}. Exists? ${exists}`);
+        console.log(`[Repository] Payload: `, JSON.stringify(rawUser, null, 2));
+
+        if (exists) {
+            await this.model.update(rawUser, {
+                where: { email: data.email.value }
+            });
+            console.log(`[Repository] Update completed`);
+        } else {
             await this.model.create(rawUser);
         }
 

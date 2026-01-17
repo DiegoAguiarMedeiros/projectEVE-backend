@@ -102,8 +102,7 @@ export class Repository implements Interface {
             where: {
                 date: {
                     [Op.between]: [startDate, endDate],
-                },
-                type: 'Debit'
+                }
             },
             include: [
                 {

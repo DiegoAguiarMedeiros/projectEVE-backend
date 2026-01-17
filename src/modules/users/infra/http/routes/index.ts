@@ -78,4 +78,26 @@ usersRouter.get('/me',
   (req, res) => userController.get.execute(req, res)
 )
 
-export { authRouter ,usersRouter};
+/**
+ * @swagger
+ * /auth/logout:
+ *   post:
+ *     summary: Logout a user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Logout successful
+ *       401:
+ *         description: Unauthorized
+ */
+authRouter.post('/logout',
+  middleware.ensureAuthenticated(),
+  (req, res) => userController.logout.execute(req, res)
+)
+
+usersRouter.post('/complete-registration',
+  middleware.ensureAuthenticated(),
+  (req, res) => userController.completeRegistration.execute(req, res)
+)
+
+export { authRouter, usersRouter };

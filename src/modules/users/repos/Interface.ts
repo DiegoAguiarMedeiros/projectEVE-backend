@@ -8,4 +8,5 @@ export interface Interface {
   getUserByUserId(userId: string): Promise<User>;
   getUserByEmail(data: Email): Promise<User>;
   create(data: User): Promise<void>;
+  save(data: User): Promise<void>;
 }

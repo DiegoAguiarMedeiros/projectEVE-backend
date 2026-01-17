@@ -9,6 +9,7 @@ export interface UserDTO {
   accessToken?: string;
   refreshToken?: string;
   lastLogin?: Date;
+  isRegistrationComplete?: boolean;
 }
 
 
@@ -23,7 +24,7 @@ export interface LoginDTO extends Omit<
   UserDTO, 'id' | 'name' | 'isEmailVerified' | 'isAdminUser' | 'accessToken' | 'refreshToken' | 'lastLogin'
 > { }
 export interface LoginResponseDTO extends Omit<
-  UserDTO, 'id' | 'name' | 'email' | 'password' | 'isEmailVerified' | 'isAdminUser'  | 'lastLogin'
+  UserDTO, 'id' | 'name' | 'email' | 'password' | 'isEmailVerified' | 'isAdminUser' | 'lastLogin'
 > { }
 
 export interface CreateDTO extends Omit<UserDTO, 'id'> { }

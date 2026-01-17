@@ -14,14 +14,20 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
 
 (async () => {
   await models.sequelize.sync({ alter: true });
-
+  const port = process.env.PORT || 3000;
   const app = express();
 
   app.use(cors({
-    origin: ['http://192.168.1.3:3039','http://localhost:3000','https://projecteve-web.onrender.com'],
+    origin: [
+      'http://192.168.15.5:3039',
+      'http://localhost:3039',
+      'http://127.0.0.1:3039',
+      'http://localhost:3000',
+      'https://projecteve-web.onrender.com'
+    ],
     credentials: true
   }));
-  
+
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(compression());
@@ -38,7 +44,7 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
     },
     servers: [
       {
-        url: 'http://192.168.1.3:3000/api',
+        url: 'http://192.168.15.5:3000/api',
         description: 'Development server',
       },
     ],
@@ -82,10 +88,18 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+  app.get('/', (req, res) => {
+    res.json({ message: 'Project EVE API is running! Access /api or /api-docs for more info.' });
+  });
+
+  app.get('/api', (req, res) => {
+    res.json({ message: 'API Project EVE is running!' });
+  });
+
   app.use('/api/', Router)
-  const port = process.env.PORT || 3000;
+
 
   app.listen(Number(port), '0.0.0.0', () => {
-    console.info('API rodando em http://0.0.0.0:3000');
+    console.info(`API rodando em http://192.168.15.5:${port}`);
   })
 })();
