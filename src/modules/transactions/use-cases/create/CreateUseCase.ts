@@ -77,24 +77,36 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         if (!envelopes) {
           return left(new CreateErrors.EnvelopeNotFound(request.envelopeId));
         }
-        
+
         const envelopesAmount = await this.envelopeRepo.getAmount(request.envelopeId, request.date.getFullYear(), request.date.getMonth() + 1);
-        
-        let amountToAdd = 0;
+
+        console.log(`[CreateUseCase] Processing ${request.type} transaction for envelope ${request.envelopeId}`);
+        console.log(`[CreateUseCase] Current envelope amount: ${envelopesAmount}`);
+        console.log(`[CreateUseCase] Transaction amount: ${request.amount}`);
+
         if (envelopesAmount === null) {
-          amountToAdd = request.amount;
-
-          await this.envelopeRepo.createAmount(request.envelopeId, request.amount, request.date.getFullYear(), request.date.getMonth() + 1);
-        } else {
-
+          // Envelope allocation doesn't exist yet, create it
+          let initialAmount = 0;
           if (request.type === "Debit") {
-            amountToAdd = envelopesAmount - request.amount;
+            initialAmount = -request.amount; // Negative for debit
           } else {
-
-            amountToAdd = envelopesAmount + request.amount;
+            initialAmount = request.amount; // Positive for credit
           }
+          console.log(`[CreateUseCase] Creating new allocation with amount: ${initialAmount}`);
+          await this.envelopeRepo.createAmount(request.envelopeId, initialAmount, request.date.getFullYear(), request.date.getMonth() + 1);
+        } else {
+          // Envelope allocation exists, update it
+          // Convert to number to avoid string concatenation
+          const currentAmount = Number(envelopesAmount);
+          let newAmount = 0;
+          if (request.type === "Debit") {
+            newAmount = currentAmount - request.amount;
+          } else {
+            newAmount = currentAmount + request.amount;
+          }
+          console.log(`[CreateUseCase] Updating existing allocation to: ${newAmount}`);
+          await this.envelopeRepo.addAmount(request.envelopeId, newAmount, request.date.getFullYear(), request.date.getMonth() + 1);
         }
-        await this.envelopeRepo.addAmount(request.envelopeId, amountToAdd, request.date.getFullYear(), request.date.getMonth() + 1);
       }
 
 

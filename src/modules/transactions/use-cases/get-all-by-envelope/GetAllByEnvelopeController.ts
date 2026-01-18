@@ -5,7 +5,7 @@ import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/mo
 import { TransactionsDTO } from "../../dtos";
 import { GetAllByEnvelopeUseCase } from "./GetAllByEnvelopeUseCase";
 import { TransactionsMap as Mapper } from "../../mappers";
-import { Transactions } from "../../domain";
+import { Transactions, TransactionsType } from "../../domain";
 
 export class GetAllByEnvelopeController extends BaseController {
     private useCase: GetAllByEnvelopeUseCase;
@@ -22,8 +22,9 @@ export class GetAllByEnvelopeController extends BaseController {
             const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string, 10) : 10;
             const orderBy = `${req.query.orderBy}`;
             const order = `${req.query.order}`;
+            const type = req.query.type as TransactionsType | undefined;
 
-            const result = await this.useCase.execute({ id, page, pageSize, orderBy, order, envelope: params.id, year: params.year, month: params.month });
+            const result = await this.useCase.execute({ id, page, pageSize, orderBy, order, envelope: params.id, year: params.year, month: params.month, type });
 
             if (result.isLeft()) {
                 const error = result.value;

@@ -1,13 +1,8 @@
 import { AppError } from "../../../../shared/core/AppError";
 import { Either, left, right } from "../../../../shared/core/Result";
-import { Result } from "../../../../shared/core/Result";
 import { Interface as IEnvelopesRepository } from "../../repos/Interface";
-import { Interface as ITransactionsRepository } from "../../../transactions/repos/Interface";
-import { Transactions } from "../../../transactions/domain";
-import { Description } from "../../../../shared/domain/Description";
-import { Balance } from "../../../../shared/domain/Balance";
-import { Id } from "../../../../shared/domain/Id";
-import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
+import { CreateUseCase } from "../../../transactions/use-cases/create/CreateUseCase";
+import { TransferEnvelopeBalanceErrors } from "./TransferEnvelopeBalanceErrors";
 
 interface Request {
     userId: string;
@@ -17,8 +12,6 @@ interface Request {
     year: number;
     month: number;
 }
-
-import { TransferEnvelopeBalanceErrors } from "./TransferEnvelopeBalanceErrors";
 
 type Response = Either<
     AppError.UnexpectedError |
@@ -31,7 +24,7 @@ type Response = Either<
 export class TransferEnvelopeBalanceUseCase {
     constructor(
         private envelopesRepository: IEnvelopesRepository,
-        private transactionsRepository: ITransactionsRepository
+        private createTransactionUseCase: CreateUseCase
     ) { }
 
     async execute({
@@ -60,87 +53,58 @@ export class TransferEnvelopeBalanceUseCase {
             return left(new TransferEnvelopeBalanceErrors.EnvelopeNotFoundError("Destination envelope not found"));
         }
 
-        // Get current amounts for the specific month/year
+        // Get current amounts for the specific month/year to validate sufficient funds
         const fromAmount = await this.envelopesRepository.getAmount(fromEnvelopeId, year, month);
-        const toAmount = await this.envelopesRepository.getAmount(toEnvelopeId, year, month);
-
         const currentFromAmount = fromAmount ? Number(fromAmount) : 0;
-        const currentToAmount = toAmount ? Number(toAmount) : 0;
 
         if (currentFromAmount < amount) {
             return left(new TransferEnvelopeBalanceErrors.InsufficientFundsError("Insufficient funds in source envelope"));
         }
 
-        const newFromAmount = currentFromAmount - amount;
-        const newToAmount = currentToAmount + amount;
+        // Create transfer date
+        const transferDate = new Date(year, month - 1, new Date().getDate());
 
-        // Update amounts
-        await this.envelopesRepository.addAmount(fromEnvelopeId, newFromAmount, year, month);
-
-        if (toAmount === null) {
-            await this.envelopesRepository.createAmount(toEnvelopeId, newToAmount, year, month);
-        } else {
-            await this.envelopesRepository.addAmount(toEnvelopeId, newToAmount, year, month);
-        }
-
-        // Create transaction records for both envelopes
         try {
-            const transferDate = new Date(year, month - 1, new Date().getDate());
-
             // Create debit transaction for source envelope
-            const fromDescriptionOrError = Description.create({
-                description: `Transferência para ${toEnvelope.name}`
+            const debitResult = await this.createTransactionUseCase.execute({
+                userId: userId,
+                envelopeId: fromEnvelopeId,
+                description: `Enviado p/ ${toEnvelope.name.value}`,
+                amount: amount,
+                date: transferDate,
+                type: "Debit",
+                status: "Completed",
+                paymentMethod: "BankTransfer"
             });
-            const fromAmountOrError = Balance.create({ balance: amount });
-            const fromEnvelopeIdOrError = Id.create(new UniqueEntityID(fromEnvelopeId));
 
-            if (fromDescriptionOrError.isFailure || fromAmountOrError.isFailure || fromEnvelopeIdOrError.isFailure) {
-                console.error("Error creating value objects for source transaction");
-            } else {
-                const fromTransactionOrError = Transactions.create({
-                    envelopeId: fromEnvelopeIdOrError.getValue(),
-                    description: fromDescriptionOrError.getValue(),
-                    amount: fromAmountOrError.getValue(),
-                    date: transferDate,
-                    type: "Debit",
-                    status: "Completed",
-                    paymentMethod: "BankTransfer"
-                });
-
-                if (fromTransactionOrError.isSuccess) {
-                    await this.transactionsRepository.create(fromTransactionOrError.getValue());
-                }
+            if (debitResult.isLeft()) {
+                const error = debitResult.value;
+                console.error("Debit transaction creation failed:", error);
+                return left(new AppError.UnexpectedError(`Failed to create debit transaction: ${error.getErrorValue ? error.getErrorValue() : error}`));
             }
 
             // Create credit transaction for destination envelope
-            const toDescriptionOrError = Description.create({
-                description: `Transferência de ${fromEnvelope.name}`
+            const creditResult = await this.createTransactionUseCase.execute({
+                userId: userId,
+                envelopeId: toEnvelopeId,
+                description: `Recebido de ${fromEnvelope.name.value}`,
+                amount: amount,
+                date: transferDate,
+                type: "Credit",
+                status: "Completed",
+                paymentMethod: "BankTransfer"
             });
-            const toAmountOrError = Balance.create({ balance: amount });
-            const toEnvelopeIdOrError = Id.create(new UniqueEntityID(toEnvelopeId));
 
-            if (toDescriptionOrError.isFailure || toAmountOrError.isFailure || toEnvelopeIdOrError.isFailure) {
-                console.error("Error creating value objects for destination transaction");
-            } else {
-                const toTransactionOrError = Transactions.create({
-                    envelopeId: toEnvelopeIdOrError.getValue(),
-                    description: toDescriptionOrError.getValue(),
-                    amount: toAmountOrError.getValue(),
-                    date: transferDate,
-                    type: "Credit",
-                    status: "Completed",
-                    paymentMethod: "BankTransfer"
-                });
-
-                if (toTransactionOrError.isSuccess) {
-                    await this.transactionsRepository.create(toTransactionOrError.getValue());
-                }
+            if (creditResult.isLeft()) {
+                const error = creditResult.value;
+                console.error("Credit transaction creation failed:", error);
+                // TODO: Consider rollback of debit transaction if credit fails
+                return left(new AppError.UnexpectedError(`Failed to create credit transaction: ${error.getErrorValue ? error.getErrorValue() : error}`));
             }
-        } catch (err) {
-            console.error("Error creating transfer transactions:", err);
-            // Don't fail the transfer if transaction creation fails
-        }
 
-        return right(null);
+            return right(null);
+        } catch (err) {
+            return left(new AppError.UnexpectedError(err));
+        }
     }
 }

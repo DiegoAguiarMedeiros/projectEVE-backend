@@ -81,7 +81,8 @@ export class Repository implements Interface {
         page?: number,
         pageSize?: number,
         orderBy?: string,
-        order?: string
+        order?: string,
+        type?: string
     ): Promise<Transactions[]> {
         const limit = pageSize || undefined;
         const offset = page ? (page) * (pageSize || 10) : 0;
@@ -95,15 +96,23 @@ export class Repository implements Interface {
         const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
         const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
 
+        // Build where clause for transactions
+        const whereClause: any = {
+            date: {
+                [Op.between]: [startDate, endDate],
+            }
+        };
+
+        // Add type filter if provided
+        if (type && (type === "Debit" || type === "Credit")) {
+            whereClause.type = type;
+        }
+
         const data = await this.model.findAll({
             limit,
             offset,
             order: [[safeOrderBy, safeOrder]],
-            where: {
-                date: {
-                    [Op.between]: [startDate, endDate],
-                }
-            },
+            where: whereClause,
             include: [
                 {
                     model: this.models.Envelopes,
@@ -125,7 +134,7 @@ export class Repository implements Interface {
 
         const data = await this.model.findAll({
             where: {
-                    processed_incomes_id: processedIncomesId,
+                processed_incomes_id: processedIncomesId,
             }
         });
 
