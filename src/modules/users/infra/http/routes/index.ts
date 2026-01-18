@@ -100,4 +100,14 @@ usersRouter.post('/complete-registration',
   (req, res) => userController.completeRegistration.execute(req, res)
 )
 
+usersRouter.put('/profile',
+  middleware.ensureAuthenticated(),
+  (req, res) => userController.update.execute(req, res)
+)
+
+usersRouter.put('/change-password',
+  middleware.ensureAuthenticated(),
+  (req, res) => userController.changePassword.execute(req, res)
+)
+
 export { authRouter, usersRouter };

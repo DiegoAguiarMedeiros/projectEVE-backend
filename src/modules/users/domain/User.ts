@@ -59,6 +59,14 @@ export class User extends AggregateRoot<UserProps> {
     this.props.isRegistrationComplete = true;
   }
 
+  public updateName(name: Name): void {
+    this.props.name = name;
+  }
+
+  public updatePassword(password: Password): void {
+    this.props.password = password;
+  }
+
   get lastLogin(): Date {
     return this.props.lastLogin ?? new Date('1900-01-01T00:00:00Z');
   }
