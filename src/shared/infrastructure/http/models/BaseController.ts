@@ -1,5 +1,6 @@
 
 import * as express from 'express'
+import { MESSAGES } from '../../../constants/messages';
 
 export abstract class BaseController {
 
@@ -33,31 +34,31 @@ export abstract class BaseController {
   }
 
   public clientError(res: express.Response, message?: string) {
-    return BaseController.jsonResponse(res, 400, message ? message : 'Unauthorized');
+    return BaseController.jsonResponse(res, 400, message ? message : MESSAGES.ERRORS.UNAUTHORIZED);
   }
 
   public unauthorized(res: express.Response, message?: string) {
-    return BaseController.jsonResponse(res, 401, message ? message : 'Unauthorized');
+    return BaseController.jsonResponse(res, 401, message ? message : MESSAGES.ERRORS.UNAUTHORIZED);
   }
 
   public paymentRequired(res: express.Response, message?: string) {
-    return BaseController.jsonResponse(res, 402, message ? message : 'Payment required');
+    return BaseController.jsonResponse(res, 402, message ? message : MESSAGES.ERRORS.PAYMENT_REQUIRED);
   }
 
   public forbidden(res: express.Response, message?: string) {
-    return BaseController.jsonResponse(res, 403, message ? message : 'Forbidden');
+    return BaseController.jsonResponse(res, 403, message ? message : MESSAGES.ERRORS.FORBIDDEN);
   }
 
   public notFound(res: express.Response, message?: string) {
-    return BaseController.jsonResponse(res, 404, message ? message : 'Not found');
+    return BaseController.jsonResponse(res, 404, message ? message : MESSAGES.ERRORS.NOT_FOUND);
   }
 
   public conflict(res: express.Response, message?: string) {
-    return BaseController.jsonResponse(res, 409, message ? message : 'Conflict');
+    return BaseController.jsonResponse(res, 409, message ? message : MESSAGES.ERRORS.CONFLICT);
   }
 
   public tooMany(res: express.Response, message?: string) {
-    return BaseController.jsonResponse(res, 429, message ? message : 'Too many requests');
+    return BaseController.jsonResponse(res, 429, message ? message : MESSAGES.ERRORS.TOO_MANY_REQUESTS);
   }
 
   public todo(res: express.Response) {
