@@ -9,7 +9,7 @@ interface DescriptionProps {
 }
 
 export class Description extends ValueObject<DescriptionProps> {
-  public static maxLength: number = 30;
+  public static maxLength: number = 255;
   public static minLength: number = 2;
 
   get value(): string {

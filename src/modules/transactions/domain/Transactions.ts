@@ -22,6 +22,7 @@ export interface TransactionsProps {
   status: TransactionsStatus;
   envelopeId: Id;
   processedIncomesId?: Id;
+  isTranslatable?: boolean;
 }
 
 
@@ -62,6 +63,10 @@ export class Transactions extends AggregateRoot<TransactionsProps> {
   }
   public updateStatus(status: TransactionsStatus): void {
     this.props.status = status;
+  }
+
+  get isTranslatable(): boolean {
+    return this.props.isTranslatable ?? false;
   }
 
   public delete(): void {

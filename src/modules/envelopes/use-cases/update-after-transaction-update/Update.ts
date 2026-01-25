@@ -60,13 +60,13 @@ export class Update implements UseCase<UpdateDTO, Promise<Response>> {
 
         let amountToAdd: number = 0;
         if (transaction.type === "Debit") {
-          if (transaction.status === 'Completed') {
+          if (transaction.status === 'transaction.status.completed') {
             amountToAdd = Number(envelopesAmount) - Number(newAmount);
           } else {
             amountToAdd = Number(envelopesAmount) + Number(newAmount);
           }
         } else {
-          if (transaction.status === 'Completed') {
+          if (transaction.status === 'transaction.status.completed') {
             amountToAdd = Number(envelopesAmount) + Number(newAmount);
           } else {
             amountToAdd = Number(envelopesAmount) - Number(newAmount);

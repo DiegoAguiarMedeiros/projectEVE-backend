@@ -56,7 +56,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         date,
         type,
         status,
-        paymentMethod
+        paymentMethod,
+        isTranslatable: request.isTranslatable ?? false
       });
 
       if (transactionOrError.isFailure) {
@@ -71,7 +72,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
 
       await this.repo.create(transaction);
-      if (request.status === 'Completed' && request.amount > 0) {
+      if (request.status === 'transaction.status.completed' && request.amount > 0) {
 
         const envelopes = await this.envelopeRepo.getOnlyById(request.envelopeId);
         if (!envelopes) {

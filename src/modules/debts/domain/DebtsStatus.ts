@@ -1,3 +1,3 @@
-export type DebtsStatus = 'pending' | 'paid' | 'overdue';
+export type DebtsStatus = 'transaction.status.pending' | 'paid' | 'overdue';
 
-export const allDebtsStatus: DebtsStatus[] = ['pending', 'paid', 'overdue']
+export const allDebtsStatus: DebtsStatus[] = ['transaction.status.pending', 'paid', 'overdue']

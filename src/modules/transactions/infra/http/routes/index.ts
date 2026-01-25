@@ -175,11 +175,12 @@ transactionsRouter.delete(
  *                 type: string
  *                 description: Payment Method
  *                 enum:
- *                   - CreditCard
- *                   - DebitCard
- *                   - Cash
- *                   - BankTransfer
- *                   - Pix
+ *                   - envelope.transaction.payment_method.CreditCard
+ *                   - envelope.transaction.payment_method.DebitCard
+ *                   - envelope.transaction.payment_method.Cash
+ *                   - envelope.transaction.payment_method.BankTransfer
+ *                   - envelope.transaction.payment_method.eallocation
+ *                   - envelope.transaction.payment_method.Pix
  *               date:
  *                  type: string
  *                  format: date-time
@@ -194,8 +195,8 @@ transactionsRouter.delete(
  *                 type: string
  *                 description: Transactions Status
  *                 enum:
- *                   - Pending
- *                   - Completed
+ *                   - transaction.status.pending
+ *                   - transaction.status.completed
  *     responses:
  *       200:
  *         description: Transactions updated successfully
@@ -234,8 +235,8 @@ transactionsRouter.put(
  *                 type: string
  *                 description: Transactions Status
  *                 enum:
- *                   - Pending
- *                   - Completed
+ *                   - transaction.status.pending
+ *                   - transaction.status.completed
  *     responses:
  *       200:
  *         description: Transactions updated successfully

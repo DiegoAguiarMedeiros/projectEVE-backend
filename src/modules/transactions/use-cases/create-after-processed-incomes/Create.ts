@@ -86,13 +86,14 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
               this.createUseCase.execute({
                 processedIncomesId: processedIncomesId,
                 envelopeId: envelope.id.toString(),
-                description: `Depósito salário ${processedIncomes?.month.value}/${processedIncomes?.year.value}`,
+                description: `deposit.salary|${processedIncomes?.month.value}/${processedIncomes?.year.value}`,
                 amount: (processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value) / 100,
                 date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${processedIncomes?.day.value}`),
                 type: "Credit",
-                status: "Completed",
-                paymentMethod: 'Cash',
-                userId: envelope.userId.value
+                status: "transaction.status.completed",
+                paymentMethod: 'envelope.transaction.payment_method.Cash',
+                userId: envelope.userId.value,
+                isTranslatable: true
               })
             })
           );
@@ -107,8 +108,8 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
                     amount: (((processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value) / 100) * goals.percentage.value) / 100,
                     date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${processedIncomes?.day.value}`),
                     type: "Debit",
-                    status: "Pending",
-                    paymentMethod: 'Cash',
+                    status: "transaction.status.pending",
+                    paymentMethod: 'envelope.transaction.payment_method.Cash',
                     userId: processedIncomes.userId.value
                   })
                 })
@@ -128,8 +129,8 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
                   amount: fixedExpense.amount.value,
                   date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${fixedExpense?.paymentDay.value}`),
                   type: "Debit",
-                  status: "Pending",
-                  paymentMethod: 'Cash',
+                  status: "transaction.status.pending",
+                  paymentMethod: 'envelope.transaction.payment_method.Cash',
                   userId: processedIncomes.userId.value
                 })
               })

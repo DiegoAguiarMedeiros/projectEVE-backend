@@ -66,9 +66,9 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
               amount: debt!.amount.value,
               date: new Date(year, month, debt!.paymentDay.value),
               type: "Debit",
-              status: "Pending",
+              status: "transaction.status.pending",
               envelopeId: debt!.envelopeId.value,
-              paymentMethod: 'Ticket',
+              paymentMethod: 'envelope.transaction.payment_method.Ticket',
               userId: envelope.userId.value
             })
           })

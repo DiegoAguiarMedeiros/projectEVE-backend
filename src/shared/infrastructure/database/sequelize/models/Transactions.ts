@@ -36,7 +36,15 @@ Transactions.init({
         onUpdate: 'cascade'
     },
     payment_method: {
-        type: DataTypes.ENUM('CreditCard', 'DebitCard', 'Cash', 'BankTransfer', 'Pix', 'Ticket'),
+        type: DataTypes.ENUM(
+            'envelope.transaction.payment_method.CreditCard',
+            'envelope.transaction.payment_method.DebitCard',
+            'envelope.transaction.payment_method.Cash',
+            'envelope.transaction.payment_method.BankTransfer',
+            'envelope.transaction.payment_method.Pix',
+            'envelope.transaction.payment_method.Reallocation',
+            'envelope.transaction.payment_method.Ticket'
+        ),
         allowNull: false
     },
     amount: {
@@ -53,9 +61,19 @@ Transactions.init({
         defaultValue: 'Debit'
     },
     status: {
-        type: DataTypes.ENUM('Pending', 'Completed', 'Overdue', 'Cancelled'),
+        type: DataTypes.ENUM(
+            'transaction.status.pending',
+            'transaction.status.completed',
+            'transaction.status.overdue',
+            'transaction.status.cancelled'
+        ),
         allowNull: false,
-        defaultValue: 'Pending'
+        defaultValue: 'transaction.status.pending'
+    },
+    is_translatable: {
+        type: DataTypes.BOOLEAN,
+        allowNull: true,
+        defaultValue: false
     }
 }, {
     sequelize,

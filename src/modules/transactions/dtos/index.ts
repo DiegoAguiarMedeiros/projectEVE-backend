@@ -13,6 +13,7 @@ export interface TransactionsDTO {
   paymentMethod: PaymentMethod;
   type: TransactionsType;
   status: TransactionsStatus;
+  isTranslatable?: boolean;
 }
 
 

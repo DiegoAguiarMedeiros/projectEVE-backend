@@ -69,12 +69,13 @@ export class TransferEnvelopeBalanceUseCase {
             const debitResult = await this.createTransactionUseCase.execute({
                 userId: userId,
                 envelopeId: fromEnvelopeId,
-                description: `Enviado p/ ${toEnvelope.name.value}`,
+                description: `transfer.sent_to|${toEnvelope.name.value}`,
                 amount: amount,
                 date: transferDate,
                 type: "Debit",
-                status: "Completed",
-                paymentMethod: "BankTransfer"
+                status: "transaction.status.completed",
+                paymentMethod: "envelope.transaction.payment_method.Reallocation",
+                isTranslatable: true
             });
 
             if (debitResult.isLeft()) {
@@ -87,12 +88,13 @@ export class TransferEnvelopeBalanceUseCase {
             const creditResult = await this.createTransactionUseCase.execute({
                 userId: userId,
                 envelopeId: toEnvelopeId,
-                description: `Recebido de ${fromEnvelope.name.value}`,
+                description: `transfer.received_from|${fromEnvelope.name.value}`,
                 amount: amount,
                 date: transferDate,
                 type: "Credit",
-                status: "Completed",
-                paymentMethod: "BankTransfer"
+                status: "transaction.status.completed",
+                paymentMethod: "envelope.transaction.payment_method.Reallocation",
+                isTranslatable: true
             });
 
             if (creditResult.isLeft()) {

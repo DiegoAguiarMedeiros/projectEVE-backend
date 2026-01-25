@@ -30,6 +30,7 @@ export class TransactionsMap implements Mapper<Transactions> {
       type: transactions.type,
       status: transactions.status,
       paymentMethod: transactions.paymentMethod,
+      isTranslatable: transactions.isTranslatable,
     };
   }
 
@@ -57,6 +58,7 @@ export class TransactionsMap implements Mapper<Transactions> {
         type: raw.type,
         status: raw.status,
         paymentMethod: raw.payment_method,
+        isTranslatable: raw.is_translatable,
       }, new UniqueEntityID(raw.id));
 
     debtOrError.isFailure ? console.error(debtOrError.getErrorValue()) : '';
@@ -76,6 +78,7 @@ export class TransactionsMap implements Mapper<Transactions> {
       payment_method: transactions.paymentMethod,
       envelope_id: transactions.envelopeId.value,
       processed_incomes_id: transactions.processedIncomesId?.value,
+      is_translatable: transactions.isTranslatable,
     };
   }
 }

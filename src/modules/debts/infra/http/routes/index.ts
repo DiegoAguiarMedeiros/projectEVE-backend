@@ -61,7 +61,7 @@ debtsRouter.get('/',
  *                 type: string
  *                 description: Debt Status
  *                 enum:
- *                   - Pending
+ *                   - transaction.status.pending
  *                   - Paid
  *                   - Overdue
  *     responses:
@@ -147,7 +147,7 @@ debtsRouter.delete(
  *                 type: string
  *                 description: Debt Status
  *                 enum:
- *                   - Pending
+ *                   - transaction.status.pending
  *                   - Paid
  *                   - Overdue
  *     responses:

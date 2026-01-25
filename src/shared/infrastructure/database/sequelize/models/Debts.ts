@@ -47,9 +47,9 @@ Debts.init({
         onUpdate: 'cascade'
     },
     status: {
-        type: DataTypes.ENUM('Pending', 'paid'),
+        type: DataTypes.ENUM('transaction.status.pending', 'paid'),
         allowNull: false,
-        defaultValue: 'Pending'
+        defaultValue: 'transaction.status.pending'
     }
 }, {
     sequelize,

@@ -64,7 +64,7 @@ export class Repository implements Interface {
             await this.model.update(rawUser, {
                 where: { email: data.email.value }
             });
-            console.log(`[Repository] Update completed`);
+            console.log(`[Repository] Update transaction.status.completed`);
         } else {
             await this.model.create(rawUser);
         }
