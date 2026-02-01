@@ -15,11 +15,12 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
 (async () => {
   await models.sequelize.sync({ alter: true });
   const port = process.env.PORT || 3000;
+  const host = process.env.HOST || '192.168.15.6';
   const app = express();
 
   app.use(cors({
     origin: [
-      'http://192.168.15.5:3039',
+      process.env.FRONTEND_URL || 'http://192.168.15.6:3039',
       'http://localhost:3039',
       'http://127.0.0.1:3039',
       'http://localhost:3000',
@@ -44,7 +45,7 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
     },
     servers: [
       {
-        url: 'http://192.168.15.5:3000/api',
+        url: `http://${host}:${port}/api`,
         description: 'Development server',
       },
     ],
@@ -100,6 +101,6 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
 
 
   app.listen(Number(port), '0.0.0.0', () => {
-    console.info(`API rodando em http://192.168.15.5:${port}`);
+    console.info(`API rodando em http://${host}:${port}`);
   })
 })();
