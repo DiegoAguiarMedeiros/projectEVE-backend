@@ -18,6 +18,9 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
   const host = process.env.HOST || '192.168.15.6';
   const app = express();
 
+  console.info(`Iniciando API em http://${host}:${port}`);
+  console.info(`origin URLS ${process.env.FRONTEND_URL || 'https://projecteve-web.onrender.com'}`);
+
   app.use(cors({
     origin: [
       process.env.FRONTEND_URL ||
