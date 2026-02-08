@@ -57,14 +57,10 @@ export class Repository implements Interface {
         const rawUser = await Mapper.toPersistence(data);
         const exists = await this.exists(data.email);
 
-        console.log(`[Repository] Saving user ${data.email.value}. Exists? ${exists}`);
-        console.log(`[Repository] Payload: `, JSON.stringify(rawUser, null, 2));
-
         if (exists) {
             await this.model.update(rawUser, {
                 where: { email: data.email.value }
             });
-            console.log(`[Repository] Update transaction.status.completed`);
         } else {
             await this.model.create(rawUser);
         }

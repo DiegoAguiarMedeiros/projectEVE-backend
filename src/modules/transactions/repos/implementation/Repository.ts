@@ -320,6 +320,46 @@ export class Repository implements Interface {
 
 
 
+    async getUpcomingPendingTransaction(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Transactions[]> {
+
+        const limit = pageSize || undefined;
+        const offset = page ? (page) * (pageSize || 10) : 0;
+        const allowedColumns = ["description", "amount", "date", "payment_method", "type", "status", "created_at"];
+        const allowedOrders = ["asc", "desc"];
+
+        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "date";
+        const safeOrder = allowedOrders.includes(order || "") ? order : "asc";
+
+        const today = dayjs().startOf("day").toDate();
+        const in7Days = dayjs().add(15, "day").endOf("day").toDate();
+
+        const data = await this.model.findAll({
+            where: {
+                status: {
+                    [Op.in]: ["transaction.status.pending", "transaction.status.overdue"],
+                },
+                [Op.or]: [
+                    { date: { [Op.lte]: today } },
+                    { date: { [Op.between]: [today, in7Days] } },
+                ],
+            },
+            limit: limit,
+            offset: offset,
+            order: [[safeOrderBy, safeOrder]],
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    as: 'Envelope',
+                    where: {
+                        user_id: id,
+                    },
+                    required: true,
+                },
+            ],
+        });
+        return data.map((e: any) => Mapper.toDomain(e));
+    }
+
     async create(transaction: Transactions): Promise<void> {
 
         const rawData = await Mapper.toPersistence(transaction);

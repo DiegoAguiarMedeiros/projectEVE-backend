@@ -252,6 +252,55 @@ transactionsRouter.patch(
   (req, res) => transactionController.updateStatus.execute(req, res)
 );
 
+
+
+/**
+ * @swagger
+ * /transactions/upcoming-pending:
+ *   get:
+ *     summary: Get upcoming and pending transactions
+ *     tags: [Transactions]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: pageSize
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: orderBy
+ *         schema:
+ *           type: string
+ *           enum: [description, amount, date, payment_method, type, status, created_at]
+ *           default: date
+ *         description: Column name to order by
+ *       - in: query
+ *         name: order
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: asc
+ *         description: Sort direction (ascending or descending)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Paginated list of upcoming and pending transactions
+ *       401:
+ *         description: Unauthorized
+ */
+transactionsRouter.get(
+  '/upcoming-pending',
+  middleware.ensureAuthenticated(),
+  (req, res) => transactionController.getUpcomingPendingTransaction.execute(req, res)
+);
+
 /**
  * @swagger
  * /transactions/{id}:
@@ -287,6 +336,8 @@ transactionsRouter.get(
   middleware.ensureAuthenticated(),
   (req, res) => transactionController.get.execute(req, res)
 );
+
+
 
 
 

@@ -19,10 +19,8 @@ export class GetAllUseCase implements UseCase<{ id: string, year: number, month:
         const mappedData = await Promise.all(
             data.map(async (item: Envelopes) => {
                 const usedPercent = await this.envelopeRepo.getUsedByEnvelopeID(item.id.toString(), request.year, request.month);
-                console.log("usedPercent", usedPercent)
                 const PercentageOrError = Percentage.create({ percentage: usedPercent });
                 if (!PercentageOrError.isFailure) {
-                    console.log(item.name.value, PercentageOrError.getValue())
                     item.updateUsed(PercentageOrError.getValue())
                 }
                 return Mapper.toDTO(item);

@@ -20,10 +20,7 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
 
   app.use(cors({
     origin: [
-      process.env.FRONTEND_URL || 'http://192.168.15.6:3039',
-      'http://localhost:3039',
-      'http://127.0.0.1:3039',
-      'http://localhost:3000',
+      process.env.FRONTEND_URL ||
       'https://projecteve-web.onrender.com'
     ],
     credentials: true

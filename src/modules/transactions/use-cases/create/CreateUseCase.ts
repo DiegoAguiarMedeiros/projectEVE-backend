@@ -81,10 +81,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
         const envelopesAmount = await this.envelopeRepo.getAmount(request.envelopeId, request.date.getFullYear(), request.date.getMonth() + 1);
 
-        console.log(`[CreateUseCase] Processing ${request.type} transaction for envelope ${request.envelopeId}`);
-        console.log(`[CreateUseCase] Current envelope amount: ${envelopesAmount}`);
-        console.log(`[CreateUseCase] Transaction amount: ${request.amount}`);
-
         if (envelopesAmount === null) {
           // Envelope allocation doesn't exist yet, create it
           let initialAmount = 0;
@@ -93,7 +89,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
           } else {
             initialAmount = request.amount; // Positive for credit
           }
-          console.log(`[CreateUseCase] Creating new allocation with amount: ${initialAmount}`);
           await this.envelopeRepo.createAmount(request.envelopeId, initialAmount, request.date.getFullYear(), request.date.getMonth() + 1);
         } else {
           // Envelope allocation exists, update it
@@ -105,7 +100,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
           } else {
             newAmount = currentAmount + request.amount;
           }
-          console.log(`[CreateUseCase] Updating existing allocation to: ${newAmount}`);
           await this.envelopeRepo.addAmount(request.envelopeId, newAmount, request.date.getFullYear(), request.date.getMonth() + 1);
         }
       }

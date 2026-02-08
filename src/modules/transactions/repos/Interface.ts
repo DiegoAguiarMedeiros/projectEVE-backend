@@ -12,4 +12,5 @@ export interface Interface extends ICRUD<Transactions> {
     getIncomesByYear(year: number, userId: string): Promise<number[]>;
     getGoalsByYear(year: number, userId: string): Promise<number[]>;
     getExpensesByYear(year: number, userId: string): Promise<number[]>;
+    getUpcomingPendingTransaction(userId: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Transactions[]>;
 }

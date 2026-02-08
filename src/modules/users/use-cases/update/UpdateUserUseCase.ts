@@ -36,7 +36,7 @@ export class UpdateUserUseCase implements UseCase<UpdateUserDTO, Promise<Respons
 
             return right(Result.ok<void>()) as Response;
         } catch (err) {
-            console.log(err)
+            console.error(err)
             return left(new AppError.UnexpectedError(err)) as Response;
         }
     }

@@ -35,7 +35,6 @@ export class TransactionsMap implements Mapper<Transactions> {
   }
 
   public static toDomain(raw: any): Transactions {
-
     const ProcessedIncomesIdOrError = Id.create(new UniqueEntityID(raw.processed_incomes_id));
     ProcessedIncomesIdOrError.isFailure ? console.error(ProcessedIncomesIdOrError.getErrorValue()) : '';
 
