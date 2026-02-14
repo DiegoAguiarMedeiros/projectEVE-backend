@@ -61,9 +61,9 @@ debtsRouter.get('/',
  *                 type: string
  *                 description: Debt Status
  *                 enum:
- *                   - transaction.status.pending
- *                   - Paid
- *                   - Overdue
+ *                   - debt.status.pending
+ *                   - debt.status.paid
+ *                   - debt.status.overdue
  *     responses:
  *       200:
  *         description: Debt created successfully
@@ -147,9 +147,9 @@ debtsRouter.delete(
  *                 type: string
  *                 description: Debt Status
  *                 enum:
- *                   - transaction.status.pending
- *                   - Paid
- *                   - Overdue
+ *                   - debt.status.pending
+ *                   - debt.status.paid
+ *                   - debt.status.overdue
  *     responses:
  *       200:
  *         description: Debt updated successfully
