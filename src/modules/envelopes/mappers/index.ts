@@ -14,7 +14,15 @@ import { MONTHS } from "../../../shared/constants/months";
 export class EnvelopesMap implements Mapper<Envelopes> {
 
   public static toAnalyticsCurrentEnvelopesDTO(raw: any): AnalyticsCurrentEnvelopesDTO {
-    const result = raw.reduce(
+    const filtered = raw.filter(
+      (item: { 'envelope_amount': any; 'total_amount': any }) => {
+        const sub = parseFloat(item['envelope_amount'] ?? '0');
+        const val = parseFloat(item['total_amount'] ?? '0');
+        return sub > 0 || val > 0;
+      }
+    );
+
+    const result = filtered.reduce(
       (
         acc: { labels: string[]; colors: string[]; subValues: number[]; values: number[]; },
         item: { name: any; color: any; 'envelope_amount': any; 'total_amount': any }
