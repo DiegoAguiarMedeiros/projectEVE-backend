@@ -6,22 +6,25 @@ import { left, right, Result } from "../../../../shared/core/Result";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { Description } from "../../../../shared/domain/Description";
 import { PaymentDay } from "../../../../shared/domain/PaymentDay";
-import { DebtMap } from "../../mappers";
+
 import { UpdateErrors } from "./UpdateErrors";
 import { UpdateResponse } from "./UpdateResponse";
 import { DebtsStatus } from "../../domain";
+import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: IDebtRepo;
+    private domainEvents: any;
 
-    constructor(repo: IDebtRepo) {
+    constructor(repo: IDebtRepo, domainEvents: DomainEvents) {
         this.repo = repo;
+        this.domainEvents = domainEvents;
     }
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
 
-            const debt = DebtMap.toDomain(await this.repo.getById(data.request.id.toString(), data.request.userId.toString()));
+            const debt = await this.repo.getById(data.request.id.toString(), data.request.userId.toString());
             if (!debt) {
                 return left(
                     new UpdateErrors.NotFound(data.request.id.toString())
@@ -69,8 +72,13 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             if (data.fieldUpdate.paymentDay) debt.updatepaymentDay(paymentDay)
             if (data.fieldUpdate.status) debt.updateStatus(status)
 
+            debt.markUpdated();
+
             const updateDebt = await this.repo.update(data.request.id.toString(), debt);
-            if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
+            if (updateDebt) {
+                this.domainEvents.dispatchEventsForAggregate(debt.id);
+                return right(Result.ok<void>()) as UpdateResponse;
+            }
 
             return left(
                 new UpdateErrors.UpdateError(debt.id.toString())

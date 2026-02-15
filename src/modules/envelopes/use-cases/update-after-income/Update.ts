@@ -42,21 +42,19 @@ export class Update implements UseCase<UpdateDTO, Promise<Response>> {
       const totalDebt = await this.debtRepo.getTotal(envelope.id.toString());
       const totalIncome = await this.incomeRepo.getTotal(userId);
 
-      if (totalDebt > 0) {
+      const debtPercentagem = totalDebt > 0 && totalIncome > 0
+        ? Math.ceil((totalDebt / totalIncome) * 100)
+        : 0;
 
-        const debtPercentagem = Math.ceil((totalDebt / totalIncome) * 100);
+      const percentageOrError = Percentage.create({ percentage: debtPercentagem });
 
-        const percentageOrError = Percentage.create({ percentage: debtPercentagem });
+      if (percentageOrError.isSuccess) {
+        envelope.updatePercentage(percentageOrError.getValue())
 
-        if (percentageOrError.isSuccess) {
-
-
-          envelope.updatePercentage(percentageOrError.getValue())
-
-          const update = await this.envelopeRepo.update(envelope.id.toString(), envelope);
-          if (update) return right(Result.ok<void>())
-        }
+        const update = await this.envelopeRepo.update(envelope.id.toString(), envelope);
+        if (update) return right(Result.ok<void>())
       }
+
       return right(Result.ok<void>());
 
     } catch (err) {

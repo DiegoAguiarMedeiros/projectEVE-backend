@@ -9,6 +9,8 @@ import { PaymentDay } from "../../../shared/domain/PaymentDay";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { DebtsStatus } from "./DebtsStatus";
 import { DebtCreated } from "./events/debtCreated";
+import { DebtUpdated } from "./events/debtUpdated";
+import { DebtDeleted } from "./events/debtDeleted";
 
 interface DebtProps {
   description: Description;
@@ -61,6 +63,12 @@ export class Debt extends AggregateRoot<DebtProps> {
   }
   public updateStatus(status: DebtsStatus): void {
     this.props.status = status;
+  }
+  public markUpdated(): void {
+    this.addDomainEvent(new DebtUpdated(this));
+  }
+  public delete(): void {
+    this.addDomainEvent(new DebtDeleted(this));
   }
 
   private constructor(props: DebtProps, id?: UniqueEntityID) {
