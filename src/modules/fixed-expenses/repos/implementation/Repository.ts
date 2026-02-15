@@ -66,16 +66,11 @@ export class Repository implements Interface {
     const envelopeIds = envelopes.map((env: any) => env.id);
     const data = await this.model.findOne({
       where: {
+        id,
         envelope_id: {
           [Op.in]: envelopeIds,
         },
       },
-      include: [
-        {
-          model: this.models.Envelope,
-          as: 'Envelope',
-        },
-      ],
     });
     return Mapper.toDomain(data) ?? null;
   }
