@@ -21,6 +21,8 @@ export interface TransactionsProps {
   paymentMethod: PaymentMethod;
   status: TransactionsStatus;
   envelopeId: Id;
+  creditCardId?: Id;
+  creditCardName?: string;
   processedIncomesId?: Id;
   isTranslatable?: boolean;
 }
@@ -30,6 +32,15 @@ export class Transactions extends AggregateRoot<TransactionsProps> {
 
   get envelopeId(): Id {
     return this.props.envelopeId || '';
+  }
+  get creditCardId(): Id | undefined {
+    return this.props.creditCardId;
+  }
+  get creditCardName(): string | undefined {
+    return this.props.creditCardName;
+  }
+  public updateCreditCardId(creditCardId: Id | undefined): void {
+    this.props.creditCardId = creditCardId;
   }
   get processedIncomesId(): Id | undefined {
     return this.props.processedIncomesId;

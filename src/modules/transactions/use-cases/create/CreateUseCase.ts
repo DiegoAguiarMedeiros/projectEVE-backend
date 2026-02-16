@@ -26,6 +26,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
     const ProcessedIncomesIdOrError = Id.create(new UniqueEntityID(request.processedIncomesId ? request.processedIncomesId : undefined));
     const EnvelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId));
+    const CreditCardIdOrError = request.creditCardId ? Id.create(new UniqueEntityID(request.creditCardId)) : null;
     const DescriptionOrError = Description.create({ description: request.description });
     const AmountOrError = Balance.create({ balance: request.amount });
 
@@ -48,8 +49,11 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
     try {
 
+      const creditCardId = CreditCardIdOrError ? CreditCardIdOrError.getValue() : undefined;
+
       const transactionOrError: Result<Transactions> = Transactions.create({
         processedIncomesId: request.processedIncomesId ? processedIncomesId : undefined,
+        creditCardId: request.creditCardId ? creditCardId : undefined,
         envelopeId,
         description,
         amount,

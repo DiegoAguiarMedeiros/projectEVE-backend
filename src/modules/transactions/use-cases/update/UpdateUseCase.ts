@@ -58,6 +58,12 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             if (data.fieldUpdate.amount) transaction.updateAmount(amount)
             if (data.fieldUpdate.date) transaction.updateDate(date)
             if (data.fieldUpdate.status) transaction.updateStatus(status)
+            if (data.fieldUpdate.creditCardId !== undefined) {
+                const creditCardId = data.fieldUpdate.creditCardId
+                    ? Id.create(new UniqueEntityID(data.fieldUpdate.creditCardId)).getValue()
+                    : undefined;
+                transaction.updateCreditCardId(creditCardId);
+            }
 
             transaction.update(transaction, oldAmount, transaction.amount, new UniqueEntityID(data.request.userId))
 

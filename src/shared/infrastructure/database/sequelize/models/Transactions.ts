@@ -6,6 +6,7 @@ import CreditCards from './CreditCards';
 class Transactions extends Model {
     static associate(models: any) {
         this.belongsTo(models.Envelopes, { foreignKey: 'envelope_id', as: 'Envelope' });
+        this.belongsTo(models.CreditCards, { foreignKey: 'credit_card_id', as: 'CreditCard' });
     }
 }
 
