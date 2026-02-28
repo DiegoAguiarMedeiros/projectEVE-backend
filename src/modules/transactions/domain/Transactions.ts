@@ -24,6 +24,7 @@ export interface TransactionsProps {
   creditCardId?: Id;
   creditCardName?: string;
   processedIncomesId?: Id;
+  debtId?: Id;
   isTranslatable?: boolean;
 }
 
@@ -44,6 +45,9 @@ export class Transactions extends AggregateRoot<TransactionsProps> {
   }
   get processedIncomesId(): Id | undefined {
     return this.props.processedIncomesId;
+  }
+  get debtId(): Id | undefined {
+    return this.props.debtId;
   }
   get description(): Description {
     return this.props.description;

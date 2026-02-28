@@ -21,7 +21,8 @@ export class CreateController extends BaseController {
     const dto: CreateDTO = {
       name: TextUtils.sanitize(req.body.name),
       email: TextUtils.sanitize(req.body.email),
-      password: req.body.password
+      password: req.body.password,
+      locale: req.body.locale,
     }
 
     try {
@@ -32,9 +33,9 @@ export class CreateController extends BaseController {
 
         switch (error.constructor) {
           case CreateErrors.NameTakenError:
-            return this.conflict(res, error.getErrorValue())
+            return this.conflict(res, error.getErrorValue().message)
           case CreateErrors.EmailAlreadyExistsError:
-            return this.conflict(res, error.getErrorValue())
+            return this.conflict(res, error.getErrorValue().message)
           default:
             return this.fail(res, error.getErrorValue());
         }

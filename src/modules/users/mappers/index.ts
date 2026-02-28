@@ -44,6 +44,10 @@ export class UserMap implements Mapper<User> {
         isRegistrationComplete: raw.is_registration_complete,
         password: PasswordOrError.getValue(),
         email: EmailOrError.getValue(),
+        emailVerificationToken: raw.email_verification_token ?? undefined,
+        emailVerificationTokenExpiresAt: raw.email_verification_token_expires_at
+          ? new Date(raw.email_verification_token_expires_at)
+          : undefined,
       }, new UniqueEntityID(raw.id));
 
     userOrError.isFailure ? console.error(userOrError.getErrorValue()) : '';
@@ -70,6 +74,8 @@ export class UserMap implements Mapper<User> {
       is_admin_user: user.isAdminUser,
       is_deleted: user.isDeleted,
       is_registration_complete: user.isRegistrationComplete,
+      email_verification_token: user.emailVerificationToken ?? null,
+      email_verification_token_expires_at: user.emailVerificationTokenExpiresAt ?? null,
     };
   }
 }

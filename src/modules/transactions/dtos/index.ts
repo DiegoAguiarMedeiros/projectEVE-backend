@@ -9,6 +9,7 @@ export interface TransactionsDTO {
   creditCardId?: string;
   creditCardName?: string;
   processedIncomesId?: string;
+  debtId?: string;
   description: string;
   amount: number;
   date: Date;

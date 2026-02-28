@@ -27,6 +27,7 @@ export class TransactionsMap implements Mapper<Transactions> {
       creditCardId: transactions.creditCardId?.value,
       creditCardName: transactions.creditCardName,
       processedIncomesId: transactions.processedIncomesId?.value,
+      debtId: transactions.debtId?.value,
       amount: transactions.amount.value,
       date: transactions.date,
       type: transactions.type,
@@ -44,6 +45,7 @@ export class TransactionsMap implements Mapper<Transactions> {
     EnvelopeIdOrError.isFailure ? console.error(EnvelopeIdOrError.getErrorValue()) : '';
 
     const CreditCardIdOrError = raw.credit_card_id ? Id.create(new UniqueEntityID(raw.credit_card_id)) : null;
+    const DebtIdOrError = raw.debt_id ? Id.create(new UniqueEntityID(raw.debt_id)) : null;
 
     const DescriptionOrError = Description.create({ description: raw.description });
     DescriptionOrError.isFailure ? console.error(DescriptionOrError.getErrorValue()) : '';
@@ -56,6 +58,7 @@ export class TransactionsMap implements Mapper<Transactions> {
         processedIncomesId: raw.processed_incomes_id ? ProcessedIncomesIdOrError.getValue() : undefined,
         creditCardId: CreditCardIdOrError ? CreditCardIdOrError.getValue() : undefined,
         creditCardName: raw.credit_card_name ?? undefined,
+        debtId: DebtIdOrError ? DebtIdOrError.getValue() : undefined,
         envelopeId: EnvelopeIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
@@ -83,7 +86,8 @@ export class TransactionsMap implements Mapper<Transactions> {
       payment_method: transactions.paymentMethod,
       envelope_id: transactions.envelopeId.value,
       credit_card_id: transactions.creditCardId?.value ?? null,
-      processed_incomes_id: transactions.processedIncomesId?.value,
+      processed_incomes_id: transactions.processedIncomesId?.value ?? null,
+      debt_id: transactions.debtId?.value ?? null,
       is_translatable: transactions.isTranslatable,
     };
   }

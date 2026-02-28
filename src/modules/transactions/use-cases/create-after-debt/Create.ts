@@ -1,14 +1,13 @@
 
 import { UseCase } from "../../../../shared/core/UseCase";
-import { Repository as IRepo } from "../../repos/implementation/Repository";
 import { CreateDTO } from "./CreateDTO";
 import { Either, Result, left, right } from "../../../../shared/core/Result";
 import { AppError } from "../../../../shared/core/AppError";
 import { CreateErrors } from "./CreateErrors";
-import { Debt } from "../../../debts/domain/Debt";
 import { CreateUseCase } from "../create/CreateUseCase";
 import { Interface as IDebtRepo } from "../../../debts/repos/Interface";
 import { Interface as IenvelopeRepo } from "../../../envelopes/repos/Interface";
+import { DeleteAll } from "../delete-all-by-debt-id/DeleteAll";
 import pLimit from 'p-limit';
 
 
@@ -21,12 +20,20 @@ type Response = Either<
 
 export class Create implements UseCase<CreateDTO, Promise<Response>> {
   private debtRepo: IDebtRepo;
-  private createTransactionUseCase: CreateUseCase
+  private createTransactionUseCase: CreateUseCase;
   private envelopeRepo: IenvelopeRepo;
-  constructor(debtRepo: IDebtRepo, createTransactionUseCase: CreateUseCase, envelopeRepo: IenvelopeRepo) {
+  private deleteAllByDebtId: DeleteAll;
+
+  constructor(
+    debtRepo: IDebtRepo,
+    createTransactionUseCase: CreateUseCase,
+    envelopeRepo: IenvelopeRepo,
+    deleteAllByDebtId: DeleteAll
+  ) {
     this.debtRepo = debtRepo;
     this.createTransactionUseCase = createTransactionUseCase;
     this.envelopeRepo = envelopeRepo;
+    this.deleteAllByDebtId = deleteAllByDebtId;
   }
 
   public async execute(request: CreateDTO): Promise<Response> {
@@ -47,6 +54,8 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
         console.error("envelope not found for ID:", debt.envelopeId.value);
         return left(new CreateErrors.EnvelopeNotFound(debt.envelopeId.value));
       }
+
+      await this.deleteAllByDebtId.execute({ debtId, userId: envelope.userId.value });
 
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
@@ -69,16 +78,14 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
               status: "transaction.status.pending",
               envelopeId: debt!.envelopeId.value,
               paymentMethod: 'envelope.transaction.payment_method.Ticket',
-              userId: envelope.userId.value
+              userId: envelope.userId.value,
+              debtId,
             })
           })
         );
-
-
       }
 
       await Promise.allSettled(promises);
-
 
       return right(Result.ok<void>());
 

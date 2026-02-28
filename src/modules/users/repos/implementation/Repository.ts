@@ -3,6 +3,7 @@ import { UserMap as Mapper } from "../../mappers";
 import { Email } from "../../domain/Email";
 import { User } from "../../domain/User";
 import { Interface } from "../Interface";
+import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 export class Repository implements Interface {
     private models: any;
@@ -42,12 +43,21 @@ export class Repository implements Interface {
         return Mapper.toDomain(data);
     }
 
+    async getUserByVerificationToken(token: string): Promise<User | null> {
+        const rawData = await this.model.findOne({
+            where: { email_verification_token: token }
+        });
+        if (!rawData) return null;
+        return Mapper.toDomain(rawData);
+    }
+
     async create(data: User): Promise<void> {
         const exists = await this.exists(data.email);
 
         if (!exists) {
             const rawUser = await Mapper.toPersistence(data);
             await this.model.create(rawUser);
+            DomainEvents.dispatchEventsForAggregate(data.id);
         }
 
         return;

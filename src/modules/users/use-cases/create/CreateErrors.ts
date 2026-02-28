@@ -6,9 +6,9 @@ import { UseCaseError } from "../../../../shared/core/UseCaseError"
 export namespace CreateErrors {
 
   export class EmailAlreadyExistsError extends Result<UseCaseError> {
-    constructor(email: string) {
+    constructor(_email: string) {
       super(false, {
-        message: `The email ${email} associated for this account already exists`
+        message: 'auth.errors.email_already_exists'
       } as UseCaseError)
     }
   }

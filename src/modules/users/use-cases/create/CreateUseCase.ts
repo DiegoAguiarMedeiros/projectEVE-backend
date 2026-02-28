@@ -1,4 +1,5 @@
 
+import { randomBytes } from "crypto";
 import { Name } from "../../../../shared/domain/Name";
 import { Interface as IUserRepo } from "../../repos/Interface";
 import { AppError } from "../../../../shared/core/AppError";
@@ -47,8 +48,14 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         ) as CreateResponse;
       }
 
+      const emailVerificationToken = randomBytes(32).toString('hex');
+      const emailVerificationTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
       const userOrError: Result<User> = User.create({
-        email, password, name
+        email, password, name,
+        emailVerificationToken,
+        emailVerificationTokenExpiresAt,
+        locale: request.locale,
       });
 
       if (userOrError.isFailure) {

@@ -50,6 +50,16 @@ Users.init({
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false
+    },
+    email_verification_token: {
+        type: DataTypes.STRING(128),
+        allowNull: true,
+        defaultValue: null
+    },
+    email_verification_token_expires_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null
     }
 }, {
     sequelize,

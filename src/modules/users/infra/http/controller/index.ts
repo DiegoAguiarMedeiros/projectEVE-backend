@@ -5,6 +5,7 @@ import { logoutController } from "../../../use-cases/logout";
 import { completeRegistrationController } from "../../../use-cases/complete-registration";
 import { updateUserController } from "../../../use-cases/update";
 import { changePasswordController } from "../../../use-cases/change-password";
+import { verifyEmailController } from "../../../use-cases/verify-email";
 
 const userController = {
     create: createController,
@@ -13,7 +14,8 @@ const userController = {
     logout: logoutController,
     completeRegistration: completeRegistrationController,
     update: updateUserController,
-    changePassword: changePasswordController
+    changePassword: changePasswordController,
+    verifyEmail: verifyEmailController,
 }
 
 export default userController;

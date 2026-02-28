@@ -150,6 +150,16 @@ export class Repository implements Interface {
         return data.map((e: any) => Mapper.toDomain(e));
     }
 
+    async getAllByDebtId(debtId: string): Promise<Transactions[]> {
+        const data = await this.model.findAll({
+            where: {
+                debt_id: debtId,
+            }
+        });
+
+        return data.map((e: any) => Mapper.toDomain(e));
+    }
+
 
     async getById(id: string, userId: string): Promise<Transactions | null> {
         const data = await this.model.findOne({

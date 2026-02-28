@@ -22,12 +22,16 @@ export interface UserIdDTO extends Omit<
 > { }
 export interface LoginDTO extends Omit<
   UserDTO, 'id' | 'name' | 'isEmailVerified' | 'isAdminUser' | 'accessToken' | 'refreshToken' | 'lastLogin'
-> { }
+> {
+  locale?: string;
+}
 export interface LoginResponseDTO extends Omit<
   UserDTO, 'id' | 'name' | 'email' | 'password' | 'isEmailVerified' | 'isAdminUser' | 'lastLogin'
 > { }
 
-export interface CreateDTO extends Omit<UserDTO, 'id'> { }
+export interface CreateDTO extends Omit<UserDTO, 'id'> {
+  locale?: string;
+}
 
 export interface DeleteDTO extends UserIdDTO { }
 

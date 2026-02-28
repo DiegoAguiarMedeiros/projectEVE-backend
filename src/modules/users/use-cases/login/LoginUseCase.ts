@@ -1,5 +1,4 @@
-
-
+import { randomBytes } from "crypto";
 
 import { UseCase } from "../../../../shared/core/UseCase";
 import { IAuthService } from "../../../../shared/infrastructure/services/authService";
@@ -13,6 +12,7 @@ import { Email } from "../../domain/Email";
 import { JWTToken, RefreshToken } from "../../domain/JWT";
 import { Password } from "../../domain/Password";
 import { User } from "../../domain/User";
+import { emailService } from "../../../../shared/infrastructure/services/EmailService";
 
 
 export class LoginUserUseCase implements UseCase<LoginDTO, Promise<LoginResponse>> {
@@ -48,13 +48,28 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<LoginResponse
         if (!userFound) {
           return left(new LoginUseCaseErrors.EmailDoesntExistError())
         }
+
         const passwordValid = await user.password.comparePassword(password.value);
 
         if (!passwordValid) {
           return left(new LoginUseCaseErrors.EmailDoesntExistError())
         }
 
+        if (!user.isEmailVerified) {
+          const newToken = randomBytes(32).toString('hex');
+          const newExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+          user.setEmailVerificationToken(newToken, newExpiresAt);
+          await this.repository.save(user);
 
+          await emailService.sendVerificationEmail(
+            user.email.value,
+            user.name.value,
+            newToken,
+            request.locale
+          );
+
+          return left(new LoginUseCaseErrors.EmailNotVerifiedError());
+        }
 
         const accessToken: JWTToken = this.authService.signJWT({
           name: user.name.value,
@@ -69,7 +84,6 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<LoginResponse
 
         user.setAccessToken(accessToken, refreshToken);
 
-        
         await this.authService.saveAuthenticatedUser(user);
 
         return right(Result.ok<LoginResponseDTO>({

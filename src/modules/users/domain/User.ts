@@ -19,6 +19,9 @@ interface UserProps {
   isDeleted?: boolean;
   lastLogin?: Date;
   isRegistrationComplete?: boolean;
+  emailVerificationToken?: string;
+  emailVerificationTokenExpiresAt?: Date;
+  locale?: string;
 }
 
 export class User extends AggregateRoot<UserProps> {
@@ -53,6 +56,29 @@ export class User extends AggregateRoot<UserProps> {
 
   get isRegistrationComplete(): boolean {
     return this.props.isRegistrationComplete ?? false;
+  }
+
+  get emailVerificationToken(): string | undefined {
+    return this.props.emailVerificationToken;
+  }
+
+  get emailVerificationTokenExpiresAt(): Date | undefined {
+    return this.props.emailVerificationTokenExpiresAt;
+  }
+
+  get locale(): string | undefined {
+    return this.props.locale;
+  }
+
+  public setEmailVerificationToken(token: string, expiresAt: Date): void {
+    this.props.emailVerificationToken = token;
+    this.props.emailVerificationTokenExpiresAt = expiresAt;
+  }
+
+  public verifyEmail(): void {
+    this.props.isEmailVerified = true;
+    this.props.emailVerificationToken = undefined;
+    this.props.emailVerificationTokenExpiresAt = undefined;
   }
 
   public completeRegistration(): void {

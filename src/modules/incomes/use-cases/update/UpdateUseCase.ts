@@ -9,6 +9,7 @@ import { UpdateErrors } from "./UpdateErrors";
 import { UpdateResponse } from "./UpdateResponse";
 import { PaymentDay } from "../../../../shared/domain/PaymentDay";
 import { UpdateDTO } from "../../dtos";
+import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: IIncomesRepo;
@@ -49,8 +50,13 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             if (data.fieldUpdate.amount) income.updateAmount(amount)
             if (data.fieldUpdate.paymentDay) income.updatepaymentDay(paymentDay)
 
+            income.markUpdated();
+
             const updateIncome = await this.repo.update(data.request.id.toString(), income);
-            if (updateIncome) return right(Result.ok<void>()) as UpdateResponse;
+            if (updateIncome) {
+                DomainEvents.dispatchEventsForAggregate(income.id);
+                return right(Result.ok<void>()) as UpdateResponse;
+            }
 
             return left(
                 new UpdateErrors.UpdateError(data.request.id.toString())

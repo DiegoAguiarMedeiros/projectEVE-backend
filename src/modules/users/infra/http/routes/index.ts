@@ -95,6 +95,10 @@ authRouter.post('/logout',
   (req, res) => userController.logout.execute(req, res)
 )
 
+authRouter.get('/verify-email',
+  (req, res) => userController.verifyEmail.execute(req, res)
+)
+
 usersRouter.post('/complete-registration',
   middleware.ensureAuthenticated(),
   (req, res) => userController.completeRegistration.execute(req, res)

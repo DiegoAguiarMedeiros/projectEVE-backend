@@ -16,7 +16,10 @@ export class LoginController extends BaseController {
   }
 
   async executeImpl(req: DecodedExpressRequest, res: express.Response): Promise<any> {
-    const dto: LoginDTO = req.body as LoginDTO;
+    const dto: LoginDTO = {
+      ...(req.body as LoginDTO),
+      locale: req.body.locale,
+    };
 
     try {
       const result = await this.useCase.execute(dto);
@@ -25,6 +28,8 @@ export class LoginController extends BaseController {
         switch (error.constructor) {
           case LoginUseCaseErrors.EmailDoesntExistError:
             return this.notFound(res, error.getErrorValue().message)
+          case LoginUseCaseErrors.EmailNotVerifiedError:
+            return this.unauthorized(res, error.getErrorValue().message)
           default:
             return this.fail(res,
               error.getErrorValue() === undefined ?

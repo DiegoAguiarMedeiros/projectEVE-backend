@@ -22,6 +22,10 @@ Transactions.init({
         defaultValue: DataTypes.UUIDV4,
         allowNull: true,
     },
+    debt_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+    },
     description: {
         type: DataTypes.STRING(255),
         allowNull: false
