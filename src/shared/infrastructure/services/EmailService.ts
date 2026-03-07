@@ -1,4 +1,4 @@
-import nodemailer, { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
 
 type SupportedLocale = 'pt-BR' | 'es' | 'en';
 
@@ -111,18 +111,10 @@ function buildHtml(verificationUrl: string, tpl: EmailTemplate, lang: string): s
 }
 
 class EmailService {
-  private transporter: Transporter;
+  private resend: Resend;
 
   constructor() {
-    this.transporter = nodemailer.createTransport({
-      host: process.env.PROJECT_EVE_SMTP_HOST,
-      port: Number(process.env.PROJECT_EVE_SMTP_PORT ?? 587),
-      secure: process.env.PROJECT_EVE_SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.PROJECT_EVE_SMTP_USER,
-        pass: process.env.PROJECT_EVE_SMTP_PASS,
-      },
-    });
+    this.resend = new Resend(process.env.PROJECT_EVE_RESEND_API_KEY);
   }
 
   async sendVerificationEmail(
@@ -133,23 +125,28 @@ class EmailService {
   ): Promise<void> {
     const frontendUrl = process.env.PROJECT_EVE_FRONTEND_URL ?? 'https://projecteve-web.onrender.com';
     const verificationUrl = `${frontendUrl}/verificar-email?token=${token}`;
-    const from = process.env.PROJECT_EVE_SMTP_FROM ?? 'no-reply@projecteve.app';
+    const from = process.env.PROJECT_EVE_RESEND_FROM ?? 'ProjectEVE <no-reply@projecteve.app>';
 
     const resolvedLocale = resolveLocale(locale);
     const tpl = templates[resolvedLocale](name);
 
     console.log(`[EmailService]: Sending verification email to ${to} (locale: ${resolvedLocale})`);
     console.log(`[EmailService]: Verification URL: ${verificationUrl}`);
-    console.log(`[EmailService]: SMTP config - host: ${process.env.PROJECT_EVE_SMTP_HOST}, port: ${process.env.PROJECT_EVE_SMTP_PORT}, user: ${process.env.PROJECT_EVE_SMTP_USER}, secure: ${process.env.PROJECT_EVE_SMTP_SECURE}`);
 
     try {
-      const info = await this.transporter.sendMail({
-        from: `"ProjectEVE" <${from}>`,
+      const { data, error } = await this.resend.emails.send({
+        from,
         to,
         subject: tpl.subject,
         html: buildHtml(verificationUrl, tpl, resolvedLocale),
       });
-      console.log(`[EmailService]: Email sent successfully - messageId: ${info.messageId}`);
+
+      if (error) {
+        console.error(`[EmailService]: Failed to send email to ${to}:`, error);
+        throw new Error(error.message);
+      }
+
+      console.log(`[EmailService]: Email sent successfully - id: ${data?.id}`);
     } catch (err) {
       console.error(`[EmailService]: Failed to send email to ${to}:`, err);
       throw err;
