@@ -131,7 +131,7 @@ class EmailService {
     token: string,
     locale?: string
   ): Promise<void> {
-    const frontendUrl = process.env.PROJECT_EVE_FRONTEND_URL ?? 'http://localhost:3039';
+    const frontendUrl = process.env.PROJECT_EVE_FRONTEND_URL ?? 'https://projecteve-web.onrender.com';
     const verificationUrl = `${frontendUrl}/verificar-email?token=${token}`;
     const from = process.env.PROJECT_EVE_SMTP_FROM ?? 'no-reply@projecteve.app';
 
@@ -140,13 +140,20 @@ class EmailService {
 
     console.log(`[EmailService]: Sending verification email to ${to} (locale: ${resolvedLocale})`);
     console.log(`[EmailService]: Verification URL: ${verificationUrl}`);
+    console.log(`[EmailService]: SMTP config - host: ${process.env.PROJECT_EVE_SMTP_HOST}, port: ${process.env.PROJECT_EVE_SMTP_PORT}, user: ${process.env.PROJECT_EVE_SMTP_USER}, secure: ${process.env.PROJECT_EVE_SMTP_SECURE}`);
 
-    await this.transporter.sendMail({
-      from: `"ProjectEVE" <${from}>`,
-      to,
-      subject: tpl.subject,
-      html: buildHtml(verificationUrl, tpl, resolvedLocale),
-    });
+    try {
+      const info = await this.transporter.sendMail({
+        from: `"ProjectEVE" <${from}>`,
+        to,
+        subject: tpl.subject,
+        html: buildHtml(verificationUrl, tpl, resolvedLocale),
+      });
+      console.log(`[EmailService]: Email sent successfully - messageId: ${info.messageId}`);
+    } catch (err) {
+      console.error(`[EmailService]: Failed to send email to ${to}:`, err);
+      throw err;
+    }
   }
 }
 
