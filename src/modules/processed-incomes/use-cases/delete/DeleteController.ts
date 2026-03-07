@@ -17,7 +17,7 @@ export class DeleteController extends BaseController {
   async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
     const { id } = req.decoded;
     const dto: DeleteDTO = {
-      id: req.params.id,
+      id: req.params.id as string,
       userId: id,
     };
 

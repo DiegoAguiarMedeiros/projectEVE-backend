@@ -13,7 +13,7 @@ export class DeleteAllByEnvelopeController extends BaseController {
 
     async executeImpl(req: DecodedExpressRequest, res: Response): Promise<void | any> {
         const { id: userId } = req.decoded;
-        const { id: envelopeId, year, month } = req.params;
+        const { id: envelopeId, year, month } = req.params as Record<string, string>;
 
         try {
             const result = await this.useCase.execute({
