@@ -4,6 +4,7 @@ import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/mo
 import { TextUtils } from "../../../../shared/utils/TextUtils";
 import { CreateDTO } from "../../dtos";
 import { CreateUseCase } from "./CreateUseCase";
+import { CreateErrors } from "./CreateErrors";
 
 export class CreateController extends BaseController {
 
@@ -29,6 +30,8 @@ export class CreateController extends BaseController {
         const error = result.value;
 
         switch (error.constructor) {
+          case CreateErrors.ExceedsEnvelopeBudget:
+            return this.conflict(res, error.getErrorValue().message);
           default:
             return this.fail(res, error.getErrorValue().message);
         }

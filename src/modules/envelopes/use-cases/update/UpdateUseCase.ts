@@ -40,7 +40,18 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const percentage: Percentage = percentageOrError.getValue();
 
             envelope.updateColor(color);
-            if (envelope.name.value !== 'debts') envelope.updatePercentage(percentage);
+            if (envelope.name.value !== 'debts') {
+                const currentTotal = await this.repo.getTotalPercentage(
+                    data.request.userId.toString(),
+                    data.request.id.toString()
+                );
+                if (currentTotal + percentage.value > 100) {
+                    return left(
+                        new UpdateErrors.ExceedsTotalPercentageError(currentTotal + percentage.value)
+                    ) as UpdateResponse;
+                }
+                envelope.updatePercentage(percentage);
+            }
 
             const update = await this.repo.update(data.request.id.toString(), envelope);
             if (update) return right(Result.ok<void>()) as UpdateResponse;

@@ -7,19 +7,15 @@ import { AppError } from "../../../../shared/core/AppError";
 import { UpdateStatusErrors } from "./UpdateStatusErrors";
 import { UpdateStatusResponse } from "./UpdateStatusResponse";
 import { UpdateStatusDTO } from "../../dtos";
-import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
-import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 
 
 export class UpdateStatusUseCase implements UseCase<UpdateStatusDTO, Promise<UpdateStatusResponse>> {
     private repo: ITransactionsRepo;
     private envelopeRepo: IEnvelopeRepo;
-    private domainEvents: any;
 
-    constructor(repo: ITransactionsRepo, envelopeRepo: IEnvelopeRepo, domainEvents: DomainEvents) {
+    constructor(repo: ITransactionsRepo, envelopeRepo: IEnvelopeRepo) {
         this.repo = repo;
         this.envelopeRepo = envelopeRepo;
-        this.domainEvents = domainEvents;
     }
 
     async execute(data: UpdateStatusDTO): Promise<Promise<UpdateStatusResponse>> {
@@ -33,15 +29,30 @@ export class UpdateStatusUseCase implements UseCase<UpdateStatusDTO, Promise<Upd
                 ) as UpdateStatusResponse;
             }
 
-            const status: TransactionsStatus = data.fieldUpdate.status ? data.fieldUpdate.status : transaction.status;
+            const oldStatus: TransactionsStatus = transaction.status;
+            const newStatus: TransactionsStatus = data.fieldUpdate.status ? data.fieldUpdate.status : transaction.status;
 
-            if (data.fieldUpdate.status) transaction.updateStatus(status)
+            await this.repo.updateStatus(transaction.id.toString(), newStatus);
 
-            transaction.update(transaction, transaction.amount, transaction.amount, new UniqueEntityID(data.request.userId))
+            if (oldStatus !== newStatus && transaction.amount.value > 0) {
+                const year = transaction.date.getFullYear();
+                const month = transaction.date.getMonth() + 1;
+                const currentBalance = await this.envelopeRepo.getAmount(transaction.envelopeId.value, year, month);
+                const amount = transaction.amount.value;
 
-            await this.repo.updateStatus(transaction.id.toString(), transaction.status);
+                const isDebit = transaction.type === 'Debit';
+                const becomingCompleted = newStatus === 'transaction.status.completed';
 
-            this.domainEvents.dispatchEventsForAggregate(transaction.id);
+                if (currentBalance !== null) {
+                    const delta = becomingCompleted
+                        ? (isDebit ? -amount : amount)
+                        : (isDebit ? amount : -amount);
+                    await this.envelopeRepo.addAmount(transaction.envelopeId.value, Number(currentBalance) + delta, year, month);
+                } else if (becomingCompleted) {
+                    const initialAmount = isDebit ? -amount : amount;
+                    await this.envelopeRepo.createAmount(transaction.envelopeId.value, initialAmount, year, month);
+                }
+            }
 
             return right(Result.ok<void>()) as UpdateStatusResponse;
 

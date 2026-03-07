@@ -101,4 +101,19 @@ export class Repository implements Interface {
         return deletedCount > 0;
     }
 
+    async deleteAll(ids: string[], userId: string): Promise<number> {
+        const envelopes = await this.models.Envelopes.findAll({
+            where: { user_id: userId },
+            attributes: ['id'],
+            raw: true,
+        });
+        const envelopeIds = envelopes.map((env: any) => env.id);
+        return await this.model.destroy({
+            where: {
+                id: { [Op.in]: ids },
+                envelope_id: { [Op.in]: envelopeIds },
+            },
+        });
+    }
+
 }

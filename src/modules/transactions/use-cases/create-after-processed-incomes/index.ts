@@ -9,6 +9,6 @@ import { deleteAll } from "../delete-all-by-processed-incomes-id";
 import { Create } from "./Create";
 
 const createUseCase = new CreateTransactionUseCase(transactionRepo, envelopeRepo);
-const create = new Create(processedIncomesRepo, createUseCase, envelopeRepo, fixedExpenseRepo, goalsRepo, deleteAll)
+const create = new Create(processedIncomesRepo, createUseCase, envelopeRepo, fixedExpenseRepo, goalsRepo, deleteAll, transactionRepo)
 
 export { create };

@@ -47,6 +47,9 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
     try {
 
+      const existingForMonth = await this.repo.getAllByYearMonth(request.userId, request.year, request.month);
+      const alreadyHasFixedExpenses = existingForMonth.some(p => p.shouldAddFixedExpenses);
+
       const processedIncomeOrError: Result<ProcessedIncomes> = ProcessedIncomes.create({
         description,
         userId,
@@ -56,7 +59,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         totalIncomeProcessed,
         processedAt: new Date(),
         isReprocessed: false,
-        isSplitted: request.isSplitted
+        isSplitted: request.isSplitted,
+        shouldAddFixedExpenses: !alreadyHasFixedExpenses,
       });
 
       if (processedIncomeOrError.isFailure) {

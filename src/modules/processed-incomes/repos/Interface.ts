@@ -10,4 +10,5 @@ export interface Interface extends ICRUD<ProcessedIncomes> {
     getOnlyById(id: string): Promise<ProcessedIncomes | null>
     getTotalbyMonth(year: number, month: number, userId: string): Promise<ToalByYearMonths>;
     getAllByYearMonth(id: string,year: number, month: number, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<ProcessedIncomes[]>
+    deleteAll(ids: string[], userId: string): Promise<number>;
 }

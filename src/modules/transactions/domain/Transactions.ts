@@ -70,6 +70,9 @@ export class Transactions extends AggregateRoot<TransactionsProps> {
   get paymentMethod(): PaymentMethod {
     return this.props.paymentMethod;
   }
+  public updatePaymentMethod(paymentMethod: PaymentMethod): void {
+    this.props.paymentMethod = paymentMethod;
+  }
   get type(): TransactionsType {
     return this.props.type;
   }

@@ -99,6 +99,12 @@ debtsRouter.post('/',
  *         description: Debt not found
  */
 debtsRouter.delete(
+  '/delete-all',
+  middleware.ensureAuthenticated(),
+  (req, res) => debtsController.deleteAll.execute(req, res)
+);
+
+debtsRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => debtsController.delete.execute(req, res)

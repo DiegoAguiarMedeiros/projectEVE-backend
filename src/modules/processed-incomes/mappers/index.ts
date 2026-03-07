@@ -62,6 +62,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
         processedAt: raw.processed_at,
         isReprocessed: raw.is_reprocessed,
         isSplitted: raw.is_splitted,
+        shouldAddFixedExpenses: raw.should_add_fixed_expenses ?? true,
       }, new UniqueEntityID(raw.id));
 
     debtOrError.isFailure ? console.error(debtOrError.getErrorValue()) : '';
@@ -81,6 +82,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
       processed_at: processdIncome.processedAt,
       is_reprocessed: processdIncome.isReprocessed,
       is_splitted: processdIncome.isSplitted,
+      should_add_fixed_expenses: processdIncome.shouldAddFixedExpenses,
     };
   }
 }

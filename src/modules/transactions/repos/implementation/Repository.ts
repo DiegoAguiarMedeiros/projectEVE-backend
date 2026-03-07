@@ -100,7 +100,8 @@ export class Repository implements Interface {
         const whereClause: any = {
             date: {
                 [Op.between]: [startDate, endDate],
-            }
+            },
+            processed_incomes_id: null,
         };
 
         // Add type filter if provided
@@ -148,6 +149,44 @@ export class Repository implements Interface {
         });
 
         return data.map((e: any) => Mapper.toDomain(e));
+    }
+
+    async deleteOrphanedByUserAndMonth(userId: string, year: number, month: number): Promise<void> {
+        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
+
+        const envelopes = await this.models.Envelopes.findAll({
+            attributes: ['id'],
+            where: { user_id: userId },
+        });
+        const envelopeIds = envelopes.map((e: any) => e.id);
+
+        if (envelopeIds.length === 0) return;
+
+        await this.model.destroy({
+            where: {
+                processed_incomes_id: { [Op.is]: null },
+                envelope_id: { [Op.in]: envelopeIds },
+                date: { [Op.between]: [startDate, endDate] },
+            },
+        });
+
+        // Delete transactions with stale processed_incomes_id references (the referenced record no longer exists)
+        const validProcessedIncomes = await this.models.ProcessedIncome.findAll({
+            attributes: ['id'],
+            where: { user_id: userId },
+        });
+        const validIds = validProcessedIncomes.map((e: any) => e.id);
+
+        await this.model.destroy({
+            where: {
+                processed_incomes_id: validIds.length > 0
+                    ? { [Op.not]: null, [Op.notIn]: validIds }
+                    : { [Op.not]: null },
+                envelope_id: { [Op.in]: envelopeIds },
+                date: { [Op.between]: [startDate, endDate] },
+            },
+        });
     }
 
     async getAllByDebtId(debtId: string): Promise<Transactions[]> {
@@ -386,6 +425,49 @@ export class Repository implements Interface {
             const raw = e.get({ plain: true });
             return Mapper.toDomain({ ...raw, credit_card_name: raw.CreditCard?.name ?? null });
         });
+    }
+
+    async existsByDescriptionAndMonth(userId: string, description: string, year: number, month: number): Promise<boolean> {
+        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
+
+        const count = await this.model.count({
+            where: {
+                description,
+                type: "Debit",
+                processed_incomes_id: { [Op.is]: null },
+                date: { [Op.between]: [startDate, endDate] },
+            },
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    as: 'Envelope',
+                    where: { user_id: userId },
+                    required: true,
+                },
+            ],
+        });
+
+        return count > 0;
+    }
+
+    async getTotalPendingDebitsByEnvelope(envelopeId: string, year: number, month: number): Promise<number> {
+        const result = await this.model.findOne({
+            attributes: [
+                [Sequelize.fn('COALESCE', Sequelize.fn('SUM', Sequelize.col('amount')), 0), 'total'],
+            ],
+            where: {
+                envelope_id: envelopeId,
+                type: 'Debit',
+                status: 'transaction.status.pending',
+                date: {
+                    [Op.gte]: new Date(year, month - 1, 1),
+                    [Op.lt]: new Date(year, month, 1),
+                },
+            },
+            raw: true,
+        });
+        return parseFloat(result?.total ?? '0');
     }
 
     async create(transaction: Transactions): Promise<void> {

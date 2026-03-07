@@ -139,6 +139,12 @@ transactionsRouter.delete(
   (req, res) => transactionController.delete.execute(req, res)
 );
 
+transactionsRouter.delete(
+  '/envelope/:year/:month/:id',
+  middleware.ensureAuthenticated(),
+  (req, res) => transactionController.deleteAllByEnvelope.execute(req, res)
+);
+
 /**
  * @swagger
  * /transactions/{id}:

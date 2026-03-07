@@ -11,7 +11,7 @@ import { Interface as IProcessedIncomesRepo } from "../../../processed-incomes/r
 import { Interface as IEnvelopsRepo } from "../../../envelopes/repos/Interface";
 import { Interface as IFixedExpensesRepo } from "../../../fixed-expenses/repos/Interface";
 import { Interface as IGoalsRepo } from "../../../goals/repos/Interface";
-import { Interface as IMonthlyEnvelopeRepo } from "../../repos/Interface";
+import { Interface as ITransactionsRepo } from "../../repos/Interface";
 import { Envelopes } from "../../../envelopes/domain/Envelopes";
 import pLimit from 'p-limit';
 import { DeleteAll } from "../delete-all-by-processed-incomes-id/DeleteAll";
@@ -30,14 +30,16 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
   private envelopsRepo: IEnvelopsRepo;
   private fixedExpensesRepo: IFixedExpensesRepo;
   private goalsRepo: IGoalsRepo;
-  private deleteAllByProcessedIncomes: DeleteAll
+  private deleteAllByProcessedIncomes: DeleteAll;
+  private transactionsRepo: ITransactionsRepo;
 
   constructor(processedIncomesRepo: IProcessedIncomesRepo,
     createUseCase: CreateUseCase,
     envelopsRepo: IEnvelopsRepo,
     fixedExpensesRepo: IFixedExpensesRepo,
     goalsRepo: IGoalsRepo,
-    deleteAllByProcessedIncomes: DeleteAll
+    deleteAllByProcessedIncomes: DeleteAll,
+    transactionsRepo: ITransactionsRepo,
   ) {
     this.processedIncomesRepo = processedIncomesRepo;
     this.createUseCase = createUseCase;
@@ -45,6 +47,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
     this.fixedExpensesRepo = fixedExpensesRepo;
     this.goalsRepo = goalsRepo;
     this.deleteAllByProcessedIncomes = deleteAllByProcessedIncomes;
+    this.transactionsRepo = transactionsRepo;
   }
 
   public async execute(request: CreateDTO): Promise<Response> {
@@ -103,6 +106,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
               promises.push(
                 limit(() => {
                   this.createUseCase.execute({
+                    processedIncomesId: processedIncomesId,
                     envelopeId: goals.envelopeId.value,
                     description: goals.description.value,
                     amount: (((processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value) / 100) * goals.percentage.value) / 100,
@@ -119,26 +123,30 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
 
         })
 
-        if (fixedExpenses) {
-          fixedExpenses.forEach(fixedExpense => {
-            promises.push(
-              limit(() => {
-                this.createUseCase.execute({
-                  envelopeId: fixedExpense.envelopeId.value,
-                  description: fixedExpense.description.value,
-                  amount: fixedExpense.amount.value,
-                  date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${fixedExpense?.paymentDay.value}`),
-                  type: "Debit",
-                  status: "transaction.status.pending",
-                  paymentMethod: 'envelope.transaction.payment_method.Cash',
-                  userId: processedIncomes.userId.value
-                })
-              })
-            );
-          })
-        }
-
         await Promise.allSettled(promises);
+
+        if (processedIncomes.shouldAddFixedExpenses && fixedExpenses) {
+          for (const fixedExpense of fixedExpenses) {
+            const alreadyExists = await this.transactionsRepo.existsByDescriptionAndMonth(
+              processedIncomes.userId.value,
+              fixedExpense.description.value,
+              processedIncomes.year.value,
+              processedIncomes.month.value,
+            );
+            if (alreadyExists) continue;
+
+            await this.createUseCase.execute({
+              envelopeId: fixedExpense.envelopeId.value,
+              description: fixedExpense.description.value,
+              amount: fixedExpense.amount.value,
+              date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${fixedExpense?.paymentDay.value}`),
+              type: "Debit",
+              status: "transaction.status.pending",
+              paymentMethod: 'envelope.transaction.payment_method.Cash',
+              userId: processedIncomes.userId.value
+            });
+          }
+        }
       }
       return right(Result.ok<void>());
 

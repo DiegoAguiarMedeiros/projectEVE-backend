@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import { CreditCard } from "../../domain";
 import { CreditCardMap as Mapper } from "../../mappers";
 import { Interface } from "../Interface";
@@ -81,6 +82,15 @@ export class Repository implements Interface {
         });
 
         return deletedCount > 0;
+    }
+
+    async deleteAll(ids: string[], userId: string): Promise<number> {
+        return await this.model.destroy({
+            where: {
+                id: { [Op.in]: ids },
+                user_id: userId,
+            },
+        });
     }
 
 }

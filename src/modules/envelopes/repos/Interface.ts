@@ -15,4 +15,5 @@ export interface Interface extends ICRUD<Envelopes> {
   getAmount(envelopeId: string, year: number, month: number): Promise<number | null>;
   getUsedByEnvelopeID(id: string, year: number, month: number): Promise<number>;
   getAnalyticsCurrentEnvelopes(id: string, year: number, month: number): Promise<AnalyticsCurrentEnvelopesDTO>;
+  getTotalPercentage(userId: string, excludeId: string): Promise<number>;
 }

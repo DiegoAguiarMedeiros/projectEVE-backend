@@ -105,6 +105,12 @@ fixedExpensesRouter.post('/',
  *         description: Fixed Expense not found
  */
 fixedExpensesRouter.delete(
+  '/delete-all',
+  middleware.ensureAuthenticated(),
+  (req, res) => fixedExpensesController.deleteAll.execute(req, res)
+);
+
+fixedExpensesRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => fixedExpensesController.delete.execute(req, res)

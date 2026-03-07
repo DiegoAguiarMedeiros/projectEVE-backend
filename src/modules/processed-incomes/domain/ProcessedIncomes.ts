@@ -25,6 +25,7 @@ interface ProcessedIncomesProps {
   processedAt: Date;
   isReprocessed: boolean;
   isSplitted: boolean;
+  shouldAddFixedExpenses?: boolean;
 }
 
 
@@ -77,6 +78,9 @@ export class ProcessedIncomes extends AggregateRoot<ProcessedIncomesProps> {
   }
   get isSplitted(): boolean {
     return this.props.isSplitted;
+  }
+  get shouldAddFixedExpenses(): boolean {
+    return this.props.shouldAddFixedExpenses ?? true;
   }
   private constructor(props: ProcessedIncomesProps, id?: UniqueEntityID) {
     super(props, id);

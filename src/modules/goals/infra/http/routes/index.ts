@@ -105,6 +105,12 @@ goalsRouter.post('/',
  *         description: Goal not found
  */
 goalsRouter.delete(
+  '/delete-all',
+  middleware.ensureAuthenticated(),
+  (req, res) => fixedExpensesController.deleteAll.execute(req, res)
+);
+
+goalsRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => fixedExpensesController.delete.execute(req, res)

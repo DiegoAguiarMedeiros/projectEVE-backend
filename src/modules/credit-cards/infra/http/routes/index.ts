@@ -110,6 +110,12 @@ creditCardsRouter.post('/',
  *         description: Credit Card not found
  */
 creditCardsRouter.delete(
+  '/delete-all',
+  middleware.ensureAuthenticated(),
+  (req, res) => creditCardsController.deleteAll.execute(req, res)
+);
+
+creditCardsRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => creditCardsController.delete.execute(req, res)

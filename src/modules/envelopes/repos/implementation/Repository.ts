@@ -251,4 +251,11 @@ export class Repository implements Interface {
         return deletedCount > 0;
     }
 
+    async getTotalPercentage(userId: string, excludeId: string): Promise<number> {
+        const result = await this.model.sum('percentage', {
+            where: { user_id: userId, id: { [Op.ne]: excludeId } }
+        });
+        return result || 0;
+    }
+
 }

@@ -5,6 +5,7 @@ import { CreateErrors } from "./CreateErrors";
 
 export type CreateResponse = Either<
   CreateErrors.EnvelopeNotFound |
+  CreateErrors.ExceedsEnvelopeBudget |
   AppError.UnexpectedError,
   Result<Transactions>
 >

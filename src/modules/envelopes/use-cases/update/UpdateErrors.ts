@@ -34,5 +34,13 @@ export namespace UpdateErrors {
         }
     }
 
+    export class ExceedsTotalPercentageError extends Result<UseCaseError> {
+        constructor(total: number) {
+            super(false, {
+                message: `Total envelope percentage would exceed 100% (${total}%)`
+            } as UseCaseError)
+        }
+    }
+
 
 }

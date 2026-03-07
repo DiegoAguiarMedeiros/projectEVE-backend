@@ -49,8 +49,29 @@ export class Update implements UseCase<UpdateDTO, Promise<Response>> {
       const percentageOrError = Percentage.create({ percentage: debtPercentagem });
 
       if (percentageOrError.isSuccess) {
-        envelope.updatePercentage(percentageOrError.getValue())
+        const debtPct = percentageOrError.getValue();
 
+        const allEnvelopes = await this.envelopeRepo.getAll(userId);
+        const otherEnvelopes = allEnvelopes.filter(e => e.name.value !== 'debts');
+        const currentTotal = otherEnvelopes.reduce((sum, e) => sum + e.percentage.value, 0);
+
+        if (currentTotal + debtPct.value > 100) {
+          let excess = currentTotal + debtPct.value - 100;
+          const sorted = [...otherEnvelopes].sort((a, b) => b.percentage.value - a.percentage.value);
+
+          for (const env of sorted) {
+            if (excess <= 0) break;
+            const reduction = Math.min(env.percentage.value, excess);
+            const newPct = Percentage.create({ percentage: env.percentage.value - reduction });
+            if (newPct.isSuccess) {
+              env.updatePercentage(newPct.getValue());
+              await this.envelopeRepo.update(env.id.toString(), env);
+            }
+            excess -= reduction;
+          }
+        }
+
+        envelope.updatePercentage(debtPct);
         const update = await this.envelopeRepo.update(envelope.id.toString(), envelope);
         if (update) return right(Result.ok<void>())
       }

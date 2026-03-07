@@ -50,6 +50,11 @@ processedIncomesRouter.post('/',
   (req, res) => processedIncomesController.create.execute(req, res)
 )
 
+processedIncomesRouter.post('/process-all',
+  middleware.ensureAuthenticated(),
+  (req, res) => processedIncomesController.processAll.execute(req, res)
+)
+
 /**
  * @swagger
  * /processed-incomes/months:
@@ -178,5 +183,23 @@ processedIncomesRouter.put(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => processedIncomesController.update.execute(req, res)
+);
+
+processedIncomesRouter.delete(
+  '/delete-all',
+  middleware.ensureAuthenticated(),
+  (req, res) => processedIncomesController.deleteAll.execute(req, res)
+);
+
+processedIncomesRouter.delete(
+  '/:year/:month',
+  middleware.ensureAuthenticated(),
+  (req, res) => processedIncomesController.deleteByMonth.execute(req, res)
+);
+
+processedIncomesRouter.delete(
+  '/:id',
+  middleware.ensureAuthenticated(),
+  (req, res) => processedIncomesController.delete.execute(req, res)
 );
 export { processedIncomesRouter };

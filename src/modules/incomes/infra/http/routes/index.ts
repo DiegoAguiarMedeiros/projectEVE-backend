@@ -127,6 +127,12 @@ incomesRouter.post('/',
  *         description: Income not found
  */
 incomesRouter.delete(
+  '/delete-all',
+  middleware.ensureAuthenticated(),
+  (req, res) => incomesController.deleteAll.execute(req, res)
+);
+
+incomesRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),
   (req, res) => incomesController.delete.execute(req, res)

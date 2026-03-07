@@ -1,4 +1,4 @@
-import { Sequelize } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import { IncomesMap as Mapper } from "../../mappers";
 import { Interface } from "../Interface";
 import { Incomes } from "../../domain/Income";
@@ -87,5 +87,10 @@ export class Repository implements Interface {
         return deletedCount > 0;
     }
 
+    async deleteAll(ids: string[], userId: string): Promise<number> {
+        return await this.model.destroy({
+            where: { id: { [Op.in]: ids }, user_id: userId },
+        });
+    }
 
 }

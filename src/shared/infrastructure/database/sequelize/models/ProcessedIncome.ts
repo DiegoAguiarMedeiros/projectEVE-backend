@@ -52,6 +52,10 @@ ProcessedIncome.init({
         type: DataTypes.BOOLEAN,
         defaultValue: false,
     },
+    should_add_fixed_expenses: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+    },
     aux_id: {
         type: DataTypes.UUID,
         allowNull: true,

@@ -4,5 +4,6 @@ import { Debt } from "../domain";
 
 export interface Interface extends ICRUD<Debt> {
     getOnlyById(id: string): Promise<Debt | null>;
-    getTotal(userId:string): Promise<number>;
+    getTotal(userId: string): Promise<number>;
+    deleteAll(ids: string[], userId: string): Promise<number>;
 }

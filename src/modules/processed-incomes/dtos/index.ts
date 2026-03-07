@@ -44,3 +44,14 @@ export type ToalByYearMonths = {
   total: number
 };
 
+export interface ProcessAllDTO {
+  userId: string;
+  month: number;
+  year: number;
+}
+
+export interface DeleteDTO {
+  id: string;
+  userId: string;
+}
+

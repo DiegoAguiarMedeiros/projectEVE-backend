@@ -8,6 +8,7 @@ export type UpdateResponse = Either<
     UpdateErrors.NameCanNotBeChanged |
     UpdateErrors.NotFound |
     UpdateErrors.NameAlreadyExist |
+    UpdateErrors.ExceedsTotalPercentageError |
     AppError.UnexpectedError |
     Result<any>,
     Result<void>

@@ -1,5 +1,6 @@
 import { createController } from "../../../use-cases/create";
 import { deleteController } from "../../../use-cases/delete";
+import { deleteAllByEnvelopeController } from "../../../use-cases/delete-all-by-envelope";
 import { getAllController } from "../../../use-cases/get-all";
 import { getAllByEnvelopeController } from "../../../use-cases/get-all-by-envelope";
 import { getByIdController } from "../../../use-cases/get-by-id";
@@ -13,6 +14,7 @@ const transactionController = {
     getAllByEnvelope:getAllByEnvelopeController,
     get:getByIdController,
     delete:deleteController,
+    deleteAllByEnvelope:deleteAllByEnvelopeController,
     update:updateController,
     updateStatus:updateStatusController,
     getUpcomingPendingTransaction:getUpcomingPendingTransactionController

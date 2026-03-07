@@ -40,6 +40,8 @@ export class UpdateController extends BaseController {
                         return this.conflict(res, error.getErrorValue())
                     case UpdateErrors.NameCanNotBeChanged:
                         return this.conflict(res, error.getErrorValue())
+                    case UpdateErrors.ExceedsTotalPercentageError:
+                        return this.clientError(res, error.getErrorValue().message)
                     default:
                         return this.fail(res, error.getErrorValue());
                 }
