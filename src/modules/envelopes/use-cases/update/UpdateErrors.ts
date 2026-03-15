@@ -8,28 +8,28 @@ export namespace UpdateErrors {
     export class NameAlreadyExist extends Result<UseCaseError> {
         constructor(name: string) {
             super(false, {
-                message: `Envelope name: ${name} Already exist!`
+                message: `errors.envelopes.name_already_exists`
             } as UseCaseError)
         }
     }
     export class UpdateError extends Result<UseCaseError> {
         constructor(id: string) {
             super(false, {
-                message: `[EnvelopeUpdateError]: An unexpected error occurred!`
+                message: `errors.envelopes.update_error`
             } as UseCaseError)
         }
     }
     export class NotFound extends Result<UseCaseError> {
         constructor(id: string) {
             super(false, {
-                message: `Envelope id: ${id} was not found!`
+                message: `errors.envelopes.not_found`
             } as UseCaseError)
         }
     }
     export class NameCanNotBeChanged extends Result<UseCaseError> {
         constructor(id: string) {
             super(false, {
-                message: `Envelope id: ${id} can not be Changed!`
+                message: `errors.envelopes.name_cannot_be_changed`
             } as UseCaseError)
         }
     }
@@ -37,7 +37,7 @@ export namespace UpdateErrors {
     export class ExceedsTotalPercentageError extends Result<UseCaseError> {
         constructor(total: number) {
             super(false, {
-                message: `Total envelope percentage would exceed 100% (${total}%)`
+                message: `errors.envelopes.exceeds_percentage`
             } as UseCaseError)
         }
     }

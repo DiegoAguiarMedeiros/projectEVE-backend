@@ -43,7 +43,7 @@ export class Update implements UseCase<UpdateDTO, Promise<Response>> {
       const totalIncome = await this.incomeRepo.getTotal(userId);
 
       const debtPercentagem = totalDebt > 0 && totalIncome > 0
-        ? Math.ceil((totalDebt / totalIncome) * 100)
+        ? Math.round((totalDebt / totalIncome) * 10000) / 100
         : 0;
 
       const percentageOrError = Percentage.create({ percentage: debtPercentagem });

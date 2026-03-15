@@ -79,7 +79,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
 
 
-      if (request.type === 'Debit') {
+      if (request.type === 'Debit' && !request.debtId) {
         const transactionDate = new Date(request.date);
         const year = transactionDate.getFullYear();
         const month = transactionDate.getMonth() + 1;

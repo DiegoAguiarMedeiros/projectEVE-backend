@@ -139,6 +139,41 @@ transactionsRouter.delete(
   (req, res) => transactionController.delete.execute(req, res)
 );
 
+/**
+ * @swagger
+ * /transactions/envelope/{year}/{month}/{id}:
+ *   delete:
+ *     summary: Delete all Transactions by envelope, year and month
+ *     tags: [Transactions]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Year of transactions
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Month of transactions
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Envelope ID
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Transactions deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Transactions not found
+ */
 transactionsRouter.delete(
   '/envelope/:year/:month/:id',
   middleware.ensureAuthenticated(),

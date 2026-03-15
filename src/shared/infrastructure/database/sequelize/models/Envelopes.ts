@@ -22,6 +22,16 @@ Envelopes.init({
     type: DataTypes.TEXT,
     allowNull: false
   },
+  user_id: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: Users,
+      key: 'id'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  },
   color: {
     type: DataTypes.STRING(7),
     allowNull: true,

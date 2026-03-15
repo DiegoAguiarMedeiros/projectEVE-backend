@@ -6,6 +6,7 @@ import { completeRegistrationController } from "../../../use-cases/complete-regi
 import { updateUserController } from "../../../use-cases/update";
 import { changePasswordController } from "../../../use-cases/change-password";
 import { verifyEmailController } from "../../../use-cases/verify-email";
+import { deleteUserController } from "../../../use-cases/delete";
 
 const userController = {
     create: createController,
@@ -16,6 +17,7 @@ const userController = {
     update: updateUserController,
     changePassword: changePasswordController,
     verifyEmail: verifyEmailController,
+    deleteAccount: deleteUserController,
 }
 
 export default userController;

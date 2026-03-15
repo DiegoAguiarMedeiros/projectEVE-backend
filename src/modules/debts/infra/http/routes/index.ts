@@ -98,6 +98,20 @@ debtsRouter.post('/',
  *       404:
  *         description: Debt not found
  */
+/**
+ * @swagger
+ * /debts/delete-all:
+ *   delete:
+ *     summary: Delete all Debts
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All debts deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
 debtsRouter.delete(
   '/delete-all',
   middleware.ensureAuthenticated(),

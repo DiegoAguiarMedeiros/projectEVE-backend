@@ -166,6 +166,7 @@ export class Repository implements Interface {
         await this.model.destroy({
             where: {
                 processed_incomes_id: { [Op.is]: null },
+                debt_id: { [Op.is]: null },
                 envelope_id: { [Op.in]: envelopeIds },
                 date: { [Op.between]: [startDate, endDate] },
             },
@@ -262,6 +263,30 @@ export class Repository implements Interface {
         });
 
     }
+    async getGoalsCumulativeAmount(year: number, month: number, userId: string): Promise<number> {
+        const endDate = dayjs(`${year}-${String(month).padStart(2,'0')}-01`).endOf("month").toDate();
+
+        const result = await this.model.sum('amount', {
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    attributes: [],
+                    as: "Envelope",
+                    where: {
+                        user_id: userId,
+                        name: "goals"
+                    }
+                }
+            ],
+            where: {
+                type: "Credit",
+                date: { [Op.lte]: endDate },
+            },
+        });
+
+        return result || 0;
+    }
+
     async getExpensesMonthOverview(year: number, month: number, userId: string): Promise<number> {
         const { fn, col, literal, where } = this.model.sequelize;
 

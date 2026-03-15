@@ -95,4 +95,36 @@ graphRouter.get('/analytics-envelopes-by-year/:year',
 
 
 
+/**
+ * @swagger
+ * /graph/goals-cumulative/{year}/{month}:
+ *   get:
+ *     summary: Get cumulative amount saved toward goals up to the specified month
+ *     tags: [Graph]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Year of reference
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Month of reference (1-12)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cumulative goals amount
+ *       401:
+ *         description: Unauthorized
+ */
+graphRouter.get('/goals-cumulative/:year/:month',
+  middleware.ensureAuthenticated(),
+  (req, res) => graphController.getGoalsCumulativeAmount.execute(req, res)
+);
+
 export { graphRouter };

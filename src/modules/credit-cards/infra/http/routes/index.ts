@@ -109,6 +109,20 @@ creditCardsRouter.post('/',
  *       404:
  *         description: Credit Card not found
  */
+/**
+ * @swagger
+ * /credit-cards/delete-all:
+ *   delete:
+ *     summary: Delete all Credit Cards
+ *     tags: [Credit Cards]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All credit cards deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
 creditCardsRouter.delete(
   '/delete-all',
   middleware.ensureAuthenticated(),

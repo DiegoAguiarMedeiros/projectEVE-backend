@@ -93,6 +93,10 @@ export class Repository implements Interface {
         const rawData = await Mapper.toPersistence(data);
         await this.model.create(rawData);
     }
+    async updateInstallmentsPaid(id: string, delta: number): Promise<void> {
+        await this.model.increment('installments_paid', { by: delta, where: { id } });
+    }
+
     async delete(id: string): Promise<boolean> {
         const deletedCount = await this.model.destroy({
             where: { id },

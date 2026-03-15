@@ -104,6 +104,20 @@ goalsRouter.post('/',
  *       404:
  *         description: Goal not found
  */
+/**
+ * @swagger
+ * /goals/delete-all:
+ *   delete:
+ *     summary: Delete all Goals
+ *     tags: [Goals]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All goals deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
 goalsRouter.delete(
   '/delete-all',
   middleware.ensureAuthenticated(),

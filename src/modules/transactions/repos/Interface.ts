@@ -9,6 +9,7 @@ export interface Interface extends ICRUD<Transactions> {
     updateStatus(id: string, status: TransactionsStatus): Promise<boolean>;
     getIncomesMonthOverview(year: number, month: number, userId: string): Promise<number>;
     getGoalsMonthOverview(year: number, month: number, userId: string): Promise<number>;
+    getGoalsCumulativeAmount(year: number, month: number, userId: string): Promise<number>;
     getExpensesMonthOverview(year: number, month: number, userId: string): Promise<number>;
     getIncomesByYear(year: number, userId: string): Promise<number[]>;
     getGoalsByYear(year: number, userId: string): Promise<number[]>;

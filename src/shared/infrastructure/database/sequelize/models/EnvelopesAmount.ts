@@ -16,6 +16,16 @@ EnvelopesAmounts.init({
     allowNull: false,
     primaryKey: true
   },
+  envelope_id: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: Envelopes,
+      key: 'id'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
+  },
   amount: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false

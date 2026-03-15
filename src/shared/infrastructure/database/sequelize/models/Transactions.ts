@@ -17,6 +17,16 @@ Transactions.init({
         allowNull: false,
         primaryKey: true
     },
+    envelope_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: Envelopes,
+            key: 'id'
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
+    },
     processed_incomes_id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,

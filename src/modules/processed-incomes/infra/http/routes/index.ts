@@ -50,6 +50,33 @@ processedIncomesRouter.post('/',
   (req, res) => processedIncomesController.create.execute(req, res)
 )
 
+/**
+ * @swagger
+ * /processed-incomes/process-all:
+ *   post:
+ *     summary: Process all pending incomes for the month
+ *     tags: [Processed Incomes]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               month:
+ *                 type: number
+ *                 description: Month to process
+ *               year:
+ *                 type: number
+ *                 description: Year to process
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All incomes processed successfully
+ *       401:
+ *         description: Unauthorized
+ */
 processedIncomesRouter.post('/process-all',
   middleware.ensureAuthenticated(),
   (req, res) => processedIncomesController.processAll.execute(req, res)
@@ -185,18 +212,84 @@ processedIncomesRouter.put(
   (req, res) => processedIncomesController.update.execute(req, res)
 );
 
+/**
+ * @swagger
+ * /processed-incomes/delete-all:
+ *   delete:
+ *     summary: Delete all Processed Incomes
+ *     tags: [Processed Incomes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All processed incomes deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
 processedIncomesRouter.delete(
   '/delete-all',
   middleware.ensureAuthenticated(),
   (req, res) => processedIncomesController.deleteAll.execute(req, res)
 );
 
+/**
+ * @swagger
+ * /processed-incomes/{year}/{month}:
+ *   delete:
+ *     summary: Delete all Processed Incomes by month
+ *     tags: [Processed Incomes]
+ *     parameters:
+ *       - in: path
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Year of processed income
+ *       - in: path
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: Month of processed income
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Processed incomes for the month deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Processed income not found
+ */
 processedIncomesRouter.delete(
   '/:year/:month',
   middleware.ensureAuthenticated(),
   (req, res) => processedIncomesController.deleteByMonth.execute(req, res)
 );
 
+/**
+ * @swagger
+ * /processed-incomes/{id}:
+ *   delete:
+ *     summary: Delete a Processed Income by ID
+ *     tags: [Processed Incomes]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The Processed Income ID
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Processed income deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Processed income not found
+ */
 processedIncomesRouter.delete(
   '/:id',
   middleware.ensureAuthenticated(),

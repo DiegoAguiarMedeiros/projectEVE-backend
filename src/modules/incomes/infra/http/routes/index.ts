@@ -126,6 +126,20 @@ incomesRouter.post('/',
  *       404:
  *         description: Income not found
  */
+/**
+ * @swagger
+ * /incomes/delete-all:
+ *   delete:
+ *     summary: Delete all Incomes
+ *     tags: [Incomes]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All incomes deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
 incomesRouter.delete(
   '/delete-all',
   middleware.ensureAuthenticated(),

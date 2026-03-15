@@ -64,13 +64,14 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
       const promises = [];
 
       for (let i = debt.installmentsPaid.value + 1; i <= debt.installmentsTotal.value; i++) {
-        const date = new Date(currentYear, currentMonth + i);
+        const offset = i - debt.installmentsPaid.value;
+        const date = new Date(currentYear, currentMonth + offset);
         const month = date.getMonth();
         const year = date.getFullYear();
 
         promises.push(
-          limit(() => {
-            this.createTransactionUseCase.execute({
+          limit(async () => {
+            return await this.createTransactionUseCase.execute({
               description: `${debt!.description.value} - Parcela ${i} de ${debt!.installmentsTotal.value}`,
               amount: debt!.amount.value,
               date: new Date(year, month, debt!.paymentDay.value),

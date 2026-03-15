@@ -77,4 +77,8 @@ export class Repository implements Interface {
 
         return;
     }
+
+    async delete(userId: string): Promise<void> {
+        await this.model.destroy({ where: { id: userId } });
+    }
 }

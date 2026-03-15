@@ -104,6 +104,20 @@ fixedExpensesRouter.post('/',
  *       404:
  *         description: Fixed Expense not found
  */
+/**
+ * @swagger
+ * /fixed-expenses/delete-all:
+ *   delete:
+ *     summary: Delete all Fixed Expenses
+ *     tags: [Fixed Expenses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All fixed expenses deleted successfully
+ *       401:
+ *         description: Unauthorized
+ */
 fixedExpensesRouter.delete(
   '/delete-all',
   middleware.ensureAuthenticated(),

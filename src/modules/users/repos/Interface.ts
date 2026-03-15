@@ -10,4 +10,5 @@ export interface Interface {
   getUserByVerificationToken(token: string): Promise<User | null>;
   create(data: User): Promise<void>;
   save(data: User): Promise<void>;
+  delete(userId: string): Promise<void>;
 }
