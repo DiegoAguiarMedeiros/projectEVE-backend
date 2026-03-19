@@ -1,9 +1,9 @@
 import { Interface as IProcessedIncomesRepo } from "../../repos/Interface";
-import { DeleteAll as DeleteAllTransactions } from "../../../transactions/use-cases/delete-all-by-processed-incomes-id/DeleteAll";
 import { AppError } from "../../../../shared/core/AppError";
 import { left, right, Result } from "../../../../shared/core/Result";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { DeleteByMonthResponse } from "./DeleteByMonthResponse";
+import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 export interface DeleteByMonthDTO {
     year: number;
@@ -13,11 +13,11 @@ export interface DeleteByMonthDTO {
 
 export class DeleteByMonthUseCase implements UseCase<DeleteByMonthDTO, Promise<DeleteByMonthResponse>> {
     private repo: IProcessedIncomesRepo;
-    private deleteAllTransactions: DeleteAllTransactions;
+    private domainEvents: any;
 
-    constructor(repo: IProcessedIncomesRepo, deleteAllTransactions: DeleteAllTransactions) {
+    constructor(repo: IProcessedIncomesRepo, domainEvents: DomainEvents) {
         this.repo = repo;
-        this.deleteAllTransactions = deleteAllTransactions;
+        this.domainEvents = domainEvents;
     }
 
     async execute({ year, month, userId }: DeleteByMonthDTO): Promise<DeleteByMonthResponse> {
@@ -25,13 +25,11 @@ export class DeleteByMonthUseCase implements UseCase<DeleteByMonthDTO, Promise<D
             const items = await this.repo.getAllByYearMonth(userId, year, month);
             const ids = items.map(item => item.id.toString());
 
-            await Promise.all(
-                ids.map(id =>
-                    this.deleteAllTransactions.execute({ processedIncomesId: id, userId })
-                )
-            );
+            items.forEach(item => item.delete());
 
             await this.repo.deleteAll(ids, userId);
+
+            items.forEach(item => this.domainEvents.dispatchEventsForAggregate(item.id));
 
             return right(Result.ok<void>()) as DeleteByMonthResponse;
         } catch (err) {

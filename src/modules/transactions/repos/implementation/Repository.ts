@@ -97,11 +97,16 @@ export class Repository implements Interface {
         const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
 
         // Build where clause for transactions
+        // Show Debit transactions (all) + Credit transactions without processedIncomesId (manual)
+        // Excludes salary credit transactions (Credit with processedIncomesId)
         const whereClause: any = {
             date: {
                 [Op.between]: [startDate, endDate],
             },
-            processed_incomes_id: null,
+            [Op.or]: [
+                { type: 'Debit' },
+                { processed_incomes_id: null },
+            ],
         };
 
         // Add type filter if provided
@@ -403,7 +408,7 @@ export class Repository implements Interface {
 
 
 
-    async getUpcomingPendingTransaction(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Transactions[]> {
+    async getUpcomingPendingTransaction(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string, year?: number, month?: number): Promise<Transactions[]> {
 
         const limit = pageSize || undefined;
         const offset = page ? (page) * (pageSize || 10) : 0;
@@ -416,15 +421,16 @@ export class Repository implements Interface {
         const today = dayjs().startOf("day").toDate();
         const in7Days = dayjs().add(15, "day").endOf("day").toDate();
 
+        const dateFilter = (year && month)
+            ? { date: { [Op.between]: [dayjs(`${year}-${month}-01`).startOf("month").toDate(), dayjs(`${year}-${month}-01`).endOf("month").toDate()] } }
+            : { [Op.or]: [{ date: { [Op.lte]: today } }, { date: { [Op.between]: [today, in7Days] } }] };
+
         const data = await this.model.findAll({
             where: {
                 status: {
                     [Op.in]: ["transaction.status.pending", "transaction.status.overdue"],
                 },
-                [Op.or]: [
-                    { date: { [Op.lte]: today } },
-                    { date: { [Op.between]: [today, in7Days] } },
-                ],
+                ...dateFilter,
             },
             limit: limit,
             offset: offset,
@@ -493,6 +499,91 @@ export class Repository implements Interface {
             raw: true,
         });
         return parseFloat(result?.total ?? '0');
+    }
+
+    async resetToUnprocessed(processedIncomesId: string): Promise<void> {
+        await this.model.update(
+            {
+                status: 'transaction.status.pending',
+                processed_incomes_id: null,
+            },
+            {
+                where: { processed_incomes_id: processedIncomesId },
+            },
+        );
+    }
+
+    async getDebtTransactionsByMonth(userId: string, year: number, month: number): Promise<Transactions[]> {
+        const startDate = dayjs(`${year}-${month}-01`).startOf('month').toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf('month').toDate();
+
+        const envelopes = await this.models.Envelopes.findAll({
+            attributes: ['id'],
+            where: { user_id: userId },
+        });
+        const envelopeIds = envelopes.map((e: any) => e.id);
+
+        if (envelopeIds.length === 0) return [];
+
+        const data = await this.model.findAll({
+            where: {
+                debt_id: { [Op.not]: null },
+                processed_incomes_id: { [Op.is]: null },
+                envelope_id: { [Op.in]: envelopeIds },
+                date: { [Op.between]: [startDate, endDate] },
+            },
+        });
+
+        return data.map((e: any) => Mapper.toDomain(e));
+    }
+
+    async getOrphanedTransactionsByMonth(userId: string, year: number, month: number): Promise<Transactions[]> {
+        const startDate = dayjs(`${year}-${month}-01`).startOf('month').toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf('month').toDate();
+
+        const envelopes = await this.models.Envelopes.findAll({
+            attributes: ['id'],
+            where: { user_id: userId },
+        });
+        const envelopeIds = envelopes.map((e: any) => e.id);
+
+        if (envelopeIds.length === 0) return [];
+
+        const data = await this.model.findAll({
+            where: {
+                processed_incomes_id: { [Op.is]: null },
+                debt_id: { [Op.is]: null },
+                envelope_id: { [Op.in]: envelopeIds },
+                date: { [Op.between]: [startDate, endDate] },
+            },
+        });
+
+        return data.map((e: any) => Mapper.toDomain(e));
+    }
+
+    async resetDebtsByMonth(userId: string, year: number, month: number): Promise<void> {
+        const startDate = dayjs(`${year}-${month}-01`).startOf('month').toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf('month').toDate();
+
+        const envelopes = await this.models.Envelopes.findAll({
+            attributes: ['id'],
+            where: { user_id: userId },
+        });
+        const envelopeIds = envelopes.map((e: any) => e.id);
+
+        if (envelopeIds.length === 0) return;
+
+        await this.model.update(
+            { status: 'transaction.status.pending' },
+            {
+                where: {
+                    debt_id: { [Op.not]: null },
+                    processed_incomes_id: { [Op.is]: null },
+                    envelope_id: { [Op.in]: envelopeIds },
+                    date: { [Op.between]: [startDate, endDate] },
+                },
+            },
+        );
     }
 
     async create(transaction: Transactions): Promise<void> {

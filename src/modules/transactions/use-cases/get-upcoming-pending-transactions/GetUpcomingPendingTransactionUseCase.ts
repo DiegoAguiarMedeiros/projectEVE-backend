@@ -6,16 +6,16 @@ import { UseCase } from "../../../../shared/core/UseCase";
 import { GetUpcomingPendingTransactionResponse } from "./GetUpcomingPendingTransactionResponse";
 
 
-export class GetUpcomingPendingTransactionUseCase implements UseCase<{ id: string; page: number; pageSize: number, orderBy: string, order: string }, Promise<GetUpcomingPendingTransactionResponse>> {
+export class GetUpcomingPendingTransactionUseCase implements UseCase<{ id: string; page: number; pageSize: number, orderBy: string, order: string, year?: number, month?: number }, Promise<GetUpcomingPendingTransactionResponse>> {
     private repo: ITransactionsRepo;
 
     constructor(repo: ITransactionsRepo) {
         this.repo = repo;
     }
-    async execute({ id, page, pageSize, orderBy, order }: { id: string; page: number; pageSize: number, orderBy: string, order: string }): Promise<GetUpcomingPendingTransactionResponse> {
+    async execute({ id, page, pageSize, orderBy, order, year, month }: { id: string; page: number; pageSize: number, orderBy: string, order: string, year?: number, month?: number }): Promise<GetUpcomingPendingTransactionResponse> {
 
-        const data = await this.repo.getUpcomingPendingTransaction(id, page, pageSize, orderBy, order);
-        const totalItems = (await this.repo.getUpcomingPendingTransaction(id)).length;
+        const data = await this.repo.getUpcomingPendingTransaction(id, page, pageSize, orderBy, order, year, month);
+        const totalItems = (await this.repo.getUpcomingPendingTransaction(id, undefined, undefined, undefined, undefined, year, month)).length;
     
         const totalPages = Math.ceil(totalItems / pageSize);
         const paginationResult = Pagination.create<Transactions>({

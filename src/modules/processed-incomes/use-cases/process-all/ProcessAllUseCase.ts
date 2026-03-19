@@ -3,6 +3,7 @@ import { Interface as IProcessedIncomesRepo } from "../../repos/Interface";
 import { Interface as IIncomesRepo } from "../../../incomes/repos/Interface";
 import { Interface as ITransactionsRepo } from "../../../transactions/repos/Interface";
 import { DeleteAll } from "../../../transactions/use-cases/delete-all-by-processed-incomes-id/DeleteAll";
+import { DeleteUseCase as DeleteTransactionUseCase } from "../../../transactions/use-cases/delete/DeleteUseCase";
 import { Id } from "../../../../shared/domain/Id";
 import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 import { AppError } from "../../../../shared/core/AppError";
@@ -20,17 +21,20 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
   private incomesRepo: IIncomesRepo;
   private deleteAllTransactions: DeleteAll;
   private transactionsRepo: ITransactionsRepo;
+  private deleteTransactionUseCase: DeleteTransactionUseCase;
 
   constructor(
     processedIncomesRepo: IProcessedIncomesRepo,
     incomesRepo: IIncomesRepo,
     deleteAllTransactions: DeleteAll,
     transactionsRepo: ITransactionsRepo,
+    deleteTransactionUseCase: DeleteTransactionUseCase,
   ) {
     this.processedIncomesRepo = processedIncomesRepo;
     this.incomesRepo = incomesRepo;
     this.deleteAllTransactions = deleteAllTransactions;
     this.transactionsRepo = transactionsRepo;
+    this.deleteTransactionUseCase = deleteTransactionUseCase;
   }
 
   async execute(request: ProcessAllDTO): Promise<ProcessAllResponse> {
@@ -65,13 +69,16 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
         existingForMonth.map(async (existing) => {
           await this.deleteAllTransactions.execute({
             processedIncomesId: existing.id.toString(),
-            userId: request.userId,
           });
           await this.processedIncomesRepo.delete(existing.id.toString());
         })
       );
 
-      // Remove transações órfãs (contas fixas/metas criadas antes do vínculo com processedIncomesId)
+      // Remove transações órfãs revertendo o saldo dos envelopes corretamente
+      const orphaned = await this.transactionsRepo.getOrphanedTransactionsByMonth(request.userId, request.year, request.month);
+      for (const transaction of orphaned) {
+        await this.deleteTransactionUseCase.execute({ id: transaction.id.toString(), userId: request.userId });
+      }
       await this.transactionsRepo.deleteOrphanedByUserAndMonth(request.userId, request.year, request.month);
 
       await Promise.all(

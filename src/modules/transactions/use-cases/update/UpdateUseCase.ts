@@ -53,6 +53,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const status: TransactionsStatus = data.fieldUpdate.status ? data.fieldUpdate.status : transaction.status;
 
             const oldAmount = transaction.amount;
+            const oldStatus = transaction.status;
 
             if (data.fieldUpdate.description) transaction.updateDescription(description)
             if (data.fieldUpdate.amount) transaction.updateAmount(amount)
@@ -66,7 +67,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
                 transaction.updateCreditCardId(creditCardId);
             }
 
-            transaction.update(transaction, oldAmount, transaction.amount, new UniqueEntityID(data.request.userId))
+            transaction.update(transaction, oldAmount, transaction.amount, oldStatus, new UniqueEntityID(data.request.userId))
 
 
             const updateData = await this.repo.update(transaction.id.toString(), transaction);

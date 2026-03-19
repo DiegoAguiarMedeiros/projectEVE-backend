@@ -8,6 +8,7 @@ import { PaymentDay } from "../../../shared/domain/PaymentDay";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Day } from "./Day";
 import { ProcessedIncomeCreated } from "./events/ProcessedIncomeCreated";
+import { ProcessedIncomeDeleted } from "./events/ProcessedIncomeDeleted";
 import { ProcessedIncomeUpdated } from "./events/ProcessedIncomeUpdated";
 import { Month } from "./Month";
 import { Year } from "./Year";
@@ -87,6 +88,10 @@ export class ProcessedIncomes extends AggregateRoot<ProcessedIncomesProps> {
   }
   public update(): void {
     this.addDomainEvent(new ProcessedIncomeUpdated(this));
+  }
+
+  public delete(): void {
+    this.addDomainEvent(new ProcessedIncomeDeleted(this));
   }
 
   public static create(props: ProcessedIncomesProps, id?: UniqueEntityID): Result<ProcessedIncomes> {

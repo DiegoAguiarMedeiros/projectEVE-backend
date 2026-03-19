@@ -240,7 +240,7 @@ export class Repository implements Interface {
             attributes: ['amount'],
             raw: true,
         });
-        return data?.amount || null;
+        return data ? Number(data.amount) : null;
     }
 
     async delete(id: string): Promise<boolean> {

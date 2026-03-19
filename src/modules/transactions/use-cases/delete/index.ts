@@ -6,4 +6,4 @@ import { DeleteUseCase } from "./DeleteUseCase";
 const deleteUseCase = new DeleteUseCase(transactionRepo, envelopeRepo);
 const deleteController = new DeleteController(deleteUseCase);
 
-export { deleteController }
+export { deleteController, deleteUseCase }

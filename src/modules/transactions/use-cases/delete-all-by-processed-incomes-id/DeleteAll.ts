@@ -16,12 +16,12 @@ type Response = Either<
 >
 
 export class DeleteAll implements UseCase<DeleteAllDTO, Promise<Response>> {
-  private deleteUseCase: DeleteUseCase
-  private transactionsRepo: ITransactionRepo
+  private deleteUseCase: DeleteUseCase;
+  private transactionsRepo: ITransactionRepo;
 
   constructor(
     deleteUseCase: DeleteUseCase,
-    transactionsRepo: ITransactionRepo
+    transactionsRepo: ITransactionRepo,
   ) {
     this.deleteUseCase = deleteUseCase;
     this.transactionsRepo = transactionsRepo;
@@ -38,8 +38,9 @@ export class DeleteAll implements UseCase<DeleteAllDTO, Promise<Response>> {
       }
 
       for (const transaction of transactions) {
-        await this.deleteUseCase.execute({ id: transaction.id.toString(), userId: request.userId });
+        await this.deleteUseCase.execute({ id: transaction.id.toString(), userId: '' });
       }
+
       return right(Result.ok<void>());
 
     } catch (err) {

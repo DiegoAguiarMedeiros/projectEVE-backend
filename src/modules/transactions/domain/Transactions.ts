@@ -91,8 +91,8 @@ export class Transactions extends AggregateRoot<TransactionsProps> {
     // this.addDomainEvent(new IncomesDeleted(this));
   }
 
-  public update(transactions: Transactions, oldAmount: Balance, newAmount: Balance, userId: UniqueEntityID): void {
-    this.addDomainEvent(new TransactionsUpdated(transactions, oldAmount, newAmount, userId));
+  public update(transactions: Transactions, oldAmount: Balance, newAmount: Balance, oldStatus: TransactionsStatus, userId: UniqueEntityID): void {
+    this.addDomainEvent(new TransactionsUpdated(transactions, oldAmount, newAmount, oldStatus, userId));
   }
 
   private constructor(props: TransactionsProps, id?: UniqueEntityID) {

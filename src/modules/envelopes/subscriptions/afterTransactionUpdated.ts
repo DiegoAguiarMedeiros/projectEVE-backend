@@ -22,6 +22,7 @@ export class AfterTransactionsUpdated implements IHandle<TransactionsUpdated> {
         transactionId: transactions.id.toString(),
         oldAmount: event.oldAmount.value,
         newAmount: event.newAmount.value,
+        oldStatus: event.oldStatus,
         userId: event.userId.toString(),
       });
       console.info(`[AfterTransactionsUpdated]: Successfully executed update transactions use case AfterTransactionsUpdated`)

@@ -14,7 +14,11 @@ export interface Interface extends ICRUD<Transactions> {
     getIncomesByYear(year: number, userId: string): Promise<number[]>;
     getGoalsByYear(year: number, userId: string): Promise<number[]>;
     getExpensesByYear(year: number, userId: string): Promise<number[]>;
-    getUpcomingPendingTransaction(userId: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Transactions[]>;
+    getUpcomingPendingTransaction(userId: string, page?: number, pageSize?: number, orderBy?: string, order?: string, year?: number, month?: number): Promise<Transactions[]>;
+    resetToUnprocessed(processedIncomesId: string): Promise<void>;
+    getDebtTransactionsByMonth(userId: string, year: number, month: number): Promise<Transactions[]>;
+    resetDebtsByMonth(userId: string, year: number, month: number): Promise<void>;
+    getOrphanedTransactionsByMonth(userId: string, year: number, month: number): Promise<Transactions[]>;
     deleteOrphanedByUserAndMonth(userId: string, year: number, month: number): Promise<void>;
     existsByDescriptionAndMonth(userId: string, description: string, year: number, month: number): Promise<boolean>;
     getTotalPendingDebitsByEnvelope(envelopeId: string, year: number, month: number): Promise<number>;

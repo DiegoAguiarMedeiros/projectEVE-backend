@@ -1,8 +1,9 @@
 
 export interface UpdateDTO {
   transactionId: string;
-  oldAmount:number;
-  newAmount:number;
-  userId:string;
+  oldAmount: number;
+  newAmount: number;
+  oldStatus: string;
+  userId: string;
 }
 

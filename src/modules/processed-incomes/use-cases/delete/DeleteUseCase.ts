@@ -1,19 +1,19 @@
 import { DeleteDTO } from "../../dtos";
 import { Interface as IProcessedIncomesRepo } from "../../repos/Interface";
-import { DeleteAll } from "../../../transactions/use-cases/delete-all-by-processed-incomes-id/DeleteAll";
 import { AppError } from "../../../../shared/core/AppError";
 import { left, right, Result } from "../../../../shared/core/Result";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { DeleteErrors } from "./DeleteErrors";
 import { DeleteResponse } from "./DeleteResponse";
+import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>> {
   private repo: IProcessedIncomesRepo;
-  private deleteAllTransactions: DeleteAll;
+  private domainEvents: any;
 
-  constructor(repo: IProcessedIncomesRepo, deleteAllTransactions: DeleteAll) {
+  constructor(repo: IProcessedIncomesRepo, domainEvents: DomainEvents) {
     this.repo = repo;
-    this.deleteAllTransactions = deleteAllTransactions;
+    this.domainEvents = domainEvents;
   }
 
   async execute(request: DeleteDTO): Promise<DeleteResponse> {
@@ -24,12 +24,9 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
         return left(new DeleteErrors.NotFound(request.id)) as DeleteResponse;
       }
 
-      await this.deleteAllTransactions.execute({
-        processedIncomesId: request.id,
-        userId: request.userId,
-      });
-
+      processedIncome.delete();
       await this.repo.delete(request.id);
+      this.domainEvents.dispatchEventsForAggregate(processedIncome.id);
 
       return right(Result.ok<void>()) as DeleteResponse;
     } catch (err) {

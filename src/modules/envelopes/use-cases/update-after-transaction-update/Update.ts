@@ -1,16 +1,12 @@
 
 import { UseCase } from "../../../../shared/core/UseCase";
-import { Repository as IRepo } from "../../repos/implementation/Repository";
 import { UpdateDTO } from "./UpdateDTO";
 import { Update as UpdateEnvelopeAmount } from "../update-amount-envelope/Update";
 import { Repository as IEnvelopeRepo } from "../../repos/implementation/Repository";
 import { Repository as ITransactionRepo } from "../../../transactions/repos/implementation/Repository";
-import { Repository as IDebtRepo } from "../../../debts/repos/implementation/Repository";
 import { Either, Result, left, right } from "../../../../shared/core/Result";
 import { AppError } from "../../../../shared/core/AppError";
 import { UpdateErrors } from "./UpdateErrors";
-import { User } from "../../../users/domain/User";
-import { Percentage } from "../../../../shared/domain/Percentage";
 
 type Response = Either<
   UpdateErrors.UserDoesntExistError |
@@ -32,57 +28,38 @@ export class Update implements UseCase<UpdateDTO, Promise<Response>> {
 
   public async execute(request: UpdateDTO): Promise<Response> {
     try {
-
-
-
-      const { transactionId, newAmount, oldAmount, userId } = request;
+      const { transactionId, newAmount, oldAmount, oldStatus, userId } = request;
 
       const transaction = await this.transactionRepo.getById(transactionId, userId);
 
-
       if (!transaction) return left(new UpdateErrors.TransactionNotFound(transactionId));
-
 
       const envelopesAmount = await this.envelopeRepo.getAmount(transaction.envelopeId.value, transaction.date.getFullYear(), transaction.date.getMonth() + 1);
 
-      if (envelopesAmount) {
+      if (envelopesAmount !== null) {
+        const wasCompleted = oldStatus === 'transaction.status.completed';
+        const isNowCompleted = transaction.status === 'transaction.status.completed';
+        const isDebit = transaction.type === "Debit";
 
-        if (newAmount !== oldAmount) {
+        // Delta: reverse the old effect, then apply the new effect
+        let delta = 0;
+        if (isDebit) {
+          if (wasCompleted) delta += Number(oldAmount);   // undo old deduction
+          if (isNowCompleted) delta -= Number(newAmount); // apply new deduction
+        } else {
+          if (wasCompleted) delta -= Number(oldAmount);   // undo old addition
+          if (isNowCompleted) delta += Number(newAmount); // apply new addition
+        }
 
+        if (delta !== 0) {
           await this.updateEnvelopeAmount.execute({
             envelopeId: transaction.envelopeId.value,
-            amount: Number(envelopesAmount) - Number(oldAmount),
+            amount: Number(envelopesAmount) + delta,
             year: transaction.date.getFullYear(),
-            month: transaction.date.getMonth() + 1
+            month: transaction.date.getMonth() + 1,
           });
-
         }
-
-        let amountToAdd: number = 0;
-        if (transaction.type === "Debit") {
-          if (transaction.status === 'transaction.status.completed') {
-            amountToAdd = Number(envelopesAmount) - Number(newAmount);
-          } else {
-            amountToAdd = Number(envelopesAmount) + Number(newAmount);
-          }
-        } else {
-          if (transaction.status === 'transaction.status.completed') {
-            amountToAdd = Number(envelopesAmount) + Number(newAmount);
-          } else {
-            amountToAdd = Number(envelopesAmount) - Number(newAmount);
-          }
-        }
-        await this.updateEnvelopeAmount.execute({
-          envelopeId: transaction.envelopeId.value,
-          amount: amountToAdd,
-          year: transaction.date.getFullYear(),
-          month: transaction.date.getMonth() + 1
-        });
-
-        // return right(Result.ok<void>()) as UpdateStatusResponse;
-
       }
-
 
       return right(Result.ok<void>());
 

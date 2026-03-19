@@ -23,7 +23,7 @@ export class DeleteAllUseCase implements UseCase<DeleteAllDTO, Promise<DeleteAll
         try {
             await Promise.all(
                 request.ids.map(id =>
-                    this.deleteAllTransactions.execute({ processedIncomesId: id, userId: request.userId })
+                    this.deleteAllTransactions.execute({ processedIncomesId: id })
                 )
             );
 

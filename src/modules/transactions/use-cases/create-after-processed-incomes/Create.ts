@@ -73,7 +73,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
 
 
       if (processedIncomes.isReprocessed) {
-        await this.deleteAllByProcessedIncomes.execute({ processedIncomesId, userId: processedIncomes.userId.value })
+        await this.deleteAllByProcessedIncomes.execute({ processedIncomesId })
       }
 
 
@@ -85,8 +85,8 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
         envelopes.forEach(envelope => {
 
           promises.push(
-            limit(() => {
-              this.createUseCase.execute({
+            limit(async () => {
+              await this.createUseCase.execute({
                 processedIncomesId: processedIncomesId,
                 envelopeId: envelope.id.toString(),
                 description: `deposit.salary|${processedIncomes?.month.value}/${processedIncomes?.year.value}`,
@@ -97,15 +97,15 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
                 paymentMethod: 'envelope.transaction.payment_method.Cash',
                 userId: envelope.userId.value,
                 isTranslatable: true
-              })
+              });
             })
           );
 
           if (envelope.name.value === 'goals' && goals) {
             goals.forEach(goals => {
               promises.push(
-                limit(() => {
-                  this.createUseCase.execute({
+                limit(async () => {
+                  await this.createUseCase.execute({
                     processedIncomesId: processedIncomesId,
                     envelopeId: goals.envelopeId.value,
                     description: goals.description.value,
@@ -115,7 +115,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
                     status: "transaction.status.pending",
                     paymentMethod: 'envelope.transaction.payment_method.Cash',
                     userId: processedIncomes.userId.value
-                  })
+                  });
                 })
               );
             })
@@ -127,15 +127,8 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
 
         if (processedIncomes.shouldAddFixedExpenses && fixedExpenses) {
           for (const fixedExpense of fixedExpenses) {
-            const alreadyExists = await this.transactionsRepo.existsByDescriptionAndMonth(
-              processedIncomes.userId.value,
-              fixedExpense.description.value,
-              processedIncomes.year.value,
-              processedIncomes.month.value,
-            );
-            if (alreadyExists) continue;
-
             await this.createUseCase.execute({
+              processedIncomesId: processedIncomesId,
               envelopeId: fixedExpense.envelopeId.value,
               description: fixedExpense.description.value,
               amount: fixedExpense.amount.value,
