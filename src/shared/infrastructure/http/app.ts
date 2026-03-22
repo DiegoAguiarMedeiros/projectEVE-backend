@@ -21,7 +21,7 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
   console.info(`Iniciando API em http://${host}:${port}`);
   const allowedOrigins = [
     process.env.PROJECT_EVE_FRONTEND_URL || 'https://projecteve-web.onrender.com',
-    process.env.PROJECT_EVE_ADMIN_URL || 'http://localhost:5174',
+    process.env.PROJECT_EVE_ADMIN_URL || 'https://projecteve-admin.onrender.com',
   ].filter(Boolean);
 
   console.info(`origin URLS ${allowedOrigins.join(', ')}`);
