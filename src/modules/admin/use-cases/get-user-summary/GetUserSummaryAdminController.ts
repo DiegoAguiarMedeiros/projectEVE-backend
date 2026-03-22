@@ -12,7 +12,7 @@ export class GetUserSummaryAdminController extends BaseController {
 
   async executeImpl(req: express.Request, res: express.Response): Promise<any> {
     try {
-      const { userId } = req.params;
+      const userId = req.params.userId as string;
       const result = await this.useCase.execute({ userId });
 
       if (result.isLeft()) {

@@ -12,7 +12,7 @@ export class DeleteAdminUserController extends BaseController {
 
   async executeImpl(req: express.Request, res: express.Response): Promise<any> {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const result = await this.useCase.execute({ userId: id });
 
       if (result.isLeft()) {

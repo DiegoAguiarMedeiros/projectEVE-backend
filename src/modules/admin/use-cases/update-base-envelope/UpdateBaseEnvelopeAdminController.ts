@@ -12,7 +12,7 @@ export class UpdateBaseEnvelopeAdminController extends BaseController {
 
   async executeImpl(req: express.Request, res: express.Response): Promise<any> {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const { name, color, order } = req.body;
 
       const result = await this.useCase.execute({ id, name, color, order });
