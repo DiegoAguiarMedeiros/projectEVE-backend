@@ -1,8 +1,9 @@
 
+import { Op } from "sequelize";
 import { UserMap as Mapper } from "../../mappers";
 import { Email } from "../../domain/Email";
 import { User } from "../../domain/User";
-import { Interface } from "../Interface";
+import { Interface, FindAllUsersFilters, FindAllUsersResult } from "../Interface";
 import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 
 export class Repository implements Interface {
@@ -80,5 +81,39 @@ export class Repository implements Interface {
 
     async delete(userId: string): Promise<void> {
         await this.model.destroy({ where: { id: userId } });
+    }
+
+    async findAll(filters: FindAllUsersFilters): Promise<FindAllUsersResult> {
+        const where: any = {};
+
+        if (filters.search) {
+            where[Op.or] = [
+                { name: { [Op.iLike]: `%${filters.search}%` } },
+                { email: { [Op.iLike]: `%${filters.search}%` } },
+            ];
+        }
+
+        if (filters.isDeleted !== undefined) {
+            where.is_deleted = filters.isDeleted;
+        }
+
+        if (filters.isAdmin !== undefined) {
+            where.is_admin_user = filters.isAdmin;
+        }
+
+        const offset = (filters.page - 1) * filters.limit;
+
+        const { count, rows } = await this.model.findAndCountAll({
+            where,
+            limit: filters.limit,
+            offset,
+            order: [['created_at', 'DESC']],
+            raw: true,
+        });
+
+        return {
+            users: rows.map((r: any) => Mapper.toDomain(r)),
+            total: count,
+        };
     }
 }

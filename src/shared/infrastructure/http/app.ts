@@ -19,13 +19,15 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
   const app = express();
 
   console.info(`Iniciando API em http://${host}:${port}`);
-  console.info(`origin URLS ${process.env.PROJECT_EVE_FRONTEND_URL || 'https://projecteve-web.onrender.com'}`);
+  const allowedOrigins = [
+    process.env.PROJECT_EVE_FRONTEND_URL || 'https://projecteve-web.onrender.com',
+    process.env.PROJECT_EVE_ADMIN_URL || 'http://localhost:5174',
+  ].filter(Boolean);
+
+  console.info(`origin URLS ${allowedOrigins.join(', ')}`);
 
   app.use(cors({
-    origin: [
-      process.env.PROJECT_EVE_FRONTEND_URL ||
-      'https://projecteve-web.onrender.com'
-    ],
+    origin: allowedOrigins,
     credentials: true
   }));
 

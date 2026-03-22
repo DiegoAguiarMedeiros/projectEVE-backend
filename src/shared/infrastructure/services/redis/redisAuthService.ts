@@ -67,8 +67,8 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
       email: props.email,
       id: props.id,
       name: props.name,
-      isEmailVerified: false,
-      adminUser: false
+      isEmailVerified: props.isEmailVerified,
+      adminUser: props.adminUser
     };
   
     if (!authConfig.secret) {

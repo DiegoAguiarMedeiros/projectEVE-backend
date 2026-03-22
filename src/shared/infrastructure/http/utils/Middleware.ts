@@ -77,6 +77,16 @@ export class Middleware {
         }
     }
 
+    public ensureAdmin() {
+        return async (req: any, res: any, next: any) => {
+            const decoded = req.decoded;
+            if (!decoded || !decoded.adminUser) {
+                return this.endRequest(403, 'Forbidden: admin access only', res);
+            }
+            return next();
+        }
+    }
+
     public static createRateLimit(mins: number, maxRequests: number) {
         return rateLimit({
             windowMs: mins * 60 * 1000,
