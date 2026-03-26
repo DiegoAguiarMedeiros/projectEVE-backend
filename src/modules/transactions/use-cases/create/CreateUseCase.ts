@@ -87,7 +87,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
         if (currentBalance !== null) {
           const pendingDebitsTotal = await this.repo.getTotalPendingDebitsByEnvelope(request.envelopeId, year, month);
-          if (pendingDebitsTotal + request.amount > Number(currentBalance)) {
+          if (pendingDebitsTotal + Number(request.amount) > Number(currentBalance)) {
             return left(new CreateErrors.ExceedsEnvelopeBudget());
           }
         }
@@ -105,22 +105,24 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
         if (envelopesAmount === null) {
           // Envelope allocation doesn't exist yet, create it
+          const reqAmount = Number(request.amount);
           let initialAmount = 0;
           if (request.type === "Debit") {
-            initialAmount = -request.amount; // Negative for debit
+            initialAmount = -reqAmount; // Negative for debit
           } else {
-            initialAmount = request.amount; // Positive for credit
+            initialAmount = reqAmount; // Positive for credit
           }
           await this.envelopeRepo.createAmount(request.envelopeId, initialAmount, request.date.getFullYear(), request.date.getMonth() + 1);
         } else {
           // Envelope allocation exists, update it
           // Convert to number to avoid string concatenation
           const currentAmount = Number(envelopesAmount);
+          const reqAmount = Number(request.amount);
           let newAmount = 0;
           if (request.type === "Debit") {
-            newAmount = currentAmount - request.amount;
+            newAmount = currentAmount - reqAmount;
           } else {
-            newAmount = currentAmount + request.amount;
+            newAmount = currentAmount + reqAmount;
           }
           await this.envelopeRepo.addAmount(request.envelopeId, newAmount, request.date.getFullYear(), request.date.getMonth() + 1);
         }

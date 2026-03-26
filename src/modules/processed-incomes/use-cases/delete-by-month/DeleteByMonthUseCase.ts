@@ -3,7 +3,7 @@ import { AppError } from "../../../../shared/core/AppError";
 import { left, right, Result } from "../../../../shared/core/Result";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { DeleteByMonthResponse } from "./DeleteByMonthResponse";
-import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
+import { ResetAll } from "../../../transactions/use-cases/reset-all-by-processed-incomes-id/ResetAll";
 
 export interface DeleteByMonthDTO {
     year: number;
@@ -13,11 +13,11 @@ export interface DeleteByMonthDTO {
 
 export class DeleteByMonthUseCase implements UseCase<DeleteByMonthDTO, Promise<DeleteByMonthResponse>> {
     private repo: IProcessedIncomesRepo;
-    private domainEvents: any;
+    private resetAll: ResetAll;
 
-    constructor(repo: IProcessedIncomesRepo, domainEvents: DomainEvents) {
+    constructor(repo: IProcessedIncomesRepo, resetAll: ResetAll) {
         this.repo = repo;
-        this.domainEvents = domainEvents;
+        this.resetAll = resetAll;
     }
 
     async execute({ year, month, userId }: DeleteByMonthDTO): Promise<DeleteByMonthResponse> {
@@ -25,11 +25,18 @@ export class DeleteByMonthUseCase implements UseCase<DeleteByMonthDTO, Promise<D
             const items = await this.repo.getAllByYearMonth(userId, year, month);
             const ids = items.map(item => item.id.toString());
 
-            items.forEach(item => item.delete());
+            // Reset transactions and envelope balances synchronously before deleting,
+            // so that a subsequent reprocess sees a consistent state.
+            for (const item of items) {
+                await this.resetAll.execute({
+                    processedIncomesId: item.id.toString(),
+                    userId,
+                    year,
+                    month,
+                });
+            }
 
             await this.repo.deleteAll(ids, userId);
-
-            items.forEach(item => this.domainEvents.dispatchEventsForAggregate(item.id));
 
             return right(Result.ok<void>()) as DeleteByMonthResponse;
         } catch (err) {

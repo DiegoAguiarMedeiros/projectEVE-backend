@@ -68,7 +68,8 @@ export class EnvelopesMap implements Mapper<Envelopes> {
     const UserIdOrError = Id.create(raw.user_id);
     const ColorOrError = Color.create({ color: raw.color });
     const OrderOrError = Balance.create({ balance: raw.order });
-    const AmountOrError = Balance.create({ balance: raw.EnvelopesAmounts?.length > 0 ? raw.EnvelopesAmounts[0].amount : 0 });
+    const rawAmount = raw.EnvelopesAmounts?.length > 0 ? (raw.EnvelopesAmounts[0].amount ?? null) : null;
+    const AmountOrError = rawAmount !== null ? Balance.create({ balance: rawAmount }) : null;
     const PercentageOrError = Percentage.create({ percentage: raw.percentage });
 
 
@@ -88,13 +89,15 @@ export class EnvelopesMap implements Mapper<Envelopes> {
       throw new Error('Invalid use Percentage');
     }
 
+    const amount = AmountOrError !== null && !AmountOrError.isFailure ? AmountOrError.getValue() : undefined;
+
     const envelopeOrError = Envelopes.create(
       {
         name: NameOrError.getValue(),
         userId: UserIdOrError.getValue(),
         color: ColorOrError.getValue(),
         order: OrderOrError.getValue(),
-        amount: AmountOrError.getValue(),
+        amount,
         percentage: PercentageOrError.getValue(),
       }, new UniqueEntityID(raw.id));
 

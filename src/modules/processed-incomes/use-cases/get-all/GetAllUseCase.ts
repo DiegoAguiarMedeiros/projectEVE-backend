@@ -15,7 +15,7 @@ export class GetAllUseCase implements UseCase<{ id: string; page: number; pageSi
     async execute({ id, page, pageSize, orderBy, order,year,month }: { id: string; page: number; pageSize: number, orderBy: string, order: string, year: number, month: number }): Promise<GetAllResponse> {
 
         const data = await this.repo.getAllByYearMonth(id,year,month, page, pageSize, orderBy, order);
-        const totalItems = (await this.repo.getAll(id)).length;
+        const totalItems = (await this.repo.getAllByYearMonth(id, year, month)).length;
 
 
         const totalPages = Math.ceil(totalItems / pageSize);

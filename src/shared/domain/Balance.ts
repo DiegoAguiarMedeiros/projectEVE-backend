@@ -15,7 +15,7 @@ export class Balance extends ValueObject<BalanceProps> {
   }
 
   private constructor(props: BalanceProps) {
-    super(props);
+    super({ balance: Number(props.balance) });
   }
 
   public static create(props: BalanceProps): Result<Balance> {
@@ -24,6 +24,15 @@ export class Balance extends ValueObject<BalanceProps> {
       return Result.fail<Balance>('Balance: ' + BalanceResult.getErrorValue())
     }
 
+    const numericBalance = Number(props.balance);
+
+    if (isNaN(numericBalance)) {
+      return Result.fail<Balance>('Balance must be a valid number');
+    }
+
+    if (numericBalance < 0) {
+      return Result.fail<Balance>('Balance cannot be negative');
+    }
 
     return Result.ok<Balance>(new Balance(props));
   }

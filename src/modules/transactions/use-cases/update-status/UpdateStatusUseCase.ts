@@ -41,7 +41,7 @@ export class UpdateStatusUseCase implements UseCase<UpdateStatusDTO, Promise<Upd
                 const year = transaction.date.getFullYear();
                 const month = transaction.date.getMonth() + 1;
                 const currentBalance = await this.envelopeRepo.getAmount(transaction.envelopeId.value, year, month);
-                const amount = transaction.amount.value;
+                const amount = Number(transaction.amount.value);
 
                 const isDebit = transaction.type === 'Debit';
                 const becomingCompleted = newStatus === 'transaction.status.completed';
