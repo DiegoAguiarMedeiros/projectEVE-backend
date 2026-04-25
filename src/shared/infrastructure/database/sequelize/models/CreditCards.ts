@@ -20,12 +20,10 @@ CreditCards.init({
     type: DataTypes.ENUM(
       'Visa',
       'Mastercard',
-      'American Express',
-      'Discover',
-      'Diners Club',
-      'JCB',
       'Elo',
-      'Hipercard'
+      'Hipercard',
+      'American Express',
+      'Diners Club'
     ),
     allowNull: false,
   },

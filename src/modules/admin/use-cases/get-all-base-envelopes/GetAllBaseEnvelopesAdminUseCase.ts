@@ -21,6 +21,7 @@ export class GetAllBaseEnvelopesAdminUseCase implements UseCase<void, Promise<Re
         name: e.name.value,
         color: e.color.value,
         order: e.order.value,
+        percentage: e.percentage.value,
       }));
       return right(Result.ok(dtos));
     } catch (err) {

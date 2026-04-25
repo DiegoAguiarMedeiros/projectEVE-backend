@@ -99,9 +99,13 @@ export class Repository implements Interface {
         // Build where clause for transactions
         // Show Debit transactions (all) + Credit transactions without processedIncomesId (manual)
         // Excludes salary credit transactions (Credit with processedIncomesId)
+        // Excludes reallocation transactions
         const whereClause: any = {
             date: {
                 [Op.between]: [startDate, endDate],
+            },
+            payment_method: {
+                [Op.ne]: 'envelope.transaction.payment_method.Reallocation',
             },
             [Op.or]: [
                 { type: 'Debit' },
@@ -233,6 +237,7 @@ export class Repository implements Interface {
             ],
             where: {
                 type: "Credit",
+                payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
                 date: {
                     [Op.between]: [startDate, endDate],
                 },
@@ -242,54 +247,71 @@ export class Repository implements Interface {
 
 
     async getGoalsMonthOverview(year: number, month: number, userId: string): Promise<number> {
-        const { fn, col, literal, where } = this.model.sequelize;
-
         const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
         const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
 
-        return await this.model.sum('amount', {
-            include: [
-                {
-                    model: this.models.Envelopes,
-                    attributes: [],
-                    as: "Envelope",
-                    where: {
-                        user_id: userId,
-                        name: "goals"
-                    }
-                }
-            ],
+        const goalsInclude = [
+            {
+                model: this.models.Envelopes,
+                attributes: [],
+                as: "Envelope",
+                where: { user_id: userId, name: "goals" }
+            }
+        ];
+        const dateWhere = { [Op.between]: [startDate, endDate] };
+
+        const creditSum = await this.model.sum('amount', {
+            include: goalsInclude,
             where: {
                 type: "Credit",
-                date: {
-                    [Op.between]: [startDate, endDate],
-                },
+                payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
+                date: dateWhere,
             },
         });
 
+        const debitReallocSum = await this.model.sum('amount', {
+            include: goalsInclude,
+            where: {
+                type: "Debit",
+                payment_method: 'envelope.transaction.payment_method.Reallocation',
+                date: dateWhere,
+            },
+        });
+
+        return (creditSum || 0) - (debitReallocSum || 0);
     }
     async getGoalsCumulativeAmount(year: number, month: number, userId: string): Promise<number> {
         const endDate = dayjs(`${year}-${String(month).padStart(2,'0')}-01`).endOf("month").toDate();
 
-        const result = await this.model.sum('amount', {
-            include: [
-                {
-                    model: this.models.Envelopes,
-                    attributes: [],
-                    as: "Envelope",
-                    where: {
-                        user_id: userId,
-                        name: "goals"
-                    }
-                }
-            ],
+        const goalsInclude = [
+            {
+                model: this.models.Envelopes,
+                attributes: [],
+                as: "Envelope",
+                where: { user_id: userId, name: "goals" }
+            }
+        ];
+        const dateWhere = { [Op.lte]: endDate };
+
+        const creditSum = await this.model.sum('amount', {
+            include: goalsInclude,
             where: {
                 type: "Credit",
-                date: { [Op.lte]: endDate },
+                payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
+                date: dateWhere,
             },
         });
 
-        return result || 0;
+        const debitReallocSum = await this.model.sum('amount', {
+            include: goalsInclude,
+            where: {
+                type: "Debit",
+                payment_method: 'envelope.transaction.payment_method.Reallocation',
+                date: dateWhere,
+            },
+        });
+
+        return (creditSum || 0) - (debitReallocSum || 0);
     }
 
     async getExpensesMonthOverview(year: number, month: number, userId: string): Promise<number> {
@@ -311,6 +333,7 @@ export class Repository implements Interface {
             ],
             where: {
                 type: "Debit",
+                payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
                 date: {
                     [Op.between]: [startDate, endDate],
                 },
@@ -337,6 +360,7 @@ export class Repository implements Interface {
             ],
             where: {
                 type: "Credit",
+                payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
                 [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
             },
             group: [literal("EXTRACT(MONTH FROM date)")],
@@ -348,12 +372,12 @@ export class Repository implements Interface {
 
 
     async getGoalsByYear(year: number, userId: string): Promise<number[]> {
-        const { fn, col, literal, where } = this.model.sequelize;
+        const { fn, literal, where } = this.model.sequelize;
 
         const data = await this.model.findAll({
             attributes: [
                 [fn("EXTRACT", literal("MONTH FROM date")), "month"],
-                [fn("SUM", col("amount")), "amount"]
+                [literal(`SUM(CASE WHEN "Transactions"."type" = 'Credit' AND "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' THEN "Transactions"."amount" WHEN "Transactions"."type" = 'Debit' AND "Transactions"."payment_method" = 'envelope.transaction.payment_method.Reallocation' THEN -"Transactions"."amount" ELSE 0 END)`), "amount"]
             ],
             include: [
                 {
@@ -367,7 +391,6 @@ export class Repository implements Interface {
                 }
             ],
             where: {
-                type: "Credit",
                 [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
             },
             group: [literal("EXTRACT(MONTH FROM date)")],
@@ -397,6 +420,7 @@ export class Repository implements Interface {
             ],
             where: {
                 type: "Debit",
+                payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
                 [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
             },
             group: [literal("EXTRACT(MONTH FROM date)")],

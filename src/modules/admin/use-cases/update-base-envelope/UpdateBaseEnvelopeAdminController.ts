@@ -13,9 +13,9 @@ export class UpdateBaseEnvelopeAdminController extends BaseController {
   async executeImpl(req: express.Request, res: express.Response): Promise<any> {
     try {
       const id = req.params.id as string;
-      const { name, color, order } = req.body;
+      const { name, color, order, percentage } = req.body;
 
-      const result = await this.useCase.execute({ id, name, color, order });
+      const result = await this.useCase.execute({ id, name, color, order, percentage });
 
       if (result.isLeft()) {
         return this.fail(res, result.value.getErrorValue().message);

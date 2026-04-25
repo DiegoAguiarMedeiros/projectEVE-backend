@@ -1,6 +1,7 @@
 
 import { CreateDTO } from "../../dtos";
 import { Interface as IProcessedIncomesRepo } from "../../repos/Interface";
+import { Interface as IEnvelopesRepo } from "../../../envelopes/repos/Interface";
 import { Balance } from "../../../../shared/domain/Balance";
 import { Description } from "../../../../shared/domain/Description";
 import { Id } from "../../../../shared/domain/Id";
@@ -10,6 +11,7 @@ import { AppError } from "../../../../shared/core/AppError";
 import { Result, left, right } from "../../../../shared/core/Result";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { CreateResponse } from "./CreateResponse";
+import { CreateErrors } from "./CreateErrors";
 import { ProcessedIncomes } from "../../domain";
 import { Year } from "../../domain/Year";
 import { Month } from "../../domain/Month";
@@ -17,9 +19,11 @@ import { Day } from "../../domain/Day";
 
 export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>> {
   private repo: IProcessedIncomesRepo;
+  private envelopesRepo: IEnvelopesRepo;
 
-  constructor(repo: IProcessedIncomesRepo) {
+  constructor(repo: IProcessedIncomesRepo, envelopesRepo: IEnvelopesRepo) {
     this.repo = repo;
+    this.envelopesRepo = envelopesRepo;
   }
 
   async execute(request: CreateDTO): Promise<CreateResponse> {
@@ -47,6 +51,27 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
     try {
 
+      let envelopeId: Id | undefined;
+
+      if (!request.isSplitted) {
+        if (!request.envelopeId) {
+          return left(new CreateErrors.EnvelopeRequired()) as CreateResponse;
+        }
+        const allEnvelopes = await this.envelopesRepo.getAll(request.userId);
+        const matchedEnvelope = allEnvelopes.find(e => e.id.toString() === request.envelopeId);
+        if (!matchedEnvelope) {
+          return left(new CreateErrors.EnvelopeNotFound()) as CreateResponse;
+        }
+        const envelopeIdOrError = Id.create(new UniqueEntityID(request.envelopeId));
+        envelopeId = envelopeIdOrError.getValue();
+      } else {
+        const allEnvelopes = await this.envelopesRepo.getAll(request.userId);
+        const totalPercentage = allEnvelopes.reduce((sum, e) => sum + e.percentage.value, 0);
+        if (totalPercentage !== 100) {
+          return left(new CreateErrors.EnvelopesNotDistributed()) as CreateResponse;
+        }
+      }
+
       const existingForMonth = await this.repo.getAllByYearMonth(request.userId, request.year, request.month);
       const alreadyHasFixedExpenses = existingForMonth.some(p => p.shouldAddFixedExpenses);
 
@@ -57,6 +82,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         month,
         day,
         totalIncomeProcessed,
+        envelopeId,
         processedAt: new Date(),
         isReprocessed: false,
         isSplitted: request.isSplitted,

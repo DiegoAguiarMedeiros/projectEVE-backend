@@ -15,30 +15,32 @@ export class EnvelopesMap implements Mapper<Envelopes> {
 
   public static toAnalyticsCurrentEnvelopesDTO(raw: any): AnalyticsCurrentEnvelopesDTO {
     const filtered = raw.filter(
-      (item: { 'envelope_amount': any; 'total_amount': any }) => {
+      (item: { 'envelope_amount': any; 'total_amount_no_realloc': any }) => {
         const sub = parseFloat(item['envelope_amount'] ?? '0');
-        const val = parseFloat(item['total_amount'] ?? '0');
-        return sub > 0 || val > 0;
+        const pureVal = parseFloat(item['total_amount_no_realloc'] ?? '0');
+        return sub > 0 || pureVal > 0;
       }
     );
 
     const result = filtered.reduce(
       (
-        acc: { labels: string[]; colors: string[]; subValues: number[]; values: number[]; },
-        item: { name: any; color: any; 'envelope_amount': any; 'total_amount': any }
+        acc: { labels: string[]; colors: string[]; subValues: number[]; values: number[]; pureValues: number[]; },
+        item: { name: any; color: any; 'envelope_amount': any; 'total_amount_no_realloc': any; 'total_debit_no_realloc': any }
       ) => {
         const sub = parseFloat(item['envelope_amount'] ?? '0');
-        const val = parseFloat(item['total_amount'] ?? '0');
+        const pureVal = parseFloat(item['total_amount_no_realloc'] ?? '0');
+        const debitNoRealloc = parseFloat(item['total_debit_no_realloc'] ?? '0');
 
         acc.labels.push(String(item.name));
         acc.colors.push(String(item.color));
-        acc.values.push(val);
+        acc.values.push(sub);
+        acc.pureValues.push(pureVal);
 
-        const usedPercent = val > 0 ? ((val - sub) / val) * 100 : 0;
+        const usedPercent = pureVal > 0 ? (debitNoRealloc / pureVal) * 100 : 0;
         acc.subValues.push(Number(usedPercent.toFixed(2)));
         return acc;
       },
-      { labels: [], colors: [], subValues: [], values: [], usagePercentages: [] }
+      { labels: [], colors: [], subValues: [], values: [], pureValues: [] }
     );
 
     return {
@@ -46,6 +48,7 @@ export class EnvelopesMap implements Mapper<Envelopes> {
       colors: result.colors,
       subValues: result.subValues,
       values: result.values,
+      pureValues: result.pureValues,
     };
   }
 

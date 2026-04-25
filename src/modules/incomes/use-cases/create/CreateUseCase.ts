@@ -39,7 +39,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
   
     try {
-
       const incomeOrError: Result<Incomes> = Incomes.create({
         userId,
         description,

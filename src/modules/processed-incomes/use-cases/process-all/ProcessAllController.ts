@@ -31,6 +31,8 @@ export class ProcessAllController extends BaseController {
         switch (error.constructor) {
           case ProcessAllErrors.NoIncomesFound:
             return this.notFound(res, error.getErrorValue());
+          case ProcessAllErrors.EnvelopesNotDistributed:
+            return this.unprocessable(res, error.getErrorValue().message);
           default:
             return this.fail(res, error.getErrorValue());
         }

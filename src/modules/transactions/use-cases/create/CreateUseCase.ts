@@ -120,9 +120,9 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
           const reqAmount = Number(request.amount);
           let newAmount = 0;
           if (request.type === "Debit") {
-            newAmount = currentAmount - reqAmount;
+            newAmount = Math.round((currentAmount - reqAmount) * 100) / 100;
           } else {
-            newAmount = currentAmount + reqAmount;
+            newAmount = Math.round((currentAmount + reqAmount) * 100) / 100;
           }
           await this.envelopeRepo.addAmount(request.envelopeId, newAmount, request.date.getFullYear(), request.date.getMonth() + 1);
         }

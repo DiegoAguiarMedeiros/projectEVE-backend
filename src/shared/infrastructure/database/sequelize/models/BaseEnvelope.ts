@@ -25,6 +25,12 @@ BaseEnvelope.init({
     validate: {
       is: /^#[0-9A-Fa-f]{6}$/
     }
+  },
+  percentage: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
+    validate: { min: 0, max: 100 }
   }
 }, {
   sequelize,

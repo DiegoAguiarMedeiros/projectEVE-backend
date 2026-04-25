@@ -235,4 +235,61 @@ usersRouter.delete('/me',
   (req, res) => userController.deleteAccount.execute(req, res)
 )
 
+/**
+ * @swagger
+ * /auth/forgot-password:
+ *   post:
+ *     summary: Request a password reset link
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *               locale:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Always returns 200 (anti-enumeration)
+ */
+authRouter.post('/forgot-password',
+  (req, res) => userController.requestPasswordReset.execute(req, res)
+)
+
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Reset user password using a valid token
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - newPassword
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Password reset successfully
+ *       400:
+ *         description: Invalid or expired token
+ */
+authRouter.post('/reset-password',
+  (req, res) => userController.resetPassword.execute(req, res)
+)
+
 export { authRouter, usersRouter };

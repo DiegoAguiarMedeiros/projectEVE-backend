@@ -1,17 +1,15 @@
 export type Flags = 'Visa' |
     'Mastercard' |
-    'American Express' |
-    'Discover' |
-    'Diners Club' |
-    'JCB' |
     'Elo' |
-    'Hipercard';
+    'Hipercard' |
+    'American Express' |
+    'Diners Club';
 
-export const allFlags: Flags[] = ['Visa',
+export const allFlags: Flags[] = [
+    'Visa',
     'Mastercard',
-    'American Express',
-    'Discover',
-    'Diners Club',
-    'JCB',
     'Elo',
-    'Hipercard']
+    'Hipercard',
+    'American Express',
+    'Diners Club',
+]

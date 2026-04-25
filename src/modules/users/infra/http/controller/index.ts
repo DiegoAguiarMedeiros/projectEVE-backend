@@ -7,6 +7,8 @@ import { updateUserController } from "../../../use-cases/update";
 import { changePasswordController } from "../../../use-cases/change-password";
 import { verifyEmailController } from "../../../use-cases/verify-email";
 import { deleteUserController } from "../../../use-cases/delete";
+import { requestPasswordResetController } from "../../../use-cases/request-password-reset";
+import { resetPasswordController } from "../../../use-cases/reset-password";
 
 const userController = {
     create: createController,
@@ -18,6 +20,8 @@ const userController = {
     changePassword: changePasswordController,
     verifyEmail: verifyEmailController,
     deleteAccount: deleteUserController,
+    requestPasswordReset: requestPasswordResetController,
+    resetPassword: resetPasswordController,
 }
 
 export default userController;

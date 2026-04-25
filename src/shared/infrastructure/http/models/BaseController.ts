@@ -57,6 +57,10 @@ export abstract class BaseController {
     return BaseController.jsonResponse(res, 409, message ? message : MESSAGES.ERRORS.CONFLICT);
   }
 
+  public unprocessable(res: express.Response, message?: string) {
+    return BaseController.jsonResponse(res, 422, message ? message : 'Unprocessable entity');
+  }
+
   public tooMany(res: express.Response, message?: string) {
     return BaseController.jsonResponse(res, 429, message ? message : MESSAGES.ERRORS.TOO_MANY_REQUESTS);
   }

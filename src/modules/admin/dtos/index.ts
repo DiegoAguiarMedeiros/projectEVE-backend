@@ -39,6 +39,7 @@ export interface AdminBaseEnvelopeDTO {
   name: string;
   color: string;
   order: number;
+  percentage: number;
 }
 
 export interface UpdateAdminUserDTO {
@@ -52,6 +53,7 @@ export interface CreateBaseEnvelopeDTO {
   name: string;
   color: string;
   order: number;
+  percentage: number;
 }
 
 export interface UpdateBaseEnvelopeDTO {
@@ -59,6 +61,7 @@ export interface UpdateBaseEnvelopeDTO {
   name?: string;
   color?: string;
   order?: number;
+  percentage?: number;
 }
 
 export interface UserSummaryDTO {

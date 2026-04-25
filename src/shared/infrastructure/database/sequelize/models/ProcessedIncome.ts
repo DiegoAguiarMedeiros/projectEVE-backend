@@ -60,6 +60,11 @@ ProcessedIncome.init({
         type: DataTypes.UUID,
         allowNull: true,
     },
+    envelope_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: { model: 'envelopes', key: 'id' },
+    },
 }, {
     sequelize,
     modelName: 'ProcessedIncome',

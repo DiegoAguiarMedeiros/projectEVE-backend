@@ -11,4 +11,12 @@ export namespace ProcessAllErrors {
     }
   }
 
+  export class EnvelopesNotDistributed extends Result<UseCaseError> {
+    constructor() {
+      super(false, {
+        message: 'errors.envelopes.not_distributed'
+      } as UseCaseError)
+    }
+  }
+
 }

@@ -3,6 +3,7 @@ export interface AnalyticsCurrentEnvelopesDTO {
   colors?: string[];
   values?: number[];
   subValues?: number[];
+  pureValues?: number[];
 }
 export interface AnalyticsEnvelopesByYearDTO {
   categories: string[];

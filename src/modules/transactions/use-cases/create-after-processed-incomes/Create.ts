@@ -78,6 +78,41 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
 
 
 
+      if (!processedIncomes.isSplitted) {
+        if (processedIncomes.envelopeId) {
+          await this.createUseCase.execute({
+            processedIncomesId: processedIncomesId,
+            envelopeId: processedIncomes.envelopeId.value,
+            description: `deposit.salary|${processedIncomes.month.value}/${processedIncomes.year.value}`,
+            amount: processedIncomes.totalIncomeProcessed.value,
+            date: new Date(`${processedIncomes.year.value}/${processedIncomes.month.value}/${processedIncomes.day.value}`),
+            type: "Credit",
+            status: "transaction.status.completed",
+            paymentMethod: 'envelope.transaction.payment_method.Cash',
+            userId: processedIncomes.userId.value,
+            isTranslatable: true
+          });
+        }
+
+        if (processedIncomes.shouldAddFixedExpenses && fixedExpenses) {
+          for (const fixedExpense of fixedExpenses) {
+            await this.createUseCase.execute({
+              processedIncomesId: processedIncomesId,
+              envelopeId: fixedExpense.envelopeId.value,
+              description: fixedExpense.description.value,
+              amount: fixedExpense.amount.value,
+              date: new Date(processedIncomes.year.value, processedIncomes.month.value - 1, fixedExpense.paymentDay.value),
+              type: "Debit",
+              status: "transaction.status.pending",
+              paymentMethod: 'envelope.transaction.payment_method.Cash',
+              userId: processedIncomes.userId.value
+            });
+          }
+        }
+
+        return right(Result.ok<void>());
+      }
+
       if (processedIncomes.isSplitted) {
 
         const limit = pLimit(10);
@@ -90,7 +125,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
                 processedIncomesId: processedIncomesId,
                 envelopeId: envelope.id.toString(),
                 description: `deposit.salary|${processedIncomes?.month.value}/${processedIncomes?.year.value}`,
-                amount: (processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value) / 100,
+                amount: Math.round(processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value) / 100,
                 date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${processedIncomes?.day.value}`),
                 type: "Credit",
                 status: "transaction.status.completed",
@@ -109,7 +144,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
                     processedIncomesId: processedIncomesId,
                     envelopeId: goals.envelopeId.value,
                     description: goals.description.value,
-                    amount: (((processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value) / 100) * goals.percentage.value) / 100,
+                    amount: Math.round(processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value * goals.percentage.value) / 10000,
                     date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${processedIncomes?.day.value}`),
                     type: "Debit",
                     status: "transaction.status.pending",
@@ -132,7 +167,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
               envelopeId: fixedExpense.envelopeId.value,
               description: fixedExpense.description.value,
               amount: fixedExpense.amount.value,
-              date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${fixedExpense?.paymentDay.value}`),
+              date: new Date(processedIncomes?.year.value, processedIncomes?.month.value - 1, fixedExpense?.paymentDay.value),
               type: "Debit",
               status: "transaction.status.pending",
               paymentMethod: 'envelope.transaction.payment_method.Cash',

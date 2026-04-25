@@ -12,8 +12,8 @@ export class CreateBaseEnvelopeAdminController extends BaseController {
 
   async executeImpl(req: express.Request, res: express.Response): Promise<any> {
     try {
-      const { name, color, order } = req.body;
-      const result = await this.useCase.execute({ name, color, order });
+      const { name, color, order, percentage } = req.body;
+      const result = await this.useCase.execute({ name, color, order, percentage });
 
       if (result.isLeft()) {
         return this.fail(res, result.value.getErrorValue().message);

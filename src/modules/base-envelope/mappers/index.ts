@@ -6,6 +6,7 @@ import { BaseEnvelope } from "../domain/BaseEnvelope";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { BaseEnvelopesDTO } from "../../envelopes/dtos";
 import { Balance } from "../../../shared/domain/Balance";
+import { Percentage } from "../../../shared/domain/Percentage";
 
 
 
@@ -15,6 +16,7 @@ export class BaseEnvelopeMap implements Mapper<BaseEnvelope> {
       name: envelope.name.value,
       color: envelope.color.value,
       order: envelope.order.value,
+      percentage: envelope.percentage.value,
       id: envelope.id.toString(),
     };
   }
@@ -23,16 +25,20 @@ export class BaseEnvelopeMap implements Mapper<BaseEnvelope> {
     const NameOrError = Name.create({ name: raw.name });
     const ColorOrError = Color.create({ color: raw.color });
     const OrderOrError = Balance.create({ balance: raw.order });
+    const PercentageOrError = Percentage.create({ percentage: raw.percentage ?? 0 });
 
     if (NameOrError.isFailure) {
       throw new Error('Invalid use name');
     }
-    
+
     if (ColorOrError.isFailure) {
       throw new Error('Invalid use color');
     }
     if (OrderOrError.isFailure) {
       throw new Error('Invalid use order');
+    }
+    if (PercentageOrError.isFailure) {
+      throw new Error('Invalid use percentage');
     }
 
     const baseEnvelopeOrError = BaseEnvelope.create(
@@ -40,6 +46,7 @@ export class BaseEnvelopeMap implements Mapper<BaseEnvelope> {
         name: NameOrError.getValue(),
         color: ColorOrError.getValue(),
         order: OrderOrError.getValue(),
+        percentage: PercentageOrError.getValue(),
       }, new UniqueEntityID(raw.id));
 
     if (baseEnvelopeOrError.isFailure) {
@@ -54,6 +61,7 @@ export class BaseEnvelopeMap implements Mapper<BaseEnvelope> {
       name: baseEnvelope.name.value,
       color: baseEnvelope.color.value,
       order: baseEnvelope.order.value,
+      percentage: baseEnvelope.percentage.value,
       id: baseEnvelope.id.toString(),
     };
   }

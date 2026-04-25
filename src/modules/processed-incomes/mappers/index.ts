@@ -25,6 +25,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
       isSplitted: income.isSplitted,
       processedAt: income.processedAt,
       auxId: income.auxId?.value,
+      envelopeId: income.envelopeId?.value,
     };
   }
 
@@ -49,7 +50,10 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
     
     const AuxIdOrError = Id.create(raw.aux_id);
     AuxIdOrError.isFailure ? console.error(AuxIdOrError.getErrorValue()) : '';
-    
+
+    const EnvelopeIdOrError = Id.create(raw.envelope_id);
+    EnvelopeIdOrError.isFailure ? console.error(EnvelopeIdOrError.getErrorValue()) : '';
+
     const debtOrError = ProcessedIncomes.create(
       {
         description: DescriptionOrError.getValue(),
@@ -59,6 +63,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
         month: MonthOrError.getValue(),
         totalIncomeProcessed: TotalIncomeProcessedOrError.getValue(),
         auxId: raw.aux_id ? AuxIdOrError.getValue() : undefined,
+        envelopeId: raw.envelope_id ? EnvelopeIdOrError.getValue() : undefined,
         processedAt: raw.processed_at,
         isReprocessed: raw.is_reprocessed,
         isSplitted: raw.is_splitted,
@@ -83,6 +88,7 @@ export class ProcessedIncomesMap implements Mapper<ProcessedIncomes> {
       is_reprocessed: processdIncome.isReprocessed,
       is_splitted: processdIncome.isSplitted,
       should_add_fixed_expenses: processdIncome.shouldAddFixedExpenses,
+      envelope_id: processdIncome.envelopeId?.value ?? null,
     };
   }
 }

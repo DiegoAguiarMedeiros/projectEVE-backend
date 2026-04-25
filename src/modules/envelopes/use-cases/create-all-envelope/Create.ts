@@ -44,7 +44,7 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
           name: item.name.value,
           color: item.color.value,
           order: item.order.value,
-          percentage: 0,
+          percentage: item.percentage.value,
           userId: user.id.toString(),
         })
 

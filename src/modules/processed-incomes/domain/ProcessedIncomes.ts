@@ -23,6 +23,7 @@ interface ProcessedIncomesProps {
   year: Year;
   totalIncomeProcessed: Balance;
   auxId?: Id;
+  envelopeId?: Id;
   processedAt: Date;
   isReprocessed: boolean;
   isSplitted: boolean;
@@ -67,6 +68,12 @@ export class ProcessedIncomes extends AggregateRoot<ProcessedIncomesProps> {
 
   get auxId(): Id | undefined {
     return this.props.auxId;
+  }
+  get envelopeId(): Id | undefined {
+    return this.props.envelopeId;
+  }
+  public updateEnvelopeId(envelopeId: Id | undefined): void {
+    this.props.envelopeId = envelopeId;
   }
   get processedAt(): Date {
     return this.props.processedAt;

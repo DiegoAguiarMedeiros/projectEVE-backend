@@ -11,5 +11,28 @@ export namespace CreateErrors {
     }
   }
 
+  export class EnvelopesNotDistributed extends Result<UseCaseError> {
+    constructor() {
+      super(false, {
+        message: 'errors.envelopes.not_distributed'
+      } as UseCaseError)
+    }
+  }
+
+  export class EnvelopeRequired extends Result<UseCaseError> {
+    constructor() {
+      super(false, {
+        message: 'errors.processed_incomes.envelope_required'
+      } as UseCaseError)
+    }
+  }
+
+  export class EnvelopeNotFound extends Result<UseCaseError> {
+    constructor() {
+      super(false, {
+        message: 'errors.processed_incomes.envelope_not_found'
+      } as UseCaseError)
+    }
+  }
 
 }

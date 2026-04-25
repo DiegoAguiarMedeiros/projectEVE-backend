@@ -2,6 +2,8 @@
 import { UpdateDTO } from "../../dtos";
 import { Percentage } from "../../../../shared/domain/Percentage";
 import { Interface as IEnvelopeRepo } from "../../repos/Interface";
+import { Interface as IFixedExpenseRepo } from "../../../fixed-expenses/repos/Interface";
+import { Interface as IIncomeRepo } from "../../../incomes/repos/Interface";
 import { Color } from "../../../../shared/domain/Color";
 import { AppError } from "../../../../shared/core/AppError";
 import { left, Result, right } from "../../../../shared/core/Result";
@@ -13,9 +15,13 @@ import { UpdateResponse } from "./UpdateResponse";
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: IEnvelopeRepo;
+    private fixedExpenseRepo: IFixedExpenseRepo;
+    private incomeRepo: IIncomeRepo;
 
-    constructor(repo: IEnvelopeRepo) {
+    constructor(repo: IEnvelopeRepo, fixedExpenseRepo: IFixedExpenseRepo, incomeRepo: IIncomeRepo) {
         this.repo = repo;
+        this.fixedExpenseRepo = fixedExpenseRepo;
+        this.incomeRepo = incomeRepo;
     }
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
@@ -50,6 +56,20 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
                         new UpdateErrors.ExceedsTotalPercentageError(currentTotal + percentage.value)
                     ) as UpdateResponse;
                 }
+
+                const totalFixedExpenses = await this.fixedExpenseRepo.getTotalByEnvelope(data.request.id.toString());
+                if (totalFixedExpenses > 0) {
+                    const totalIncome = await this.incomeRepo.getTotal(data.request.userId.toString());
+                    if (totalIncome > 0) {
+                        const minPercentage = (totalFixedExpenses / totalIncome) * 100;
+                        if (percentage.value < minPercentage) {
+                            return left(
+                                new UpdateErrors.BelowMinimumPercentageError(minPercentage)
+                            ) as UpdateResponse;
+                        }
+                    }
+                }
+
                 envelope.updatePercentage(percentage);
             }
 

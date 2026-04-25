@@ -13,6 +13,7 @@ export interface BaseEnvelopesDTO {
   name: string;
   color: string;
   order: number;
+  percentage: number;
   id: string;
 }
 

@@ -88,6 +88,13 @@ export class Repository implements Interface {
     return deletedCount > 0;
   }
 
+  async getTotalByEnvelope(envelopeId: string): Promise<number> {
+    const total = await this.model.sum('amount', {
+      where: { envelope_id: envelopeId },
+    });
+    return total || 0;
+  }
+
   async deleteAll(ids: string[], userId: string): Promise<number> {
     const envelopes = await this.models.Envelopes.findAll({
       where: { user_id: userId },

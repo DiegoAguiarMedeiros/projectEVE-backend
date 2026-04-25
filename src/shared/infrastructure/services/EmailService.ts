@@ -51,6 +51,62 @@ function resolveLocale(locale?: string): SupportedLocale {
   return 'pt-BR';
 }
 
+const verifyEmailPaths: Record<SupportedLocale, string> = {
+  'pt-BR': 'verificar-email',
+  'en': 'en/verify-email',
+  'es': 'es/verificar-email',
+};
+
+const resetPasswordPaths: Record<SupportedLocale, string> = {
+  'pt-BR': 'redefinir-senha',
+  'en': 'en/reset-password',
+  'es': 'es/restablecer-contrasena',
+};
+
+interface ResetPasswordEmailTemplate {
+  subject: string;
+  greeting: string;
+  body: string;
+  expiry: string;
+  buttonLabel: string;
+  fallbackText: string;
+  ignoreText: string;
+  footer: string;
+}
+
+const resetPasswordTemplates: Record<SupportedLocale, (name: string) => ResetPasswordEmailTemplate> = {
+  'pt-BR': (name) => ({
+    subject: 'Redefinição de senha - ProjectEVE',
+    greeting: `Olá, ${name}! 👋`,
+    body: 'Recebemos uma solicitação para redefinir a senha da sua conta no <strong>ProjectEVE</strong>. Clique no botão abaixo para criar uma nova senha.',
+    expiry: 'Este link expira em <strong>1 hora</strong>.',
+    buttonLabel: 'Redefinir Senha',
+    fallbackText: 'Ou copie e cole este link no navegador:',
+    ignoreText: 'Se você não solicitou a redefinição de senha, ignore este e-mail. Sua senha permanecerá a mesma.',
+    footer: `© ${new Date().getFullYear()} ProjectEVE. Todos os direitos reservados.`,
+  }),
+  'es': (name) => ({
+    subject: 'Restablecimiento de contraseña - ProjectEVE',
+    greeting: `¡Hola, ${name}! 👋`,
+    body: 'Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>ProjectEVE</strong>. Haz clic en el botón de abajo para crear una nueva contraseña.',
+    expiry: 'Este enlace expira en <strong>1 hora</strong>.',
+    buttonLabel: 'Restablecer Contraseña',
+    fallbackText: 'O copia y pega este enlace en tu navegador:',
+    ignoreText: 'Si no solicitaste restablecer tu contraseña, ignora este correo. Tu contraseña seguirá siendo la misma.',
+    footer: `© ${new Date().getFullYear()} ProjectEVE. Todos los derechos reservados.`,
+  }),
+  'en': (name) => ({
+    subject: 'Password reset - ProjectEVE',
+    greeting: `Hello, ${name}! 👋`,
+    body: 'We received a request to reset the password for your <strong>ProjectEVE</strong> account. Click the button below to create a new password.',
+    expiry: 'This link expires in <strong>1 hour</strong>.',
+    buttonLabel: 'Reset Password',
+    fallbackText: 'Or copy and paste this link into your browser:',
+    ignoreText: 'If you did not request a password reset, you can safely ignore this email. Your password will remain unchanged.',
+    footer: `© ${new Date().getFullYear()} ProjectEVE. All rights reserved.`,
+  }),
+};
+
 function buildHtml(verificationUrl: string, tpl: EmailTemplate, lang: string): string {
   return `
     <!DOCTYPE html>
@@ -124,10 +180,9 @@ class EmailService {
     locale?: string
   ): Promise<void> {
     const frontendUrl = process.env.PROJECT_EVE_FRONTEND_URL ?? 'https://projecteve-web.onrender.com';
-    const verificationUrl = `${frontendUrl}/verificar-email?token=${token}`;
-    const from = process.env.PROJECT_EVE_RESEND_FROM ?? 'ProjectEVE <no-reply@projecteve.app>';
-
     const resolvedLocale = resolveLocale(locale);
+    const verificationUrl = `${frontendUrl}/${verifyEmailPaths[resolvedLocale]}?token=${token}`;
+    const from = process.env.PROJECT_EVE_RESEND_FROM ?? 'ProjectEVE <no-reply@projecteve.app>';
     const tpl = templates[resolvedLocale](name);
 
     console.log(`[EmailService]: Sending verification email to ${to} (locale: ${resolvedLocale})`);
@@ -149,6 +204,41 @@ class EmailService {
       console.log(`[EmailService]: Email sent successfully - id: ${data?.id}`);
     } catch (err) {
       console.error(`[EmailService]: Failed to send email to ${to}:`, err);
+      throw err;
+    }
+  }
+
+  async sendPasswordResetEmail(
+    to: string,
+    name: string,
+    token: string,
+    locale?: string
+  ): Promise<void> {
+    const frontendUrl = process.env.PROJECT_EVE_FRONTEND_URL ?? 'https://projecteve-web.onrender.com';
+    const resolvedLocale = resolveLocale(locale);
+    const resetUrl = `${frontendUrl}/${resetPasswordPaths[resolvedLocale]}?token=${token}`;
+    const from = process.env.PROJECT_EVE_RESEND_FROM ?? 'ProjectEVE <no-reply@projecteve.app>';
+    const tpl = resetPasswordTemplates[resolvedLocale](name);
+
+    console.log(`[EmailService]: Sending password reset email to ${to} (locale: ${resolvedLocale})`);
+    console.log(`[EmailService]: Reset URL: ${resetUrl}`);
+
+    try {
+      const { data, error } = await this.resend.emails.send({
+        from,
+        to,
+        subject: tpl.subject,
+        html: buildHtml(resetUrl, tpl, resolvedLocale),
+      });
+
+      if (error) {
+        console.error(`[EmailService]: Failed to send password reset email to ${to}:`, error);
+        throw new Error(error.message);
+      }
+
+      console.log(`[EmailService]: Password reset email sent successfully - id: ${data?.id}`);
+    } catch (err) {
+      console.error(`[EmailService]: Failed to send password reset email to ${to}:`, err);
       throw err;
     }
   }

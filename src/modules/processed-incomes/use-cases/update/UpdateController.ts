@@ -24,6 +24,7 @@ export class UpdateController extends BaseController {
                 description: req.body.description,
                 totalIncomeProcessed: req.body.totalIncomeProcessed,
                 isSplitted: req.body.isSplitted,
+                envelopeId: req.body.envelopeId,
                 isReprocessed: true,
             }
         }

@@ -7,6 +7,7 @@ import { BaseEnvelope } from '../../../base-envelope/domain/BaseEnvelope';
 import { Name } from '../../../../shared/domain/Name';
 import { Color } from '../../../../shared/domain/Color';
 import { Balance } from '../../../../shared/domain/Balance';
+import { Percentage } from '../../../../shared/domain/Percentage';
 import { CreateBaseEnvelopeDTO } from '../../dtos';
 
 type Response = Either<AppError.UnexpectedError, Result<void>>;
@@ -24,6 +25,7 @@ export class CreateBaseEnvelopeAdminUseCase implements UseCase<CreateBaseEnvelop
         { argument: request.name, argumentName: 'name' },
         { argument: request.color, argumentName: 'color' },
         { argument: request.order, argumentName: 'order' },
+        { argument: request.percentage, argumentName: 'percentage' },
       ]);
 
       if (guardResult.isFailure) {
@@ -33,8 +35,9 @@ export class CreateBaseEnvelopeAdminUseCase implements UseCase<CreateBaseEnvelop
       const nameOrError = Name.create({ name: request.name });
       const colorOrError = Color.create({ color: request.color });
       const orderOrError = Balance.create({ balance: request.order });
+      const percentageOrError = Percentage.create({ percentage: request.percentage });
 
-      const combined = Result.combine([nameOrError, colorOrError, orderOrError]);
+      const combined = Result.combine([nameOrError, colorOrError, orderOrError, percentageOrError]);
       if (combined.isFailure) {
         return left(new AppError.UnexpectedError(combined.getErrorValue()));
       }
@@ -43,6 +46,7 @@ export class CreateBaseEnvelopeAdminUseCase implements UseCase<CreateBaseEnvelop
         name: nameOrError.getValue(),
         color: colorOrError.getValue(),
         order: orderOrError.getValue(),
+        percentage: percentageOrError.getValue(),
       });
 
       if (baseEnvelopeOrError.isFailure) {

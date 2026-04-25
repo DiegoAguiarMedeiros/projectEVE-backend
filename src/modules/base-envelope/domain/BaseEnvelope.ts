@@ -6,6 +6,7 @@ import { Name } from "../../../shared/domain/Name";
 import { AggregateRoot } from "../../../shared/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
 import { Balance } from "../../../shared/domain/Balance";
+import { Percentage } from "../../../shared/domain/Percentage";
 
 /*
 #1877F2 METAS
@@ -22,6 +23,7 @@ export interface BaseEnvelopeProps {
   name: Name;
   color: Color;
   order: Balance;
+  percentage: Percentage;
 }
 
 export class BaseEnvelope extends AggregateRoot<BaseEnvelopeProps> {
@@ -33,8 +35,13 @@ export class BaseEnvelope extends AggregateRoot<BaseEnvelopeProps> {
   get color(): Color {
     return this.props.color;
   }
+
   get order(): Balance {
     return this.props.order;
+  }
+
+  get percentage(): Percentage {
+    return this.props.percentage;
   }
 
   private constructor(props: BaseEnvelopeProps, id?: UniqueEntityID) {
@@ -47,6 +54,7 @@ export class BaseEnvelope extends AggregateRoot<BaseEnvelopeProps> {
       { argument: props.color, argumentName: "color" },
       { argument: props.name, argumentName: "name" },
       { argument: props.order, argumentName: "order" },
+      { argument: props.percentage, argumentName: "percentage" },
     ]);
 
     if (guardResult.isFailure) {

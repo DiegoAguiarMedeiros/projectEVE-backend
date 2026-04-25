@@ -31,6 +31,12 @@ export class CreateController extends BaseController {
         switch (error.constructor) {
           case CreateErrors.NameTakenError:
             return this.conflict(res, error.getErrorValue())
+          case CreateErrors.EnvelopesNotDistributed:
+            return this.unprocessable(res, error.getErrorValue().message);
+          case CreateErrors.EnvelopeRequired:
+            return this.unprocessable(res, error.getErrorValue().message);
+          case CreateErrors.EnvelopeNotFound:
+            return this.notFound(res, error.getErrorValue().message);
           default:
             return this.fail(res, error.getErrorValue());
         }

@@ -7,6 +7,7 @@ export interface ProcessedIncomesDTO {
   year: number;
   totalIncomeProcessed: number;
   auxId?: string;
+  envelopeId?: string;
   processedAt: Date;
   isReprocessed: boolean;
   isSplitted: boolean;

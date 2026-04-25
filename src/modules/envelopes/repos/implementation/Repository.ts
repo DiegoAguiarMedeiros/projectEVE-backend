@@ -1,5 +1,5 @@
 
-import { col, fn, Op } from "sequelize";
+import { col, fn, literal, Op } from "sequelize";
 import { Envelopes } from "../../domain/Envelopes";
 import { EnvelopesMap as Mapper } from "../../mappers";
 import { Interface } from "../Interface";
@@ -89,7 +89,8 @@ export class Repository implements Interface {
                 'name',
                 'color',
                 [col('EnvelopesAmounts.amount'), 'envelope_amount'],
-                [fn('SUM', col('Transactions.amount')), 'total_amount'],
+                [literal(`SUM(CASE WHEN "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Credit' THEN "Transactions"."amount" ELSE 0 END)`), 'total_amount_no_realloc'],
+                [literal(`SUM(CASE WHEN "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Debit' THEN "Transactions"."amount" ELSE 0 END)`), 'total_debit_no_realloc'],
             ],
             where: {
                 id,
@@ -115,7 +116,6 @@ export class Repository implements Interface {
                             [Op.gte]: new Date(year, month - 1, 1),
                             [Op.lt]: new Date(year, month, 1),
                         },
-                        type: 'Credit',
                     },
                 }
             ],
@@ -123,9 +123,9 @@ export class Repository implements Interface {
             order: ['order'],
             raw: true,
         });
-        const val = parseFloat(data[0].total_amount ?? '0');
-        const sub = parseFloat(data[0].envelope_amount ?? '0');
-        const usedPercent = val > 0 ? ((val - sub) / val) * 100 : 0;
+        const income = parseFloat(data[0].total_amount_no_realloc ?? '0');
+        const spent = parseFloat(data[0].total_debit_no_realloc ?? '0');
+        const usedPercent = income > 0 ? (spent / income) * 100 : 0;
         return Number(usedPercent.toFixed(2));
     }
     async getAnalyticsCurrentEnvelopes(id: string, year: number, month: number): Promise<AnalyticsCurrentEnvelopesDTO> {
@@ -134,7 +134,8 @@ export class Repository implements Interface {
                 'name',
                 'color',
                 [col('EnvelopesAmounts.amount'), 'envelope_amount'],
-                [fn('SUM', col('Transactions.amount')), 'total_amount'],
+                [literal(`SUM(CASE WHEN "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Credit' THEN "Transactions"."amount" ELSE 0 END)`), 'total_amount_no_realloc'],
+                [literal(`SUM(CASE WHEN "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Debit' THEN "Transactions"."amount" ELSE 0 END)`), 'total_debit_no_realloc'],
             ],
             where: {
                 user_id: id,
@@ -160,7 +161,6 @@ export class Repository implements Interface {
                             [Op.gte]: new Date(year, month - 1, 1),
                             [Op.lt]: new Date(year, month, 1),
                         },
-                        type: 'Credit',
                     },
                 }
             ],

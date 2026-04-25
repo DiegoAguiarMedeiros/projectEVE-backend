@@ -42,5 +42,13 @@ export namespace UpdateErrors {
         }
     }
 
+    export class BelowMinimumPercentageError extends Result<UseCaseError> {
+        constructor(minPercentage: number) {
+            super(false, {
+                message: `errors.envelopes.below_minimum_percentage`
+            } as UseCaseError)
+        }
+    }
+
 
 }

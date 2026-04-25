@@ -24,6 +24,7 @@ export class UpdateBaseEnvelopeAdminUseCase implements UseCase<UpdateBaseEnvelop
         name: request.name,
         color: request.color,
         order: request.order,
+        percentage: request.percentage,
       });
 
       return right(Result.ok<void>());

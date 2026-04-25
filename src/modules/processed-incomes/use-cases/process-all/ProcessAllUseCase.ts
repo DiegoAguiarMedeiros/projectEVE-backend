@@ -2,6 +2,7 @@ import { ProcessAllDTO } from "../../dtos";
 import { Interface as IProcessedIncomesRepo } from "../../repos/Interface";
 import { Interface as IIncomesRepo } from "../../../incomes/repos/Interface";
 import { Interface as ITransactionsRepo } from "../../../transactions/repos/Interface";
+import { Interface as IEnvelopesRepo } from "../../../envelopes/repos/Interface";
 import { DeleteAll } from "../../../transactions/use-cases/delete-all-by-processed-incomes-id/DeleteAll";
 import { DeleteUseCase as DeleteTransactionUseCase } from "../../../transactions/use-cases/delete/DeleteUseCase";
 import { Id } from "../../../../shared/domain/Id";
@@ -22,6 +23,7 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
   private deleteAllTransactions: DeleteAll;
   private transactionsRepo: ITransactionsRepo;
   private deleteTransactionUseCase: DeleteTransactionUseCase;
+  private envelopesRepo: IEnvelopesRepo;
 
   constructor(
     processedIncomesRepo: IProcessedIncomesRepo,
@@ -29,12 +31,14 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
     deleteAllTransactions: DeleteAll,
     transactionsRepo: ITransactionsRepo,
     deleteTransactionUseCase: DeleteTransactionUseCase,
+    envelopesRepo: IEnvelopesRepo,
   ) {
     this.processedIncomesRepo = processedIncomesRepo;
     this.incomesRepo = incomesRepo;
     this.deleteAllTransactions = deleteAllTransactions;
     this.transactionsRepo = transactionsRepo;
     this.deleteTransactionUseCase = deleteTransactionUseCase;
+    this.envelopesRepo = envelopesRepo;
   }
 
   async execute(request: ProcessAllDTO): Promise<ProcessAllResponse> {
@@ -48,6 +52,12 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
     }
 
     try {
+      const allEnvelopes = await this.envelopesRepo.getAll(request.userId);
+      const totalPercentage = allEnvelopes.reduce((sum, e) => sum + e.percentage.value, 0);
+      if (totalPercentage !== 100) {
+        return left(new ProcessAllErrors.EnvelopesNotDistributed()) as ProcessAllResponse;
+      }
+
       const incomes = await this.incomesRepo.getAll(request.userId);
 
       if (incomes.length === 0) {

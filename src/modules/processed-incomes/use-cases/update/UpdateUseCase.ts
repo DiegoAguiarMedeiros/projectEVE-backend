@@ -1,6 +1,9 @@
 
 import { Interface as IProcessedIncomesRepo } from "../../repos/Interface";
+import { Interface as IEnvelopesRepo } from "../../../envelopes/repos/Interface";
 import { Balance } from "../../../../shared/domain/Balance";
+import { Id } from "../../../../shared/domain/Id";
+import { UniqueEntityID } from "../../../../shared/domain/UniqueEntityID";
 import { left, Result, right } from "../../../../shared/core/Result";
 import { UseCase } from "../../../../shared/core/UseCase";
 import { Description } from "../../../../shared/domain/Description";
@@ -13,10 +16,12 @@ import type { DomainEvents } from "../../../../shared/domain/events/DomainEvents
 
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: IProcessedIncomesRepo;
+    private envelopesRepo: IEnvelopesRepo;
     private domainEvents: any;
 
-    constructor(repo: IProcessedIncomesRepo,domainEvents: DomainEvents) {
+    constructor(repo: IProcessedIncomesRepo, envelopesRepo: IEnvelopesRepo, domainEvents: DomainEvents) {
         this.repo = repo;
+        this.envelopesRepo = envelopesRepo;
         this.domainEvents = domainEvents;
     }
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
@@ -48,6 +53,19 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
 
             if (data.fieldUpdate.description) processedIncome.updateDescription(description)
             if (data.fieldUpdate.totalIncomeProcessed) processedIncome.updateTotalIncomeProcessed(totalIncomeProcessed)
+
+            if (data.fieldUpdate.envelopeId !== undefined) {
+                if (data.fieldUpdate.envelopeId === null || data.fieldUpdate.envelopeId === '') {
+                    processedIncome.updateEnvelopeId(undefined);
+                } else {
+                    const allEnvelopes = await this.envelopesRepo.getAll(data.request.userId.toString());
+                    const matched = allEnvelopes.find(e => e.id.toString() === data.fieldUpdate.envelopeId);
+                    if (matched) {
+                        const envelopeIdOrError = Id.create(new UniqueEntityID(data.fieldUpdate.envelopeId));
+                        processedIncome.updateEnvelopeId(envelopeIdOrError.getValue());
+                    }
+                }
+            }
 
             processedIncome.updateIsReprocessed(data.fieldUpdate.isReprocessed)
 
