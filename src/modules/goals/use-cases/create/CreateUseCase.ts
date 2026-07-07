@@ -51,7 +51,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const amount: Balance = AmountOrError.getValue();
     const amountTotal: Balance = AmountTotalOrError.getValue();
     const percentage: Percentage = PercentageOrError.getValue();
-    const deadline: Date = request.deadline;
+    const deadline: number = Number(request.deadline);
+    const monthYear: boolean = request.monthYear ?? true;
 
     try {
 
@@ -61,7 +62,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         amount,
         amountTotal,
         percentage,
-        deadline
+        deadline,
+        monthYear
       });
 
       if (goalsOrError.isFailure) {

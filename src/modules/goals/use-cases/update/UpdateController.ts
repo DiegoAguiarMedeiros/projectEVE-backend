@@ -26,6 +26,7 @@ export class UpdateController extends BaseController {
                 amountTotal: req.body.amountTotal,
                 percentage: req.body.percentage,
                 deadline: req.body.deadline,
+                monthYear: req.body.monthYear,
             }
         }
 

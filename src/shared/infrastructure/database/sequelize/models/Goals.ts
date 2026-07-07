@@ -46,8 +46,13 @@ Goals.init({
         }
     },
     deadline: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.STRING(255),
         allowNull: false
+    },
+    month_year: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: true
     }
 }, {
     sequelize,

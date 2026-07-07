@@ -5,7 +5,8 @@ export interface GoalsDTO {
   amount: number;
   amountTotal: number;
   percentage: number;
-  deadline: Date;
+  deadline: number;
+  monthYear: boolean;
 }
 
 export interface GoalsUpdateFiledDTO extends Omit<
@@ -13,7 +14,7 @@ export interface GoalsUpdateFiledDTO extends Omit<
 > { }
 
 export interface GoalsIdDTO extends Omit<
-  GoalsDTO, 'envelopeId' | 'description' | 'amount' | 'amountTotal' | 'deadline' | 'percentage'
+  GoalsDTO, 'envelopeId' | 'description' | 'amount' | 'amountTotal' | 'deadline' | 'percentage' | 'monthYear'
 > { }
 
 export interface CreateDTO extends Omit<GoalsDTO, 'id'| 'envelopeId'> {

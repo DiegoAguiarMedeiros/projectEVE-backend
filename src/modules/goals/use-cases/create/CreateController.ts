@@ -24,6 +24,7 @@ export class CreateController extends BaseController {
       amountTotal: req.body.amountTotal,
       percentage: req.body.percentage,
       deadline: req.body.deadline,
+      monthYear: req.body.monthYear,
       userId:id,
     }
     try {

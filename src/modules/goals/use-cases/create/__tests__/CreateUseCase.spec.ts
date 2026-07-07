@@ -34,7 +34,8 @@ const makeRequest = (overrides = {}) => ({
   amount: 500,
   amountTotal: 50000,
   percentage: 1,
-  deadline: new Date('2030-01-01'),
+  deadline: 10,
+  monthYear: true,
   ...overrides,
 });
 
@@ -116,6 +117,8 @@ describe('CreateGoalsUseCase', () => {
       expect(goal.amount.value).toBe(500);
       expect(goal.amountTotal.value).toBe(50000);
       expect(goal.percentage.value).toBe(1);
+      expect(goal.deadline).toBe(10);
+      expect(goal.monthYear).toBe(true);
     });
   });
 });

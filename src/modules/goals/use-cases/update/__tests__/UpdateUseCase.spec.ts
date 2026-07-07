@@ -25,7 +25,8 @@ const makeGoal = () => GoalsMap.toDomain({
   amount: 500,
   amount_total: 50000,
   percentage: 1,
-  deadline: new Date('2030-01-01'),
+  deadline: 10,
+  month_year: true,
 });
 
 const makeRequest = (overrides = {}) => ({
@@ -35,7 +36,8 @@ const makeRequest = (overrides = {}) => ({
     amount: 1000,
     amountTotal: 300000,
     percentage: 0.33,
-    deadline: new Date('2035-06-01'),
+    deadline: 1,
+    monthYear: false,
   },
   ...overrides,
 });
@@ -101,6 +103,8 @@ describe('UpdateGoalsUseCase', () => {
       expect(id).toBe('goal-uuid');
       expect(updatedGoal.description.value).toBe('Comprar casa');
       expect(updatedGoal.amount.value).toBe(1000);
+      expect(updatedGoal.deadline).toBe(1);
+      expect(updatedGoal.monthYear).toBe(false);
     });
 
     it('deve manter valores originais para campos não fornecidos (falsy)', async () => {
@@ -108,7 +112,7 @@ describe('UpdateGoalsUseCase', () => {
       repo.update.mockResolvedValue(true);
       await useCase.execute({
         request: { id: 'goal-uuid', userId: 'user-uuid' },
-        fieldUpdate: { description: 'Novo nome', amount: 0, amountTotal: 0, percentage: 0, deadline: new Date('2030-01-01') },
+        fieldUpdate: { description: 'Novo nome', amount: 0, amountTotal: 0, percentage: 0, deadline: 10, monthYear: true },
       });
       const [, updatedGoal] = repo.update.mock.calls[0];
       expect(updatedGoal.amount.value).toBe(500);

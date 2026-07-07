@@ -17,7 +17,8 @@ interface GoalsProps {
   percentage: Percentage;
   amount: Balance;
   amountTotal: Balance;
-  deadline: Date;
+  deadline: number;
+  monthYear: boolean;
 }
 
 
@@ -53,11 +54,17 @@ export class Goals extends AggregateRoot<GoalsProps> {
   public updatePercentage(percentage: Percentage): void {
     this.props.percentage = percentage;
   }
-  get deadline(): Date {
+  get deadline(): number {
     return this.props.deadline;
   }
-  public updateDeadline(deadline: Date): void {
+  public updateDeadline(deadline: number): void {
     this.props.deadline = deadline;
+  }
+  get monthYear(): boolean {
+    return this.props.monthYear;
+  }
+  public updateMonthYear(monthYear: boolean): void {
+    this.props.monthYear = monthYear;
   }
 
   private constructor(props: GoalsProps, id?: UniqueEntityID) {
@@ -72,6 +79,7 @@ export class Goals extends AggregateRoot<GoalsProps> {
       { argument: props.amount, argumentName: "amount" },
       { argument: props.percentage, argumentName: "percentage" },
       { argument: props.deadline, argumentName: "deadline" },
+      { argument: props.monthYear, argumentName: "monthYear" },
     ]);
 
     if (guardResult.isFailure) {

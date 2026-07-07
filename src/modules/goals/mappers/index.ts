@@ -23,7 +23,18 @@ export class GoalsMap implements Mapper<Goals> {
       amountTotal: goals.amountTotal.value,
       percentage: goals.percentage.value,
       deadline: goals.deadline,
+      monthYear: goals.monthYear,
     };
+  }
+
+  private static parseDeadline(rawDeadline: any): number {
+    if (rawDeadline instanceof Date) return rawDeadline.getUTCMonth() + 1;
+
+    const numericDeadline = Number(rawDeadline);
+    if (!Number.isNaN(numericDeadline)) return numericDeadline;
+
+    const date = new Date(rawDeadline);
+    return date.getUTCMonth() + 1;
   }
 
   public static toDomain(raw: any): Goals {
@@ -49,7 +60,8 @@ export class GoalsMap implements Mapper<Goals> {
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
         amountTotal: AmountTotalOrError.getValue(),
-        deadline: raw.deadline,
+        deadline: GoalsMap.parseDeadline(raw.deadline),
+        monthYear: raw.month_year ?? raw.monthYear ?? true,
         percentage: PercentageOrError.getValue(),
       }, new UniqueEntityID(raw.id));
 
@@ -67,7 +79,8 @@ export class GoalsMap implements Mapper<Goals> {
       amount: goals.amount.value,
       amount_total: goals.amountTotal.value,
       percentage: goals.percentage.value,
-      deadline: goals.deadline,
+      deadline: String(goals.deadline),
+      month_year: goals.monthYear,
     };
   }
 }

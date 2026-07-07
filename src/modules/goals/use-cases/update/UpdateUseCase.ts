@@ -62,8 +62,10 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const percentage: Percentage = PercentageOrError.getValue();
             if (data.fieldUpdate.percentage) goals.updatePercentage(percentage)
             
-            const deadline: Date = data.fieldUpdate.deadline;
+            const deadline: number = Number(data.fieldUpdate.deadline);
             if (data.fieldUpdate.deadline) goals.updateDeadline(deadline)
+
+            if (data.fieldUpdate.monthYear !== undefined) goals.updateMonthYear(data.fieldUpdate.monthYear)
 
             const updateGoals = await this.repo.update(data.request.id.toString(), goals);
             if (updateGoals) return right(Result.ok<void>()) as UpdateResponse;

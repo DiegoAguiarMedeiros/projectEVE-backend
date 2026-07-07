@@ -11,7 +11,8 @@ const makeValidProps = () => ({
   amount: Balance.create({ balance: 500 }).getValue(),
   amountTotal: Balance.create({ balance: 50000 }).getValue(),
   percentage: Percentage.create({ percentage: 1 }).getValue(),
-  deadline: new Date('2030-01-01'),
+  deadline: 10,
+  monthYear: true,
 });
 
 describe('Goals', () => {
@@ -52,6 +53,11 @@ describe('Goals', () => {
       const result = Goals.create({ ...makeValidProps(), deadline: null as any });
       expect(result.isFailure).toBe(true);
     });
+
+    it('deve falhar quando monthYear é null', () => {
+      const result = Goals.create({ ...makeValidProps(), monthYear: null as any });
+      expect(result.isFailure).toBe(true);
+    });
   });
 
   describe('getters e mutators', () => {
@@ -83,9 +89,14 @@ describe('Goals', () => {
 
     it('deve atualizar deadline via updateDeadline()', () => {
       const goal = Goals.create(makeValidProps()).getValue();
-      const newDeadline = new Date('2035-06-15');
-      goal.updateDeadline(newDeadline);
-      expect(goal.deadline).toEqual(newDeadline);
+      goal.updateDeadline(1);
+      expect(goal.deadline).toBe(1);
+    });
+
+    it('deve atualizar monthYear via updateMonthYear()', () => {
+      const goal = Goals.create(makeValidProps()).getValue();
+      goal.updateMonthYear(false);
+      expect(goal.monthYear).toBe(false);
     });
   });
 });

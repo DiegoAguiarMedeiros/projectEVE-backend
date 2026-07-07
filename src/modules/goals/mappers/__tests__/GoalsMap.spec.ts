@@ -7,7 +7,8 @@ const rawDb = {
   amount: 500,
   amount_total: 50000,
   percentage: 1,
-  deadline: new Date('2030-06-01'),
+  deadline: 10,
+  month_year: true,
 };
 
 describe('GoalsMap', () => {
@@ -24,6 +25,7 @@ describe('GoalsMap', () => {
     it('deve mapear deadline corretamente', () => {
       const goal = GoalsMap.toDomain(rawDb);
       expect(goal.deadline).toEqual(rawDb.deadline);
+      expect(goal.monthYear).toBe(true);
     });
   });
 
@@ -36,6 +38,7 @@ describe('GoalsMap', () => {
       expect(typeof dto.amount).toBe('number');
       expect(typeof dto.amountTotal).toBe('number');
       expect(dto.percentage).toBe(1);
+      expect(dto.monthYear).toBe(true);
     });
 
     it('deve incluir envelopeId no DTO', () => {
@@ -53,6 +56,8 @@ describe('GoalsMap', () => {
       expect(persistence.envelope_id).toBeDefined();
       expect(persistence.amount_total).toBe(50000);
       expect(persistence.description).toBe('Comprar carro');
+      expect(persistence.deadline).toBe('10');
+      expect(persistence.month_year).toBe(true);
     });
   });
 });
