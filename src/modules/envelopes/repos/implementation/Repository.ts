@@ -112,6 +112,7 @@ export class Repository implements Interface {
                     required: false,
                     attributes: [],
                     where: {
+                        status: 'transaction.status.completed',
                         date: {
                             [Op.gte]: new Date(year, month - 1, 1),
                             [Op.lt]: new Date(year, month, 1),
@@ -157,6 +158,7 @@ export class Repository implements Interface {
                     required: false,
                     attributes: [],
                     where: {
+                        status: 'transaction.status.completed',
                         date: {
                             [Op.gte]: new Date(year, month - 1, 1),
                             [Op.lt]: new Date(year, month, 1),
