@@ -42,7 +42,10 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<LoginResponse
       password = passwordOrError.getValue();
 
       try {
+
+        console.log('LOGIN: entrou no use case', email.value, password.value);
         user = await this.repository.getUserByEmail(email);
+        console.log('LOGIN: achou usuário', user);
         const userFound = !!user;
 
         if (!userFound) {
