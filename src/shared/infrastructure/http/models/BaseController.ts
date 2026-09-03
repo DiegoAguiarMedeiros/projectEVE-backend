@@ -69,10 +69,12 @@ export abstract class BaseController {
     return BaseController.jsonResponse(res, 400, 'TODO');
   }
 
-  public fail(res: express.Response, error: Error | string) {
+  public fail(res: express.Response, error: Error | string | any) {
     console.error(error);
-    return res.status(500).json({
-      message: error.toString()
-    })
+    const message =
+      typeof error === 'string'
+        ? error
+        : error?.message ?? error?.toString() ?? 'An unexpected error occurred';
+    return res.status(500).json({ message })
   }
 }

@@ -35,23 +35,25 @@ export class UpdateController extends BaseController {
 
                 switch (error.constructor) {
                     case UpdateErrors.NameAlreadyExist:
-                        return this.conflict(res, error.getErrorValue())
+                        return this.conflict(res, error.getErrorValue().message)
                     case UpdateErrors.NotFound:
-                        return this.conflict(res, error.getErrorValue())
+                        return this.conflict(res, error.getErrorValue().message)
                     case UpdateErrors.NameCanNotBeChanged:
-                        return this.conflict(res, error.getErrorValue())
+                        return this.conflict(res, error.getErrorValue().message)
+                    case UpdateErrors.BelowMinimumPercentageError:
+                        return this.clientError(res, error.getErrorValue().message)
                     case UpdateErrors.ExceedsTotalPercentageError:
                         return this.clientError(res, error.getErrorValue().message)
                     default:
-                        return this.fail(res, error.getErrorValue());
+                        return this.fail(res, error.getErrorValue()?.message ?? error.getErrorValue());
                 }
 
             } else {
                 return this.ok(res);
             }
 
-        } catch (err) {
-            return this.fail(res, err as string | Error)
+        } catch (err: any) {
+            return this.fail(res, err?.message ?? err)
         }
     }
 
