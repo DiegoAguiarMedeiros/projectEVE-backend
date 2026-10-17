@@ -185,9 +185,6 @@ class EmailService {
     const from = process.env.PROJECT_EVE_RESEND_FROM ?? 'ProjectEVE <no-reply@projecteve.app>';
     const tpl = templates[resolvedLocale](name);
 
-    console.log(`[EmailService]: Sending verification email to ${to} (locale: ${resolvedLocale})`);
-    console.log(`[EmailService]: Verification URL: ${verificationUrl}`);
-
     try {
       const { data, error } = await this.resend.emails.send({
         from,
@@ -201,7 +198,6 @@ class EmailService {
         throw new Error(error.message);
       }
 
-      console.log(`[EmailService]: Email sent successfully - id: ${data?.id}`);
     } catch (err) {
       console.error(`[EmailService]: Failed to send email to ${to}:`, err);
       throw err;
@@ -220,9 +216,6 @@ class EmailService {
     const from = process.env.PROJECT_EVE_RESEND_FROM ?? 'ProjectEVE <no-reply@projecteve.app>';
     const tpl = resetPasswordTemplates[resolvedLocale](name);
 
-    console.log(`[EmailService]: Sending password reset email to ${to} (locale: ${resolvedLocale})`);
-    console.log(`[EmailService]: Reset URL: ${resetUrl}`);
-
     try {
       const { data, error } = await this.resend.emails.send({
         from,
@@ -236,7 +229,6 @@ class EmailService {
         throw new Error(error.message);
       }
 
-      console.log(`[EmailService]: Password reset email sent successfully - id: ${data?.id}`);
     } catch (err) {
       console.error(`[EmailService]: Failed to send password reset email to ${to}:`, err);
       throw err;

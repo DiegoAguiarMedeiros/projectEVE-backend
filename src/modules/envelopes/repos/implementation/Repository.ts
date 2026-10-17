@@ -50,6 +50,16 @@ export class Repository implements Interface {
         const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
+        const incomeData = await this.models.Incomes.findAll({
+            where: {
+                user_id: id,
+            },
+            attributes: [
+                [fn('SUM', col('amount')), 'total_income']
+            ],
+            raw: true,
+        });
+
         const data = await this.model.findAll({
             where: {
                 user_id: id,
@@ -57,9 +67,18 @@ export class Repository implements Interface {
             limit: limit,
             offset: offset,
             order: ['order'],
+            raw: true,
 
         });
-        return data.map((item: any) => Mapper.toDomain(item));
+        return Promise.all(data.map(async (item: any) => {
+            const total = await this.models.FixedExpenses.sum('amount', {
+                where: { envelope_id: item.id },
+            });
+            return Mapper.toDomain({
+                ...item,
+                minAmount: total,
+            })
+        }));
     }
 
     async getAllMonthly(id: string, year: number, month: number): Promise<Envelopes[]> {

@@ -7,7 +7,7 @@ import { EnvelopesMap as Mapper } from "../../mappers";
 
 
 export class GetAllUseCase implements UseCase<string, Promise<GetAllResponse>> {
-    private envelopeRepo: IEnvelopesRepo;
+    private readonly envelopeRepo: IEnvelopesRepo;
 
     constructor(envelopeRepo: IEnvelopesRepo) {
         this.envelopeRepo = envelopeRepo;
