@@ -215,6 +215,39 @@ debtsRouter.patch(
  *       404:
  *         description: Debt not found
  */
+/**
+ * @swagger
+ * /debts/summary:
+ *   get:
+ *     summary: Get the authenticated user debt totals for a selected month
+ *     tags: [Debts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: month
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 12
+ *       - in: query
+ *         name: year
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Total, paid, and remaining debt amounts
+ *       400:
+ *         description: Invalid month or year
+ */
+debtsRouter.get(
+  '/summary',
+  middleware.ensureAuthenticated(),
+  (req, res) => debtsController.summary.execute(req, res)
+);
+
 debtsRouter.get(
   '/:id',
   middleware.ensureAuthenticated(),
