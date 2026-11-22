@@ -77,30 +77,41 @@ describe('EnvelopesMap', () => {
   });
 
   describe('toAnalyticsCurrentEnvelopesDTO()', () => {
-    it('deve filtrar itens sem saldo e sem renda e calcular usedPercent baseado em gastos reais', () => {
+    it('deve filtrar itens sem saldo e sem orçamento efetivo e calcular usedPercent baseado em gastos reais', () => {
       const raw = [
-        { name: 'Alimentação', color: '#ff5733', envelope_amount: '700', total_amount_no_realloc: '1000', total_debit_no_realloc: '300' },
-        { name: 'Lazer', color: '#000000', envelope_amount: '0', total_amount_no_realloc: '0', total_debit_no_realloc: '0' },
+        { name: 'Alimentação', color: '#ff5733', envelope_amount: '700', effective_budget: '1000', total_debit_no_realloc: '300' },
+        { name: 'Lazer', color: '#000000', envelope_amount: '0', effective_budget: '0', total_debit_no_realloc: '0' },
       ];
       const dto = EnvelopesMap.toAnalyticsCurrentEnvelopesDTO(raw);
       expect(dto.labels!).toHaveLength(1);
       expect(dto.labels![0]).toBe('Alimentação');
       expect(dto.values![0]).toBe(700);
+      expect(dto.pureValues![0]).toBe(1000);
       expect(dto.subValues![0]).toBe(30);
     });
 
-    it('não deve alterar usedPercent quando há realocação', () => {
+    it('deve considerar realocações no orçamento efetivo sem contar realocação como gasto', () => {
       const raw = [
-        // Envelope A: recebeu 1000, sem gastos, realocou 500 para fora (saldo: 500)
-        { name: 'Envelope A', color: '#ff5733', envelope_amount: '500', total_amount_no_realloc: '1000', total_debit_no_realloc: '0' },
-        // Envelope B: recebeu 1000, sem gastos, recebeu 500 de realocação (saldo: 1500)
-        { name: 'Envelope B', color: '#000000', envelope_amount: '1500', total_amount_no_realloc: '1000', total_debit_no_realloc: '0' },
+        // Envelope A: recebeu 1000, realocou 500 para fora (orçamento efetivo: 500), gastou 250 (saldo: 250) -> 50% usado
+        { name: 'Envelope A', color: '#ff5733', envelope_amount: '250', effective_budget: '500', total_debit_no_realloc: '250' },
+        // Envelope B: recebeu 1000, recebeu 500 de realocação (orçamento efetivo: 1500), gastou 1200 (saldo: 300) -> 80% usado
+        { name: 'Envelope B', color: '#000000', envelope_amount: '300', effective_budget: '1500', total_debit_no_realloc: '1200' },
+        // Envelope C: recebeu 200, realocou 200 para fora (orçamento efetivo: 0, saldo: 0), sem gastos -> filtrado
+        { name: 'Envelope C', color: '#123456', envelope_amount: '0', effective_budget: '0', total_debit_no_realloc: '0' },
       ];
       const dto = EnvelopesMap.toAnalyticsCurrentEnvelopesDTO(raw);
-      expect(dto.values![0]).toBe(500);
-      expect(dto.values![1]).toBe(1500);
-      expect(dto.subValues![0]).toBe(0);
-      expect(dto.subValues![1]).toBe(0);
+      expect(dto.labels!).toEqual(['Envelope A', 'Envelope B']);
+      expect(dto.values!).toEqual([250, 300]);
+      expect(dto.pureValues!).toEqual([500, 1500]);
+      expect(dto.subValues!).toEqual([50, 80]);
+    });
+
+    it('deve limitar usedPercent a 100% quando gastos excedem orçamento efetivo', () => {
+      const raw = [
+        { name: 'Outros', color: '#ff5733', envelope_amount: '-50', effective_budget: '500', total_debit_no_realloc: '550' },
+      ];
+      const dto = EnvelopesMap.toAnalyticsCurrentEnvelopesDTO(raw);
+      expect(dto.subValues![0]).toBe(100);
     });
   });
 });

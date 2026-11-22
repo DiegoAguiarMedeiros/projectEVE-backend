@@ -75,14 +75,12 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
         request.month,
       );
 
-      await Promise.all(
-        existingForMonth.map(async (existing) => {
-          await this.deleteAllTransactions.execute({
-            processedIncomesId: existing.id.toString(),
-          });
-          await this.processedIncomesRepo.delete(existing.id.toString());
-        })
-      );
+      for (const existing of existingForMonth) {
+        await this.deleteAllTransactions.execute({
+          processedIncomesId: existing.id.toString(),
+        });
+        await this.processedIncomesRepo.delete(existing.id.toString());
+      }
 
       // Remove transações órfãs revertendo o saldo dos envelopes corretamente
       const orphaned = await this.transactionsRepo.getOrphanedTransactionsByMonth(request.userId, request.year, request.month);
@@ -91,33 +89,32 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
       }
       await this.transactionsRepo.deleteOrphanedByUserAndMonth(request.userId, request.year, request.month);
 
-      await Promise.all(
-        incomes.map(async (income, index) => {
-          const dayOrError = Day.create({ day: income.paymentDay.value });
-          if (dayOrError.isFailure) {
-            throw new Error(dayOrError.getErrorValue().toString());
-          }
+      for (let index = 0; index < incomes.length; index++) {
+        const income = incomes[index];
+        const dayOrError = Day.create({ day: income.paymentDay.value });
+        if (dayOrError.isFailure) {
+          throw new Error(dayOrError.getErrorValue().toString());
+        }
 
-          const processedIncomeOrError = ProcessedIncomes.create({
-            description: income.description,
-            userId,
-            year,
-            month,
-            day: dayOrError.getValue(),
-            totalIncomeProcessed: income.amount,
-            processedAt: new Date(),
-            isReprocessed: false,
-            isSplitted: true,
-            shouldAddFixedExpenses: index === 0,
-          });
+        const processedIncomeOrError = ProcessedIncomes.create({
+          description: income.description,
+          userId,
+          year,
+          month,
+          day: dayOrError.getValue(),
+          totalIncomeProcessed: income.amount,
+          processedAt: new Date(),
+          isReprocessed: false,
+          isSplitted: true,
+          shouldAddFixedExpenses: index === 0,
+        });
 
-          if (processedIncomeOrError.isFailure) {
-            throw new Error(processedIncomeOrError.getErrorValue().toString());
-          }
+        if (processedIncomeOrError.isFailure) {
+          throw new Error(processedIncomeOrError.getErrorValue().toString());
+        }
 
-          await this.processedIncomesRepo.create(processedIncomeOrError.getValue());
-        })
-      );
+        await this.processedIncomesRepo.create(processedIncomeOrError.getValue());
+      }
 
       return right(Result.ok<void>());
     } catch (err) {

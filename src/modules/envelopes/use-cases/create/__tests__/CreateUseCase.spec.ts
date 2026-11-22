@@ -15,6 +15,7 @@ const makeRepo = (): jest.Mocked<IEnvelopeRepo> => ({
   getAllMonthly: jest.fn(),
   createAmount: jest.fn(),
   addAmount: jest.fn(),
+  adjustAmount: jest.fn(),
   getAmount: jest.fn(),
   getUsedByEnvelopeID: jest.fn(),
   getAnalyticsCurrentEnvelopes: jest.fn(),

@@ -32,11 +32,12 @@ const makeTransactionsRepo = (): jest.Mocked<ITransactionsRepo> => ({
   getTotalPendingDebitsByEnvelope: jest.fn(),
 });
 
-const makeEnvelopeRepo = (): jest.Mocked<Pick<IEnvelopeRepo, 'getOnlyById' | 'getAmount' | 'addAmount' | 'createAmount'>> => ({
+const makeEnvelopeRepo = (): jest.Mocked<Pick<IEnvelopeRepo, 'getOnlyById' | 'getAmount' | 'addAmount' | 'createAmount' | 'adjustAmount'>> => ({
   getOnlyById: jest.fn(),
   getAmount: jest.fn(),
   addAmount: jest.fn(),
   createAmount: jest.fn(),
+  adjustAmount: jest.fn(),
 });
 
 const makeRequest = (overrides = {}) => ({
@@ -139,11 +140,8 @@ describe('CreateUseCase', () => {
       expect(transactionsRepo.getTotalPendingDebitsByEnvelope).not.toHaveBeenCalled();
     });
 
-    it('deve atualizar envelope amount quando status=completed e amount existe', async () => {
-      const envelope = makeTransactionStub().envelopeId;
-      envelopeRepo.getAmount
-        .mockResolvedValueOnce(500) // budget check
-        .mockResolvedValueOnce(500); // envelope update
+    it('deve ajustar envelope amount atomicamente com delta negativo quando Debit e status=completed', async () => {
+      envelopeRepo.getAmount.mockResolvedValueOnce(500); // budget check
       transactionsRepo.getTotalPendingDebitsByEnvelope.mockResolvedValue(0);
       transactionsRepo.create.mockResolvedValue(undefined);
       envelopeRepo.getOnlyById.mockResolvedValue({ id: 'env-uuid' });
@@ -155,14 +153,11 @@ describe('CreateUseCase', () => {
       }));
 
       expect(result.isRight()).toBe(true);
-      expect(envelopeRepo.addAmount).toHaveBeenCalledWith('env-uuid', 450, 2026, 3);
+      expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', -50, 2026, 3);
     });
 
-    it('deve criar envelope amount quando status=completed e amount não existe', async () => {
-      envelopeRepo.getAmount
-        .mockResolvedValueOnce(500) // budget check
-        .mockResolvedValueOnce(null); // envelope has no allocation yet
-      transactionsRepo.getTotalPendingDebitsByEnvelope.mockResolvedValue(0);
+    it('deve criar/ajustar envelope amount quando status=completed e amount ainda não existe', async () => {
+      envelopeRepo.getAmount.mockResolvedValueOnce(null); // budget check
       transactionsRepo.create.mockResolvedValue(undefined);
       envelopeRepo.getOnlyById.mockResolvedValue({ id: 'env-uuid' });
 
@@ -173,11 +168,10 @@ describe('CreateUseCase', () => {
       }));
 
       expect(result.isRight()).toBe(true);
-      expect(envelopeRepo.createAmount).toHaveBeenCalledWith('env-uuid', -50, 2026, 3);
+      expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', -50, 2026, 3);
     });
 
-    it('deve criar Credit e somar ao envelope amount quando status=completed', async () => {
-      envelopeRepo.getAmount.mockResolvedValue(100);
+    it('deve criar Credit e ajustar envelope amount atomicamente com delta positivo quando status=completed', async () => {
       transactionsRepo.create.mockResolvedValue(undefined);
       envelopeRepo.getOnlyById.mockResolvedValue({ id: 'env-uuid' });
 
@@ -188,7 +182,7 @@ describe('CreateUseCase', () => {
       }));
 
       expect(result.isRight()).toBe(true);
-      expect(envelopeRepo.addAmount).toHaveBeenCalledWith('env-uuid', 150, 2026, 3);
+      expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', 50, 2026, 3);
     });
   });
 });

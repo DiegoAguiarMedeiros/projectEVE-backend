@@ -15,9 +15,9 @@ export class EnvelopesMap implements Mapper<Envelopes> {
 
   public static toAnalyticsCurrentEnvelopesDTO(raw: any): AnalyticsCurrentEnvelopesDTO {
     const filtered = raw.filter(
-      (item: { 'envelope_amount': any; 'total_amount_no_realloc': any }) => {
+      (item: { 'envelope_amount': any; 'effective_budget': any }) => {
         const sub = parseFloat(item['envelope_amount'] ?? '0');
-        const pureVal = parseFloat(item['total_amount_no_realloc'] ?? '0');
+        const pureVal = parseFloat(item['effective_budget'] ?? '0');
         return sub > 0 || pureVal > 0;
       }
     );
@@ -25,10 +25,10 @@ export class EnvelopesMap implements Mapper<Envelopes> {
     const result = filtered.reduce(
       (
         acc: { labels: string[]; colors: string[]; subValues: number[]; values: number[]; pureValues: number[]; },
-        item: { name: any; color: any; 'envelope_amount': any; 'total_amount_no_realloc': any; 'total_debit_no_realloc': any }
+        item: { name: any; color: any; 'envelope_amount': any; 'effective_budget': any; 'total_debit_no_realloc': any }
       ) => {
         const sub = parseFloat(item['envelope_amount'] ?? '0');
-        const pureVal = parseFloat(item['total_amount_no_realloc'] ?? '0');
+        const pureVal = parseFloat(item['effective_budget'] ?? '0');
         const debitNoRealloc = parseFloat(item['total_debit_no_realloc'] ?? '0');
 
         acc.labels.push(String(item.name));
@@ -36,7 +36,10 @@ export class EnvelopesMap implements Mapper<Envelopes> {
         acc.values.push(sub);
         acc.pureValues.push(pureVal);
 
-        const usedPercent = pureVal > 0 ? (debitNoRealloc / pureVal) * 100 : 0;
+        const rawUsedPercent = pureVal > 0
+          ? (debitNoRealloc / pureVal) * 100
+          : (debitNoRealloc > 0 ? 100 : 0);
+        const usedPercent = Math.min(100, Math.max(0, rawUsedPercent));
         acc.subValues.push(Number(usedPercent.toFixed(2)));
         return acc;
       },

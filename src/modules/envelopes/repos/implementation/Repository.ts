@@ -1,4 +1,5 @@
 
+import { randomUUID } from "crypto";
 import { col, fn, literal, Op } from "sequelize";
 import { Envelopes } from "../../domain/Envelopes";
 import { EnvelopesMap as Mapper } from "../../mappers";
@@ -108,7 +109,7 @@ export class Repository implements Interface {
                 'name',
                 'color',
                 [col('EnvelopesAmounts.amount'), 'envelope_amount'],
-                [literal(`SUM(CASE WHEN "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Credit' THEN "Transactions"."amount" ELSE 0 END)`), 'total_amount_no_realloc'],
+                [literal(`SUM(CASE WHEN "Transactions"."type" = 'Credit' THEN "Transactions"."amount" WHEN "Transactions"."payment_method" = 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Debit' THEN -"Transactions"."amount" ELSE 0 END)`), 'effective_budget'],
                 [literal(`SUM(CASE WHEN "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Debit' THEN "Transactions"."amount" ELSE 0 END)`), 'total_debit_no_realloc'],
             ],
             where: {
@@ -143,9 +144,12 @@ export class Repository implements Interface {
             order: ['order'],
             raw: true,
         });
-        const income = parseFloat(data[0].total_amount_no_realloc ?? '0');
-        const spent = parseFloat(data[0].total_debit_no_realloc ?? '0');
-        const usedPercent = income > 0 ? (spent / income) * 100 : 0;
+        const effectiveBudget = parseFloat(data[0]?.effective_budget ?? '0');
+        const spent = parseFloat(data[0]?.total_debit_no_realloc ?? '0');
+        const rawUsedPercent = effectiveBudget > 0
+            ? (spent / effectiveBudget) * 100
+            : (spent > 0 ? 100 : 0);
+        const usedPercent = Math.min(100, Math.max(0, rawUsedPercent));
         return Number(usedPercent.toFixed(2));
     }
     async getAnalyticsCurrentEnvelopes(id: string, year: number, month: number): Promise<AnalyticsCurrentEnvelopesDTO> {
@@ -154,7 +158,7 @@ export class Repository implements Interface {
                 'name',
                 'color',
                 [col('EnvelopesAmounts.amount'), 'envelope_amount'],
-                [literal(`SUM(CASE WHEN "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Credit' THEN "Transactions"."amount" ELSE 0 END)`), 'total_amount_no_realloc'],
+                [literal(`SUM(CASE WHEN "Transactions"."type" = 'Credit' THEN "Transactions"."amount" WHEN "Transactions"."payment_method" = 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Debit' THEN -"Transactions"."amount" ELSE 0 END)`), 'effective_budget'],
                 [literal(`SUM(CASE WHEN "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' AND "Transactions"."type" = 'Debit' THEN "Transactions"."amount" ELSE 0 END)`), 'total_debit_no_realloc'],
             ],
             where: {
@@ -231,12 +235,28 @@ export class Repository implements Interface {
 
 
     async createAmount(envelopeId: string, amount: number, year: number, month: number): Promise<void> {
-        await this.models.EnvelopesAmounts.create({
-            envelope_id: envelopeId,
-            amount,
-            year,
-            month,
-        });
+        await this.adjustAmount(envelopeId, amount, year, month);
+    }
+
+    async adjustAmount(envelopeId: string, delta: number, year: number, month: number): Promise<void> {
+        const roundedDelta = Math.round(Number(delta) * 100) / 100;
+        await this.models.EnvelopesAmounts.sequelize.query(
+            `INSERT INTO envelopes_amounts (id, envelope_id, amount, year, month, created_at, updated_at)
+             VALUES (:id, :envelopeId, :delta, :year, :month, NOW(), NOW())
+             ON CONFLICT (envelope_id, year, month)
+             DO UPDATE SET
+               amount = ROUND((envelopes_amounts.amount + EXCLUDED.amount)::numeric, 2),
+               updated_at = NOW()`,
+            {
+                replacements: {
+                    id: randomUUID(),
+                    envelopeId,
+                    delta: roundedDelta,
+                    year,
+                    month,
+                },
+            }
+        );
     }
 
     async addAmount(envelopeId: string, amount: number, year: number, month: number): Promise<void> {

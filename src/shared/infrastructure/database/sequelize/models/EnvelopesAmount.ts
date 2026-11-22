@@ -44,7 +44,14 @@ EnvelopesAmounts.init({
   tableName: 'envelopes_amounts',
   createdAt: 'created_at',
   updatedAt: 'updated_at',
-  timestamps: true
+  timestamps: true,
+  indexes: [
+    {
+      unique: true,
+      name: 'envelopes_amounts_envelope_id_year_month_unique',
+      fields: ['envelope_id', 'year', 'month']
+    }
+  ]
 });
 
 export default EnvelopesAmounts;

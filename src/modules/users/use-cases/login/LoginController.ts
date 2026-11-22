@@ -61,7 +61,7 @@ export class LoginController extends BaseController {
 
         res.cookie('refreshToken', dto.refreshToken, cookieConfig);
 
-        return this.ok(res);
+        return this.ok(res, dto);
       }
 
     } catch (err) {

@@ -46,13 +46,16 @@ export class Middleware {
 
     public ensureAuthenticated() {
         return async (req: any, res: any, next: any) => {
-            const { accessToken, refreshToken } = req.cookies;
+            const cookieAccessToken = req.cookies?.accessToken;
+            const cookieRefreshToken = req.cookies?.refreshToken;
+            const headerBearerToken = req.headers?.['authorization']?.replace('Bearer ', '');
 
-            if (!accessToken || !refreshToken) {
+            const token = cookieAccessToken || headerBearerToken;
+
+            if (!token || (!cookieRefreshToken && !headerBearerToken)) {
                 return res.status(400).json({ message: 'No access token provided' });
             }
 
-            const token = accessToken;
             if (token) {
                 const decoded = await this.authService.decodeJWT(token);
                 //@ts-ignore

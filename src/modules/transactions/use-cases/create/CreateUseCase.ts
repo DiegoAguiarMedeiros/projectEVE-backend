@@ -101,31 +101,14 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
           return left(new CreateErrors.EnvelopeNotFound(request.envelopeId));
         }
 
-        const envelopesAmount = await this.envelopeRepo.getAmount(request.envelopeId, request.date.getFullYear(), request.date.getMonth() + 1);
-
-        if (envelopesAmount === null) {
-          // Envelope allocation doesn't exist yet, create it
-          const reqAmount = Number(request.amount);
-          let initialAmount = 0;
-          if (request.type === "Debit") {
-            initialAmount = -reqAmount; // Negative for debit
-          } else {
-            initialAmount = reqAmount; // Positive for credit
-          }
-          await this.envelopeRepo.createAmount(request.envelopeId, initialAmount, request.date.getFullYear(), request.date.getMonth() + 1);
-        } else {
-          // Envelope allocation exists, update it
-          // Convert to number to avoid string concatenation
-          const currentAmount = Number(envelopesAmount);
-          const reqAmount = Number(request.amount);
-          let newAmount = 0;
-          if (request.type === "Debit") {
-            newAmount = Math.round((currentAmount - reqAmount) * 100) / 100;
-          } else {
-            newAmount = Math.round((currentAmount + reqAmount) * 100) / 100;
-          }
-          await this.envelopeRepo.addAmount(request.envelopeId, newAmount, request.date.getFullYear(), request.date.getMonth() + 1);
-        }
+        const reqAmount = Number(request.amount);
+        const delta = request.type === "Debit" ? -reqAmount : reqAmount;
+        await this.envelopeRepo.adjustAmount(
+          request.envelopeId,
+          delta,
+          request.date.getFullYear(),
+          request.date.getMonth() + 1
+        );
       }
 
 
