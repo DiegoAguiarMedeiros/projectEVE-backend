@@ -68,13 +68,14 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
         const date = new Date(currentYear, currentMonth + offset);
         const month = date.getMonth();
         const year = date.getFullYear();
+        const validDay = Math.min(debt.paymentDay.value, new Date(year, month + 1, 0).getDate());
 
         promises.push(
           limit(async () => {
             return await this.createTransactionUseCase.execute({
               description: `${debt!.description.value} - Parcela ${i} de ${debt!.installmentsTotal.value}`,
               amount: debt!.amount.value,
-              date: new Date(year, month, debt!.paymentDay.value),
+              date: new Date(year, month, validDay),
               type: "Debit",
               status: "transaction.status.pending",
               envelopeId: debt!.envelopeId.value,

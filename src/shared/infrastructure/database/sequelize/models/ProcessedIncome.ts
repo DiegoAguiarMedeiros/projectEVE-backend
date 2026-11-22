@@ -71,7 +71,11 @@ ProcessedIncome.init({
     tableName: 'processed_incomes',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-    timestamps: true
+    timestamps: true,
+    indexes: [
+        { fields: ['user_id', 'year', 'month'] },
+        { fields: ['envelope_id'] },
+    ],
 });
 
 export default ProcessedIncome;

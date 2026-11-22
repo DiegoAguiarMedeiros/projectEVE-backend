@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { BaseController } from "../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/models/DecodedExpressRequest";
 import { CreditCard } from "../../domain";
-import { GetByIdDTO } from "../../dtos";
+import { CreditCardDTO, GetByIdDTO } from "../../dtos";
+import { CreditCardMap as Mapper } from "../../mappers";
 import { GetByIdUseCase } from "./GetByIdUseCase";
 
 export class GetByIdController extends BaseController {
@@ -32,8 +33,8 @@ export class GetByIdController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: CreditCard = result.value.getValue() as CreditCard;
-                return this.ok<CreditCard>(res, dto);
+                const entity: CreditCard = result.value.getValue() as CreditCard;
+                return this.ok<CreditCardDTO>(res, Mapper.toDTO(entity));
             }
 
         } catch (err) {

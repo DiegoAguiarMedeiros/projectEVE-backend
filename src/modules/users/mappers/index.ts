@@ -14,7 +14,6 @@ export class UserMap implements Mapper<User> {
       isEmailVerified: user.isEmailVerified,
       isAdminUser: user.isAdminUser,
       email: user.email.value,
-      password: user.password.value,
       id: user.id.toString(),
       isRegistrationComplete: user.isRegistrationComplete,
     };

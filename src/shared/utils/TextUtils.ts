@@ -8,6 +8,7 @@ const domPurify = DOMPurify(window)
 export class TextUtils {
 
   public static sanitize (unsafeText: string): string {
+    if (typeof unsafeText !== 'string') return '';
     return domPurify.sanitize(unsafeText);
   }
 

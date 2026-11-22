@@ -12,7 +12,7 @@ interface PaginationProps<T> {
 }
 
 export class Pagination<T> extends ValueObject<PaginationProps<T>> {
-  public static maxPageSize: number = 50; 
+  public static maxPageSize: number = 100; 
   public static minPageSize: number = 1;   
 
   get currentPage(): number {
@@ -40,14 +40,8 @@ export class Pagination<T> extends ValueObject<PaginationProps<T>> {
   }
 
   public static create<T>(props: PaginationProps<T>): Result<Pagination<T>> {
-    const pageSizeResult = Guard.againstAtLeast(this.minPageSize, `${props.pageSize}`);
-    if (pageSizeResult.isFailure) {
-      return Result.fail<Pagination<T>>('Page size: ' + pageSizeResult.getErrorValue());
-    }
-
-    const maxPageSizeResult = Guard.againstAtMost(this.maxPageSize, `${props.pageSize}`);
-    if (maxPageSizeResult.isFailure) {
-      return Result.fail<Pagination<T>>('Page size: ' + maxPageSizeResult.getErrorValue());
+    if (typeof props.pageSize !== 'number' || isNaN(props.pageSize) || props.pageSize < this.minPageSize || props.pageSize > this.maxPageSize) {
+      return Result.fail<Pagination<T>>(`Page size must be between ${this.minPageSize} and ${this.maxPageSize}`);
     }
 
     if (props.currentPage < 0) {

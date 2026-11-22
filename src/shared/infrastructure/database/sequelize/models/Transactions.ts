@@ -29,7 +29,7 @@ Transactions.init({
     },
     processed_incomes_id: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
+        defaultValue: null,
         allowNull: true,
     },
     debt_id: {
@@ -96,7 +96,13 @@ Transactions.init({
     tableName: 'transactions',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-    timestamps: true
+    timestamps: true,
+    indexes: [
+        { fields: ['envelope_id', 'date', 'status'] },
+        { fields: ['processed_incomes_id'] },
+        { fields: ['debt_id'] },
+        { fields: ['credit_card_id'] },
+    ],
 });
 
 export default Transactions;

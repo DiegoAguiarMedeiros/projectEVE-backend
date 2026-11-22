@@ -45,21 +45,6 @@ export class Repository implements Interface {
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<Envelopes[]> {
         const limit = pageSize || undefined;
         const offset = page ? (page) * (pageSize || 10) : 0;
-        const allowedColumns = ["name", "balance", "active", "created_at"];
-        const allowedOrders = ["asc", "desc"];
-
-        const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
-        const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
-
-        const incomeData = await this.models.Incomes.findAll({
-            where: {
-                user_id: id,
-            },
-            attributes: [
-                [fn('SUM', col('amount')), 'total_income']
-            ],
-            raw: true,
-        });
 
         const data = await this.model.findAll({
             where: {
@@ -204,7 +189,8 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
     async getById(id: string, userId: string): Promise<Envelopes | null> {
         const data = await this.model.findOne({
@@ -214,7 +200,8 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
 
     async getByName(name: string, userId: string): Promise<Envelopes | null> {
@@ -225,7 +212,8 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
 
     async create(data: Envelopes): Promise<void> {

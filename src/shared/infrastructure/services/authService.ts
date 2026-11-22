@@ -6,7 +6,7 @@ import { User } from "../../../modules/users/domain/User";
 
 export interface IAuthService {
   signJWT(props: JWTClaims): JWTToken;
-  decodeJWT(token: string): Promise<JWTClaims>;
+  decodeJWT(token: string): Promise<JWTClaims | null>;
   createRefreshToken(): RefreshToken;
   getTokens(id: string): Promise<string[]>;
   saveAuthenticatedUser(user: User): Promise<void>;

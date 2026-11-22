@@ -78,14 +78,18 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
 
 
 
+      const clampDay = (year: number, month: number, day: number) =>
+        Math.min(day, new Date(year, month, 0).getDate());
+
       if (!processedIncomes.isSplitted) {
         if (processedIncomes.envelopeId) {
+          const validDay = clampDay(processedIncomes.year.value, processedIncomes.month.value, processedIncomes.day.value);
           await this.createUseCase.execute({
             processedIncomesId: processedIncomesId,
             envelopeId: processedIncomes.envelopeId.value,
             description: `deposit.salary|${processedIncomes.month.value}/${processedIncomes.year.value}`,
             amount: processedIncomes.totalIncomeProcessed.value,
-            date: new Date(`${processedIncomes.year.value}/${processedIncomes.month.value}/${processedIncomes.day.value}`),
+            date: new Date(processedIncomes.year.value, processedIncomes.month.value - 1, validDay),
             type: "Credit",
             status: "transaction.status.completed",
             paymentMethod: 'envelope.transaction.payment_method.Cash',
@@ -96,12 +100,13 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
 
         if (processedIncomes.shouldAddFixedExpenses && fixedExpenses) {
           for (const fixedExpense of fixedExpenses) {
+            const validDay = clampDay(processedIncomes.year.value, processedIncomes.month.value, fixedExpense.paymentDay.value);
             await this.createUseCase.execute({
               processedIncomesId: processedIncomesId,
               envelopeId: fixedExpense.envelopeId.value,
               description: fixedExpense.description.value,
               amount: fixedExpense.amount.value,
-              date: new Date(processedIncomes.year.value, processedIncomes.month.value - 1, fixedExpense.paymentDay.value),
+              date: new Date(processedIncomes.year.value, processedIncomes.month.value - 1, validDay),
               type: "Debit",
               status: "transaction.status.pending",
               paymentMethod: 'envelope.transaction.payment_method.Cash',
@@ -116,17 +121,21 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
       if (processedIncomes.isSplitted) {
 
         const limit = pLimit(10);
-        const promises: any[] = [];
+        const creditPromises: any[] = [];
+        const goalPromises: any[] = [];
+        const incomeDay = clampDay(processedIncomes.year.value, processedIncomes.month.value, processedIncomes.day.value);
+        const incomeDate = new Date(processedIncomes.year.value, processedIncomes.month.value - 1, incomeDay);
+
         envelopes.forEach(envelope => {
 
-          promises.push(
+          creditPromises.push(
             limit(async () => {
-              await this.createUseCase.execute({
+              return await this.createUseCase.execute({
                 processedIncomesId: processedIncomesId,
                 envelopeId: envelope.id.toString(),
                 description: `deposit.salary|${processedIncomes?.month.value}/${processedIncomes?.year.value}`,
                 amount: Math.round(processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value) / 100,
-                date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${processedIncomes?.day.value}`),
+                date: incomeDate,
                 type: "Credit",
                 status: "transaction.status.completed",
                 paymentMethod: 'envelope.transaction.payment_method.Cash',
@@ -137,15 +146,15 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
           );
 
           if (envelope.name.value === 'goals' && goals) {
-            goals.forEach(goals => {
-              promises.push(
+            goals.forEach(goal => {
+              goalPromises.push(
                 limit(async () => {
-                  await this.createUseCase.execute({
+                  return await this.createUseCase.execute({
                     processedIncomesId: processedIncomesId,
-                    envelopeId: goals.envelopeId.value,
-                    description: goals.description.value,
-                    amount: Math.round(processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value * goals.percentage.value) / 10000,
-                    date: new Date(`${processedIncomes?.year.value}/${processedIncomes?.month.value}/${processedIncomes?.day.value}`),
+                    envelopeId: goal.envelopeId.value,
+                    description: goal.description.value,
+                    amount: Math.round(processedIncomes!.totalIncomeProcessed.value * envelope.percentage.value * goal.percentage.value) / 10000,
+                    date: incomeDate,
                     type: "Debit",
                     status: "transaction.status.pending",
                     paymentMethod: 'envelope.transaction.payment_method.Cash',
@@ -153,21 +162,23 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
                   });
                 })
               );
-            })
+            });
           }
 
-        })
+        });
 
-        await Promise.allSettled(promises);
+        await Promise.allSettled(creditPromises);
+        await Promise.allSettled(goalPromises);
 
         if (processedIncomes.shouldAddFixedExpenses && fixedExpenses) {
           for (const fixedExpense of fixedExpenses) {
+            const validDay = clampDay(processedIncomes.year.value, processedIncomes.month.value, fixedExpense.paymentDay.value);
             await this.createUseCase.execute({
               processedIncomesId: processedIncomesId,
               envelopeId: fixedExpense.envelopeId.value,
               description: fixedExpense.description.value,
               amount: fixedExpense.amount.value,
-              date: new Date(processedIncomes?.year.value, processedIncomes?.month.value - 1, fixedExpense?.paymentDay.value),
+              date: new Date(processedIncomes.year.value, processedIncomes.month.value - 1, validDay),
               type: "Debit",
               status: "transaction.status.pending",
               paymentMethod: 'envelope.transaction.payment_method.Cash',

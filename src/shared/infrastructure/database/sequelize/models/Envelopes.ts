@@ -57,7 +57,11 @@ Envelopes.init({
   tableName: 'envelopes',
   createdAt: 'created_at',
   updatedAt: 'updated_at',
-  timestamps: true
+  timestamps: true,
+  indexes: [
+    { fields: ['user_id'] },
+    { fields: ['user_id', 'name'] },
+  ],
 });
 
 export default Envelopes;

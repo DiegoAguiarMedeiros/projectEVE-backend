@@ -15,7 +15,9 @@ export class GetAllUseCase implements UseCase<{ id: string; page: number; pageSi
     }
     async execute({ id, page, pageSize, orderBy, order }: { id: string; page: number; pageSize: number, orderBy: string, order: string }): Promise<GetAllResponse> {
         const fixedExpenses = await this.repo.getAll(id, page, pageSize, orderBy, order);
-        const totalItems = (await this.repo.getAll(id)).length;
+        const totalItems = this.repo.countAll
+            ? await this.repo.countAll(id)
+            : (await this.repo.getAll(id)).length;
         const totalPages = Math.ceil(totalItems / pageSize);
         const paginationResult = Pagination.create<FixedExpense>({
             currentPage: page,

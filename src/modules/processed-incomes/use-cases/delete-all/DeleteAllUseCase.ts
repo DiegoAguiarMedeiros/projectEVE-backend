@@ -21,13 +21,18 @@ export class DeleteAllUseCase implements UseCase<DeleteAllDTO, Promise<DeleteAll
 
     async execute(request: DeleteAllDTO): Promise<DeleteAllResponse> {
         try {
-            await Promise.all(
-                request.ids.map(id =>
-                    this.deleteAllTransactions.execute({ processedIncomesId: id })
-                )
-            );
+            const userRecords = await this.repo.getAll(request.userId);
+            const ownedIds = userRecords
+                .map((r) => r.id.toString())
+                .filter((id) => request.ids.includes(id));
 
-            await this.repo.deleteAll(request.ids, request.userId);
+            for (const id of ownedIds) {
+                await this.deleteAllTransactions.execute({ processedIncomesId: id });
+            }
+
+            if (ownedIds.length > 0) {
+                await this.repo.deleteAll(ownedIds, request.userId);
+            }
 
             return right(Result.ok<void>()) as DeleteAllResponse;
         } catch (err) {

@@ -5,6 +5,7 @@ import { Incomes } from "../domain";
 
 
 export interface Interface extends ICRUD<Incomes> {
+    countAll?(userId: string): Promise<number>;
     getTotal(userId: string): Promise<number>;
     deleteAll(ids: string[], userId: string): Promise<number>;
 }

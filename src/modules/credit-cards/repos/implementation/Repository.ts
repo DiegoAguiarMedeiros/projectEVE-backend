@@ -42,7 +42,7 @@ export class Repository implements Interface {
     async getAll(id: string, page?: number, pageSize?: number, orderBy?: string, order?: string): Promise<CreditCard[]> {
         const limit = pageSize || undefined;
         const offset = page ? (page ) * (pageSize || 10) : 0;
-        const allowedColumns = ["name", "flag"];
+        const allowedColumns = ["name", "flag", "created_at"];
         const allowedOrders = ["asc", "desc"];
 
         const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
@@ -59,6 +59,14 @@ export class Repository implements Interface {
         return data.map((e: any) => Mapper.toDomain(e));
     }
 
+    async countAll(id: string): Promise<number> {
+        return await this.model.count({
+            where: {
+                user_id: id,
+            },
+        });
+    }
+
 
     async getById(id: string, userId: string): Promise<CreditCard | null> {
         const data = await this.model.findOne({
@@ -68,7 +76,8 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
 
     async create(data: CreditCard): Promise<void> {

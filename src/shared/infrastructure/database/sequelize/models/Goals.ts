@@ -60,7 +60,10 @@ Goals.init({
     tableName: 'goals',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-    timestamps: true
+    timestamps: true,
+    indexes: [
+        { fields: ['envelope_id'] },
+    ],
 });
 
 

@@ -46,7 +46,7 @@ export class LoginUserUseCase implements UseCase<LoginDTO, Promise<LoginResponse
         user = await this.repository.getUserByEmail(email);
         const userFound = !!user;
 
-        if (!userFound) {
+        if (!userFound || user.isDeleted) {
           return left(new LoginUseCaseErrors.EmailDoesntExistError())
         }
 

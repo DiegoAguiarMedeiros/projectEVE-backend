@@ -43,7 +43,10 @@ CreditCards.init({
   tableName: 'credit_cards',
   createdAt: 'created_at', 
   updatedAt: 'updated_at',
-  timestamps: true 
+  timestamps: true,
+  indexes: [
+    { fields: ['user_id'] },
+  ],
 });
 
 export default CreditCards;

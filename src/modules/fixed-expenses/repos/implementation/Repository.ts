@@ -32,7 +32,7 @@ export class Repository implements Interface {
 
     const limit = pageSize || undefined;
     const offset = page ? (page ) * (pageSize || 10) : 0;
-    const allowedColumns = ["name", "flag"];
+    const allowedColumns = ["description", "amount", "payment_day", "created_at"];
     const allowedOrders = ["asc", "desc"];
 
     const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
@@ -56,6 +56,23 @@ export class Repository implements Interface {
     return data.map((e: any) => Mapper.toDomain(e));
   }
 
+  async countAll(id: string): Promise<number> {
+    const envelopes = await this.models.Envelopes.findAll({
+      where: { user_id: id },
+      attributes: ['id'],
+      raw: true,
+    });
+    const envelopeIds = envelopes.map((env: any) => env.id);
+    if (envelopeIds.length === 0) return 0;
+    return await this.model.count({
+      where: {
+        envelope_id: {
+          [Op.in]: envelopeIds,
+        },
+      },
+    });
+  }
+
   async getById(id: string, userId: string): Promise<FixedExpense | null> {
 
     const envelopes = await this.models.Envelopes.findAll({
@@ -72,7 +89,8 @@ export class Repository implements Interface {
         },
       },
     });
-    return Mapper.toDomain(data) ?? null;
+    if (!data) return null;
+    return Mapper.toDomain(data);
   }
 
   async create(investment: FixedExpense): Promise<void> {

@@ -6,6 +6,7 @@ import { ValueObject } from "./ValueObject";
 
 interface BalanceProps {
   balance: number;
+  allowNegative?: boolean;
 }
 
 export class Balance extends ValueObject<BalanceProps> {
@@ -30,7 +31,7 @@ export class Balance extends ValueObject<BalanceProps> {
       return Result.fail<Balance>('Balance must be a valid number');
     }
 
-    if (numericBalance < 0) {
+    if (!props.allowNegative && numericBalance < 0) {
       return Result.fail<Balance>('Balance cannot be negative');
     }
 

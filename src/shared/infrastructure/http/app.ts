@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import morgan from 'morgan';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -9,6 +10,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import { socketService } from '../services/SocketService';
 
 import models from '../database/sequelize/models'; // caminho para o index.ts dos models
 
@@ -99,10 +101,12 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
     res.json({ message: 'API Project EVE is running!' });
   });
 
-  app.use('/api/', Router)
+  app.use('/api/', socketService.createSyncMiddleware(), Router)
 
+  const server = http.createServer(app);
+  socketService.init(server, allowedOrigins);
 
-  app.listen(Number(port), '0.0.0.0', () => {
-    console.info(`API rodando em http://${host}:${port}`);
+  server.listen(Number(port), '0.0.0.0', () => {
+    console.info(`API e WebSocket rodando em http://${host}:${port}`);
   })
 })();

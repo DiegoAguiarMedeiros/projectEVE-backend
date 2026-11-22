@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { BaseController } from "../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/models/DecodedExpressRequest";
 import { Envelopes } from "../../domain/Envelopes";
-import { GetByIdDTO } from "../../dtos";
+import { EnvelopesDTO, GetByIdDTO } from "../../dtos";
+import { EnvelopesMap as Mapper } from "../../mappers";
 import { GetByIdUseCase } from "./GetByIdUseCase";
 
 export class GetByIdController extends BaseController {
@@ -32,8 +33,8 @@ export class GetByIdController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: Envelopes = result.value.getValue() as unknown as Envelopes;
-                return this.ok<Envelopes>(res, dto);
+                const entity: Envelopes = result.value.getValue() as unknown as Envelopes;
+                return this.ok<EnvelopesDTO>(res, Mapper.toDTO(entity));
             }
 
         } catch (err) {

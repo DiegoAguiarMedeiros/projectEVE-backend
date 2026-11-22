@@ -61,8 +61,9 @@ export class TransferEnvelopeBalanceUseCase {
             return left(new TransferEnvelopeBalanceErrors.InsufficientFundsError("Insufficient funds in source envelope"));
         }
 
-        // Create transfer date
-        const transferDate = new Date(year, month - 1, new Date().getDate());
+        // Create transfer date (clamped to valid day of target month)
+        const maxDay = new Date(year, month, 0).getDate();
+        const transferDate = new Date(year, month - 1, Math.min(new Date().getDate(), maxDay));
 
         try {
             // Create debit transaction for source envelope

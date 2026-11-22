@@ -6,6 +6,7 @@ import { ChangePasswordDTO } from "./ChangePasswordDTO";
 import { Interface as IUserRepo } from "../../repos/Interface";
 import { Password } from "../../domain/Password";
 import { ChangePasswordErrors } from "./ChangePasswordErrors";
+import { IAuthService } from "../../../../shared/infrastructure/services/authService";
 
 type Response = Either<
     ChangePasswordErrors.IncorrectPasswordError |
@@ -16,9 +17,11 @@ type Response = Either<
 
 export class ChangePasswordUseCase implements UseCase<ChangePasswordDTO, Promise<Response>> {
     private userRepo: IUserRepo;
+    private authService?: IAuthService;
 
-    constructor(userRepo: IUserRepo) {
+    constructor(userRepo: IUserRepo, authService?: IAuthService) {
         this.userRepo = userRepo;
+        this.authService = authService;
     }
 
     public async execute(request: ChangePasswordDTO): Promise<Response> {
@@ -40,6 +43,10 @@ export class ChangePasswordUseCase implements UseCase<ChangePasswordDTO, Promise
             user.updatePassword(newPasswordOrError.getValue());
 
             await this.userRepo.save(user);
+
+            if (this.authService) {
+                await this.authService.deAuthenticateUser(user.id.toString());
+            }
 
             return right(Result.ok<void>()) as Response;
         } catch (err) {

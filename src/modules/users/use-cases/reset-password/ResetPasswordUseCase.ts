@@ -4,6 +4,7 @@ import { left, right, Result } from '../../../../shared/core/Result';
 import { Interface as IUserRepo } from '../../repos/Interface';
 import { Password } from '../../domain/Password';
 import { RedisPasswordResetService } from '../../../../shared/infrastructure/services/redis/redisPasswordResetService';
+import { IAuthService } from '../../../../shared/infrastructure/services/authService';
 import { ResetPasswordDTO } from './ResetPasswordDTO';
 import { ResetPasswordResponse } from './ResetPasswordResponse';
 import { ResetPasswordErrors } from './ResetPasswordErrors';
@@ -13,10 +14,12 @@ export class ResetPasswordUseCase
 {
   private userRepo: IUserRepo;
   private passwordResetService: RedisPasswordResetService;
+  private authService?: IAuthService;
 
-  constructor(userRepo: IUserRepo, passwordResetService: RedisPasswordResetService) {
+  constructor(userRepo: IUserRepo, passwordResetService: RedisPasswordResetService, authService?: IAuthService) {
     this.userRepo = userRepo;
     this.passwordResetService = passwordResetService;
+    this.authService = authService;
   }
 
   public async execute(request: ResetPasswordDTO): Promise<ResetPasswordResponse> {
@@ -42,6 +45,10 @@ export class ResetPasswordUseCase
       await this.userRepo.save(user);
 
       await this.passwordResetService.deleteToken(request.token);
+
+      if (this.authService) {
+        await this.authService.deAuthenticateUser(user.id.toString());
+      }
 
       return right(Result.ok<void>());
     } catch (err) {

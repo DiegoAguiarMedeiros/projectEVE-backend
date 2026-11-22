@@ -20,10 +20,8 @@ export class Middleware {
             // Confirm that the token was signed with our signature.
             if (token) {
                 const decoded = await this.authService.decodeJWT(token);
-                //@ts-ignore
-                const signatureFailed = !!decoded === false;
 
-                if (signatureFailed) {
+                if (!decoded || !decoded.id) {
                     return this.endRequest(403, 'Token signature expired.', res)
                 }
 
@@ -32,7 +30,7 @@ export class Middleware {
                 const tokens = await this.authService.getTokens(id);
 
                 // if the token was found, just continue the request.
-                if (tokens.length !== 0) {
+                if (tokens.includes(token)) {
                     req.decoded = decoded;
                     return next();
                 } else {
@@ -58,17 +56,15 @@ export class Middleware {
 
             if (token) {
                 const decoded = await this.authService.decodeJWT(token);
-                //@ts-ignore
-                const signatureFailed = !!decoded === false;
 
-                if (signatureFailed) {
+                if (!decoded || !decoded.id) {
                     return this.endRequest(403, 'Token signature expired.', res)
                 }
 
                 const { id } = decoded;
                 const tokens = await this.authService.getTokens(id);
 
-                if (tokens.length !== 0) {
+                if (tokens.includes(token)) {
                     req.decoded = decoded;
                     return next();
                 } else {
@@ -83,7 +79,7 @@ export class Middleware {
     public ensureAdmin() {
         return async (req: any, res: any, next: any) => {
             const decoded = req.decoded;
-            if (!decoded || !decoded.adminUser) {
+            if (!decoded || !decoded.id || !decoded.adminUser) {
                 return this.endRequest(403, 'Forbidden: admin access only', res);
             }
             return next();

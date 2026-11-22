@@ -43,12 +43,21 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const envelopeId: Id = EnvelopeIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
-    const date: Date = request.date;
+    const transactionDate: Date = new Date(request.date);
+    const date: Date = transactionDate;
     const type: TransactionsType = request.type;
     const status: TransactionsStatus = request.status;
     const paymentMethod: PaymentMethod = request.paymentMethod;
 
     try {
+
+      const envelope = request.userId
+        ? await this.envelopeRepo.getById(request.envelopeId, request.userId)
+        : await this.envelopeRepo.getOnlyById(request.envelopeId);
+
+      if (!envelope) {
+        return left(new CreateErrors.EnvelopeNotFound(request.envelopeId));
+      }
 
       const creditCardId = CreditCardIdOrError ? CreditCardIdOrError.getValue() : undefined;
 
@@ -80,7 +89,6 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
 
       if (request.type === 'Debit' && !request.debtId) {
-        const transactionDate = new Date(request.date);
         const year = transactionDate.getFullYear();
         const month = transactionDate.getMonth() + 1;
         const currentBalance = await this.envelopeRepo.getAmount(request.envelopeId, year, month);
@@ -95,19 +103,13 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
       await this.repo.create(transaction);
       if (request.status === 'transaction.status.completed' && request.amount > 0) {
-
-        const envelopes = await this.envelopeRepo.getOnlyById(request.envelopeId);
-        if (!envelopes) {
-          return left(new CreateErrors.EnvelopeNotFound(request.envelopeId));
-        }
-
         const reqAmount = Number(request.amount);
         const delta = request.type === "Debit" ? -reqAmount : reqAmount;
         await this.envelopeRepo.adjustAmount(
           request.envelopeId,
           delta,
-          request.date.getFullYear(),
-          request.date.getMonth() + 1
+          transactionDate.getFullYear(),
+          transactionDate.getMonth() + 1
         );
       }
 

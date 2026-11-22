@@ -55,22 +55,36 @@ export class Repository implements Interface {
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
         const data = await this.model.findAll({
-            where: {
-                envelope_id: {
-                    [Op.in]: Sequelize.literal(`(SELECT id FROM "envelope" WHERE user_id = '${id}')`),
-                },
-            },
             limit: limit,
             offset: offset,
             order: [[safeOrderBy, safeOrder]],
             include: [
                 {
-                    model: this.models.Envelope,
+                    model: this.models.Envelopes,
                     as: 'Envelope',
+                    where: {
+                        user_id: id,
+                    },
+                    required: true,
                 },
             ],
         });
         return data.map((e: any) => Mapper.toDomain(e));
+    }
+
+    async countAll(id: string): Promise<number> {
+        return await this.model.count({
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    as: 'Envelope',
+                    where: {
+                        user_id: id,
+                    },
+                    required: true,
+                },
+            ],
+        });
     }
 
     async getAllByEnvelope(
@@ -147,6 +161,49 @@ export class Repository implements Interface {
             return Mapper.toDomain({ ...raw, credit_card_name: raw.CreditCard?.name ?? null });
         });
     }
+
+    async countAllByEnvelope(
+        id: string,
+        envelope: string,
+        year: number,
+        month: number,
+        type?: string
+    ): Promise<number> {
+        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
+        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
+
+        const whereClause: any = {
+            date: {
+                [Op.between]: [startDate, endDate],
+            },
+            payment_method: {
+                [Op.ne]: 'envelope.transaction.payment_method.Reallocation',
+            },
+            [Op.or]: [
+                { type: 'Debit' },
+                { processed_incomes_id: null },
+            ],
+        };
+
+        if (type && (type === "Debit" || type === "Credit")) {
+            whereClause.type = type;
+        }
+
+        return await this.model.count({
+            where: whereClause,
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    as: 'Envelope',
+                    where: {
+                        id: envelope,
+                        user_id: id,
+                    },
+                    required: true,
+                },
+            ],
+        });
+    }
     async getAllByProcessedIncomesId(
         processedIncomesId: string,
     ): Promise<Transactions[]> {
@@ -171,15 +228,6 @@ export class Repository implements Interface {
         const envelopeIds = envelopes.map((e: any) => e.id);
 
         if (envelopeIds.length === 0) return;
-
-        await this.model.destroy({
-            where: {
-                processed_incomes_id: { [Op.is]: null },
-                debt_id: { [Op.is]: null },
-                envelope_id: { [Op.in]: envelopeIds },
-                date: { [Op.between]: [startDate, endDate] },
-            },
-        });
 
         // Delete transactions with stale processed_incomes_id references (the referenced record no longer exists)
         const validProcessedIncomes = await this.models.ProcessedIncome.findAll({
@@ -211,12 +259,26 @@ export class Repository implements Interface {
 
 
     async getById(id: string, userId: string): Promise<Transactions | null> {
-        const data = await this.model.findOne({
+        const queryOptions: any = {
             where: {
                 id,
             },
-        });
-        return Mapper.toDomain(data) ?? null;
+        };
+        if (userId) {
+            queryOptions.include = [
+                {
+                    model: this.models.Envelopes,
+                    as: 'Envelope',
+                    where: {
+                        user_id: userId,
+                    },
+                    required: true,
+                },
+            ];
+        }
+        const data = await this.model.findOne(queryOptions);
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
 
 
@@ -237,6 +299,7 @@ export class Repository implements Interface {
             ],
             where: {
                 type: "Credit",
+                status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
                 date: {
                     [Op.between]: [startDate, endDate],
@@ -264,6 +327,7 @@ export class Repository implements Interface {
             include: goalsInclude,
             where: {
                 type: "Credit",
+                status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
                 date: dateWhere,
             },
@@ -273,6 +337,7 @@ export class Repository implements Interface {
             include: goalsInclude,
             where: {
                 type: "Debit",
+                status: "transaction.status.completed",
                 payment_method: 'envelope.transaction.payment_method.Reallocation',
                 date: dateWhere,
             },
@@ -297,6 +362,7 @@ export class Repository implements Interface {
             include: goalsInclude,
             where: {
                 type: "Credit",
+                status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
                 date: dateWhere,
             },
@@ -306,6 +372,7 @@ export class Repository implements Interface {
             include: goalsInclude,
             where: {
                 type: "Debit",
+                status: "transaction.status.completed",
                 payment_method: 'envelope.transaction.payment_method.Reallocation',
                 date: dateWhere,
             },
@@ -315,8 +382,6 @@ export class Repository implements Interface {
     }
 
     async getExpensesMonthOverview(year: number, month: number, userId: string): Promise<number> {
-        const { fn, col, literal, where } = this.model.sequelize;
-
         const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
         const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
 
@@ -328,11 +393,13 @@ export class Repository implements Interface {
                     as: "Envelope",
                     where: {
                         user_id: userId,
+                        name: { [Op.ne]: "goals" },
                     }
                 }
             ],
             where: {
                 type: "Debit",
+                status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
                 date: {
                     [Op.between]: [startDate, endDate],
@@ -341,7 +408,7 @@ export class Repository implements Interface {
         });
     }
     async getIncomesByYear(year: number, userId: string): Promise<number[]> {
-        const { fn, col, literal, where } = this.model.sequelize;
+        const { fn, col, literal } = this.model.sequelize;
 
         const data = await this.model.findAll({
             attributes: [
@@ -360,8 +427,9 @@ export class Repository implements Interface {
             ],
             where: {
                 type: "Credit",
+                status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
-                [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
+                date: { [Op.between]: [`${year}-01-01`, `${year}-12-31`] }
             },
             group: [literal("EXTRACT(MONTH FROM date)")],
             raw: true,
@@ -372,7 +440,7 @@ export class Repository implements Interface {
 
 
     async getGoalsByYear(year: number, userId: string): Promise<number[]> {
-        const { fn, literal, where } = this.model.sequelize;
+        const { fn, literal } = this.model.sequelize;
 
         const data = await this.model.findAll({
             attributes: [
@@ -391,7 +459,8 @@ export class Repository implements Interface {
                 }
             ],
             where: {
-                [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
+                status: "transaction.status.completed",
+                date: { [Op.between]: [`${year}-01-01`, `${year}-12-31`] }
             },
             group: [literal("EXTRACT(MONTH FROM date)")],
             raw: true,
@@ -401,7 +470,7 @@ export class Repository implements Interface {
         return Mapper.toAnalyticsEnvelopesByYear(data);
     }
     async getExpensesByYear(year: number, userId: string): Promise<number[]> {
-        const { fn, col, literal, where } = this.model.sequelize;
+        const { fn, col, literal } = this.model.sequelize;
 
         const data = await this.model.findAll({
             attributes: [
@@ -415,13 +484,15 @@ export class Repository implements Interface {
                     as: "Envelope",
                     where: {
                         user_id: userId,
+                        name: { [Op.ne]: "goals" },
                     }
                 }
             ],
             where: {
                 type: "Debit",
+                status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
-                [Op.and]: where(fn("EXTRACT", literal("YEAR FROM date")), year)
+                date: { [Op.between]: [`${year}-01-01`, `${year}-12-31`] }
             },
             group: [literal("EXTRACT(MONTH FROM date)")],
             raw: true,
@@ -479,6 +550,34 @@ export class Repository implements Interface {
         return data.map((e: any) => {
             const raw = e.get({ plain: true });
             return Mapper.toDomain({ ...raw, credit_card_name: raw.CreditCard?.name ?? null });
+        });
+    }
+
+    async countUpcomingPendingTransaction(id: string, year?: number, month?: number): Promise<number> {
+        const today = dayjs().startOf("day").toDate();
+        const in7Days = dayjs().add(15, "day").endOf("day").toDate();
+
+        const dateFilter = (year && month)
+            ? { date: { [Op.between]: [dayjs(`${year}-${month}-01`).startOf("month").toDate(), dayjs(`${year}-${month}-01`).endOf("month").toDate()] } }
+            : { [Op.or]: [{ date: { [Op.lte]: today } }, { date: { [Op.between]: [today, in7Days] } }] };
+
+        return await this.model.count({
+            where: {
+                status: {
+                    [Op.in]: ["transaction.status.pending", "transaction.status.overdue"],
+                },
+                ...dateFilter,
+            },
+            include: [
+                {
+                    model: this.models.Envelopes,
+                    as: 'Envelope',
+                    where: {
+                        user_id: id,
+                    },
+                    required: true,
+                },
+            ],
         });
     }
 
@@ -573,10 +672,17 @@ export class Repository implements Interface {
 
         if (envelopeIds.length === 0) return [];
 
+        const validProcessedIncomes = await this.models.ProcessedIncome.findAll({
+            attributes: ['id'],
+            where: { user_id: userId },
+        });
+        const validIds = validProcessedIncomes.map((e: any) => e.id);
+
         const data = await this.model.findAll({
             where: {
-                processed_incomes_id: { [Op.is]: null },
-                debt_id: { [Op.is]: null },
+                processed_incomes_id: validIds.length > 0
+                    ? { [Op.not]: null, [Op.notIn]: validIds }
+                    : { [Op.not]: null },
                 envelope_id: { [Op.in]: envelopeIds },
                 date: { [Op.between]: [startDate, endDate] },
             },

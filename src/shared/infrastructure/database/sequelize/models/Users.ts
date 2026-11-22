@@ -67,7 +67,10 @@ Users.init({
     tableName: 'users',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-    timestamps: true
+    timestamps: true,
+    indexes: [
+        { fields: ['email_verification_token'] },
+    ],
 });
 
 

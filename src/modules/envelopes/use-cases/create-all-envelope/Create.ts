@@ -39,16 +39,15 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
         return left(new CreateErrors.UserDoesntExistError(userId));
       }
       const data = await this.baseEnvelopeRepo.getAll();
-      await data.forEach(item => {
-        this.createEnvelopeUseCase.execute({
+      for (const item of data) {
+        await this.createEnvelopeUseCase.execute({
           name: item.name.value,
           color: item.color.value,
           order: item.order.value,
           percentage: item.percentage.value,
           userId: user.id.toString(),
-        })
-
-      });
+        });
+      }
       return right(Result.ok<void>());
 
     } catch (err) {

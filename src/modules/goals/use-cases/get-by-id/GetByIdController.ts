@@ -3,7 +3,8 @@ import { GetByIdUseCase } from "./GetByIdUseCase";
 import { BaseController } from "../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/models/DecodedExpressRequest";
 import { Goals } from "../../domain/Goals";
-import { GetByIdDTO } from "../../dtos";
+import { GetByIdDTO, GoalsDTO } from "../../dtos";
+import { GoalsMap as Mapper } from "../../mappers";
 
 
 export class GetByIdController extends BaseController {
@@ -33,8 +34,8 @@ export class GetByIdController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: Goals = result.value.getValue();
-                return this.ok<Goals>(res, dto);
+                const entity: Goals = result.value.getValue();
+                return this.ok<GoalsDTO>(res, Mapper.toDTO(entity));
             }
 
         } catch (err) {

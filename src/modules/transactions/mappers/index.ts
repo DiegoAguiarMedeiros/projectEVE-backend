@@ -53,6 +53,10 @@ export class TransactionsMap implements Mapper<Transactions> {
     const AmountOrError = Balance.create({ balance: raw.amount });
     AmountOrError.isFailure ? console.error(AmountOrError.getErrorValue()) : '';
 
+    const parsedDate = typeof raw.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw.date)
+      ? new Date(`${raw.date}T12:00:00`)
+      : new Date(raw.date);
+
     const debtOrError = Transactions.create(
       {
         processedIncomesId: raw.processed_incomes_id ? ProcessedIncomesIdOrError.getValue() : undefined,
@@ -62,7 +66,7 @@ export class TransactionsMap implements Mapper<Transactions> {
         envelopeId: EnvelopeIdOrError.getValue(),
         description: DescriptionOrError.getValue(),
         amount: AmountOrError.getValue(),
-        date: new Date(raw.date),
+        date: parsedDate,
         type: raw.type,
         status: raw.status,
         paymentMethod: raw.payment_method,

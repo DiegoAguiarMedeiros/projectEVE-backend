@@ -21,7 +21,7 @@ export abstract class BaseController {
   }
 
   public ok<T>(res: express.Response, dto?: T) {
-    if (!!dto) {
+    if (dto !== undefined) {
       res.type('application/json');
       return res.status(200).json(dto);
     } else {

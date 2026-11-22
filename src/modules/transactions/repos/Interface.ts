@@ -3,7 +3,9 @@ import { ICRUD } from "../../../shared/domain/repos/ICRUD";
 import { Transactions, TransactionsStatus, TransactionsType } from "../domain";
 
 export interface Interface extends ICRUD<Transactions> {
+    countAll?(id: string): Promise<number>;
     getAllByEnvelope(id: string, envelope: string, year: number, month: number, page?: number, pageSize?: number, orderBy?: string, order?: string, type?: TransactionsType): Promise<Transactions[]>
+    countAllByEnvelope?(id: string, envelope: string, year: number, month: number, type?: TransactionsType): Promise<number>;
     getAllByProcessedIncomesId(processedIncomesId: string): Promise<Transactions[]>
     getAllByDebtId(debtId: string): Promise<Transactions[]>
     updateStatus(id: string, status: TransactionsStatus): Promise<boolean>;
@@ -15,6 +17,7 @@ export interface Interface extends ICRUD<Transactions> {
     getGoalsByYear(year: number, userId: string): Promise<number[]>;
     getExpensesByYear(year: number, userId: string): Promise<number[]>;
     getUpcomingPendingTransaction(userId: string, page?: number, pageSize?: number, orderBy?: string, order?: string, year?: number, month?: number): Promise<Transactions[]>;
+    countUpcomingPendingTransaction?(userId: string, year?: number, month?: number): Promise<number>;
     resetToUnprocessed(processedIncomesId: string): Promise<void>;
     getDebtTransactionsByMonth(userId: string, year: number, month: number): Promise<Transactions[]>;
     resetDebtsByMonth(userId: string, year: number, month: number): Promise<void>;

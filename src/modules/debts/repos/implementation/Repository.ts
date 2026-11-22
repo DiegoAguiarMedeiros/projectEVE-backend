@@ -59,6 +59,24 @@ export class Repository implements Interface {
         });
         return data.map((e: any) => Mapper.toDomain(e));
     }
+
+    async countAll(id: string): Promise<number> {
+        const envelopes = await this.models.Envelopes.findAll({
+            where: { user_id: id },
+            attributes: ['id'],
+            raw: true,
+        });
+        const envelopeIds = envelopes.map((env: any) => env.id);
+        if (envelopeIds.length === 0) return 0;
+        return await this.model.count({
+            where: {
+                envelope_id: {
+                    [Op.in]: envelopeIds,
+                },
+            },
+        });
+    }
+
     async getOnlyById(id: string): Promise<Debt | null> {
 
         const data = await this.model.findOne({
@@ -67,7 +85,8 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
     
     async getById(id: string, userId: string): Promise<Debt | null> {
@@ -86,7 +105,8 @@ export class Repository implements Interface {
                 },
             },
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
 
     async create(data: Debt): Promise<void> {

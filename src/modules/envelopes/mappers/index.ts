@@ -76,7 +76,7 @@ export class EnvelopesMap implements Mapper<Envelopes> {
     const ColorOrError = Color.create({ color: raw.color });
     const OrderOrError = Balance.create({ balance: raw.order });
     const rawAmount = raw.EnvelopesAmounts?.length > 0 ? (raw.EnvelopesAmounts[0].amount ?? null) : null;
-    const AmountOrError = rawAmount !== null ? Balance.create({ balance: rawAmount }) : null;
+    const AmountOrError = rawAmount !== null ? Balance.create({ balance: rawAmount, allowNegative: true }) : null;
     const PercentageOrError = Percentage.create({ percentage: raw.percentage });
     const MinAmountOrError = raw.minAmount !== null ? Balance.create({ balance: raw.minAmount }) : null;
 

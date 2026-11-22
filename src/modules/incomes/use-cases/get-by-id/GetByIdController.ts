@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { GetByIdUseCase } from "./GetByIdUseCase";
 import { BaseController } from "../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/models/DecodedExpressRequest";
-import { GetByIdDTO } from "../../dtos";
+import { GetByIdDTO, IncomesDTO } from "../../dtos";
+import { IncomesMap as Mapper } from "../../mappers";
 import { Incomes } from "../../domain";
 
 export class GetByIdController extends BaseController {
@@ -32,8 +33,8 @@ export class GetByIdController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: Incomes = result.value.getValue();
-                return this.ok<Incomes>(res, dto);
+                const entity: Incomes = result.value.getValue();
+                return this.ok<IncomesDTO>(res, Mapper.toDTO(entity));
             }
 
         } catch (err) {

@@ -57,6 +57,14 @@ export class Repository implements Interface {
         return data.map((e: any) => Mapper.toDomain(e));
     }
 
+    async countAll(userId: string): Promise<number> {
+        return await this.model.count({
+            where: {
+                user_id: userId,
+            },
+        });
+    }
+
     async getById(id: string, userId: string): Promise<Incomes | null> {
         const data = await this.model.findOne({
             where: {
@@ -65,7 +73,8 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
 
     async getTotal(userId: string): Promise<number> {

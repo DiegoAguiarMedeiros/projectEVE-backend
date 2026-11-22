@@ -39,7 +39,7 @@ export class DeleteAll implements UseCase<DeleteAllDTO, Promise<Response>> {
       transactions.forEach(transaction => {
         promises.push(
           limit(() => {
-            this.deleteUseCase.execute({ id: transaction.id.toString(), userId });
+            return this.deleteUseCase.execute({ id: transaction.id.toString(), userId });
           })
         );
       });

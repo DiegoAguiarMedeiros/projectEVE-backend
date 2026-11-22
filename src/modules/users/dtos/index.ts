@@ -3,7 +3,7 @@ export interface UserDTO {
   id: string;
   email: string;
   name: string;
-  password: string;
+  password?: string;
   isEmailVerified?: boolean;
   isAdminUser?: boolean;
   accessToken?: string;
@@ -23,6 +23,7 @@ export interface UserIdDTO extends Omit<
 export interface LoginDTO extends Omit<
   UserDTO, 'id' | 'name' | 'isEmailVerified' | 'isAdminUser' | 'accessToken' | 'refreshToken' | 'lastLogin'
 > {
+  password: string;
   locale?: string;
 }
 export interface LoginResponseDTO extends Omit<
@@ -30,6 +31,7 @@ export interface LoginResponseDTO extends Omit<
 > { }
 
 export interface CreateDTO extends Omit<UserDTO, 'id'> {
+  password: string;
   locale?: string;
 }
 

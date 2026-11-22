@@ -42,17 +42,19 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
 
             const name: Name = nameOrError.getValue();
             const flag: Flag = flagOrError.getValue();
+            const previousName = creditCard.name.value;
 
+            if (data.fieldUpdate.name && name.value !== previousName) {
+                const checkname = await this.repo.checkName(name.value, data.request.userId.toString());
+                if (checkname) {
+                    return left(
+                        new UpdateErrors.AlreadyExist(name.value)
+                    ) as UpdateResponse;
+                }
+            }
 
             if (data.fieldUpdate.name) creditCard.updateName(name)
             if (data.fieldUpdate.flag) creditCard.updateFlag(flag)
-
-            const checkname = await this.repo.checkName(name.value, data.request.userId.toString());
-            if (checkname) {
-                return left(
-                    new UpdateErrors.AlreadyExist(name.value)
-                ) as UpdateResponse;
-            }
 
             const updateCreditCard = await this.repo.update(data.request.id.toString(), creditCard);
             if (updateCreditCard) return right(Result.ok<void>()) as UpdateResponse;

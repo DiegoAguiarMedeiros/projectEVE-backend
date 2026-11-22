@@ -15,7 +15,9 @@ export class GetAllByEnvelopeUseCase implements UseCase<{ id: string; page: numb
     async execute({ id, page, pageSize, orderBy, order, envelope, year, month, type }: { id: string; page: number; pageSize: number, orderBy: string, order: string, envelope: string, year: number, month: number, type?: TransactionsType }): Promise<GetAllByEnvelopeResponse> {
 
         const data = await this.repo.getAllByEnvelope(id, envelope, year, month, page, pageSize, orderBy, order, type);
-        const totalItems = (await this.repo.getAllByEnvelope(id, envelope, year, month, undefined, undefined, undefined, undefined, type)).length;
+        const totalItems = this.repo.countAllByEnvelope
+            ? await this.repo.countAllByEnvelope(id, envelope, year, month, type)
+            : (await this.repo.getAllByEnvelope(id, envelope, year, month, undefined, undefined, undefined, undefined, type)).length;
 
 
         const totalPages = Math.ceil(totalItems / pageSize);

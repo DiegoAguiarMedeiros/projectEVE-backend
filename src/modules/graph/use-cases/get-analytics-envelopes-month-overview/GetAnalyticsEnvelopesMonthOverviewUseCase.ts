@@ -16,26 +16,26 @@ export class GetAnalyticsEnvelopesMonthOverviewUseCase implements UseCase<{ id: 
     }
     async execute({ id, year, month }: { id: string, year: number, month: number }): Promise<GetAnalyticsEnvelopesMonthOverviewResponse> {
 
-        const incomeData = await this.transactionsRepo.getIncomesMonthOverview(year, month, id);
-        const goalsData = await this.transactionsRepo.getGoalsMonthOverview(year, month, id);
-        const expensesData = await this.transactionsRepo.getExpensesMonthOverview(year, month, id);
+        const incomeData = (await this.transactionsRepo.getIncomesMonthOverview(year, month, id)) ?? 0;
+        const goalsData = (await this.transactionsRepo.getGoalsMonthOverview(year, month, id)) ?? 0;
+        const expensesData = (await this.transactionsRepo.getExpensesMonthOverview(year, month, id)) ?? 0;
 
         const chartData: AnalyticsEnvelopesMonthOverviewDTO[] = [
             {
                 title: 'incomes',
-                total: incomeData ?? 0,
+                total: incomeData,
                 icon: 'CallMadeIcon',
                 color: 'primary'
             },
             {
                 title: 'goals',
-                total: goalsData ?? 0,
+                total: goalsData,
                 icon: 'SavingsIcon',
                 color: 'info'
             },
             {
                 title: 'expenses',
-                total: expensesData ?? 0,
+                total: expensesData,
                 icon: 'SouthEastIcon',
                 color: 'error'
             },

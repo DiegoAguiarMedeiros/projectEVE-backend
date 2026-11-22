@@ -34,7 +34,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const TotalIncomeProcessedOrError = Balance.create({ balance: request.totalIncomeProcessed });
     const UserIdOrError = Id.create(new UniqueEntityID(request.userId));
     const dtoResult = Result.combine([
-      YearOrError, MonthOrError, UserIdOrError, TotalIncomeProcessedOrError, DayOrError
+      DescriptionOrError, YearOrError, MonthOrError, UserIdOrError, TotalIncomeProcessedOrError, DayOrError
     ]);
 
     if (dtoResult.isFailure) {

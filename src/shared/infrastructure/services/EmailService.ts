@@ -46,6 +46,15 @@ const templates: Record<SupportedLocale, (name: string) => EmailTemplate> = {
   }),
 };
 
+function escapeHtml(unsafe: string): string {
+  return String(unsafe ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function resolveLocale(locale?: string): SupportedLocale {
   if (locale === 'pt-BR' || locale === 'es' || locale === 'en') return locale;
   return 'pt-BR';
@@ -183,7 +192,7 @@ class EmailService {
     const resolvedLocale = resolveLocale(locale);
     const verificationUrl = `${frontendUrl}/${verifyEmailPaths[resolvedLocale]}?token=${token}`;
     const from = process.env.PROJECT_EVE_RESEND_FROM ?? 'ProjectEVE <no-reply@projecteve.app>';
-    const tpl = templates[resolvedLocale](name);
+    const tpl = templates[resolvedLocale](escapeHtml(name));
 
     try {
       const { data, error } = await this.resend.emails.send({
@@ -214,7 +223,7 @@ class EmailService {
     const resolvedLocale = resolveLocale(locale);
     const resetUrl = `${frontendUrl}/${resetPasswordPaths[resolvedLocale]}?token=${token}`;
     const from = process.env.PROJECT_EVE_RESEND_FROM ?? 'ProjectEVE <no-reply@projecteve.app>';
-    const tpl = resetPasswordTemplates[resolvedLocale](name);
+    const tpl = resetPasswordTemplates[resolvedLocale](escapeHtml(name));
 
     try {
       const { data, error } = await this.resend.emails.send({

@@ -90,13 +90,13 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
    * @return Promise<any>
    */
 
-  public decodeJWT(token: string): Promise<JWTClaims> {
-    return new Promise((resolve, reject) => {
+  public decodeJWT(token: string): Promise<JWTClaims | null> {
+    return new Promise((resolve) => {
       if (!authConfig.secret) {
-        return resolve({} as JWTClaims);
+        return resolve(null);
       }
       jwt.verify(token, authConfig.secret, {}, (err: jwt.VerifyErrors | null, decoded: jwt.JwtPayload | string | undefined) => {
-        if (err) return resolve({} as JWTClaims);
+        if (err || !decoded) return resolve(null);
         return resolve(decoded as JWTClaims);
       });
     })
@@ -140,8 +140,14 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
    * @return Promise<number>
    */
 
+  private sanitizeRedisId(id: string): string {
+    return String(id ?? '').replace(/[*?\[\]]/g, '');
+  }
+
   public countSessions(id: string): Promise<number> {
-    return this.count(`*${this.jwtHashid}.${id}`);
+    const safeId = this.sanitizeRedisId(id);
+    if (!safeId) return Promise.resolve(0);
+    return this.count(`*${this.jwtHashid}.${safeId}`);
   }
 
   /**
@@ -161,8 +167,9 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
    */
 
   public async getTokens(id: string): Promise<string[]> {
-    const allKeys = await this.getAllKeys(`*${this.jwtHashid}*`);
-    const keyValues = await this.getAllKeyValue(`*${this.jwtHashid}.${id}`);
+    const safeId = this.sanitizeRedisId(id);
+    if (!safeId) return [];
+    const keyValues = await this.getAllKeyValue(`*${this.jwtHashid}.${safeId}`);
     return keyValues.map((kv) => kv.value);
   }
 
@@ -198,7 +205,9 @@ export class RedisAuthService extends AbstractRedisClient implements IAuthServic
    */
 
   public async clearAllSessions(id: string): Promise<any> {
-    const keyValues = await this.getAllKeyValue(`*${this.jwtHashid}.${id}`);
+    const safeId = this.sanitizeRedisId(id);
+    if (!safeId) return [];
+    const keyValues = await this.getAllKeyValue(`*${this.jwtHashid}.${safeId}`);
     const keys = keyValues.map((kv) => kv.key);
     return Promise.all(
       keys.map((key) => this.deleteOne(key))

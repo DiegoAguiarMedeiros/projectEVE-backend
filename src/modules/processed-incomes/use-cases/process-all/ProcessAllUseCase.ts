@@ -82,7 +82,7 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
         await this.processedIncomesRepo.delete(existing.id.toString());
       }
 
-      // Remove transações órfãs revertendo o saldo dos envelopes corretamente
+      // Remove apenas transações com referência órfã a processed_incomes_id inexistente
       const orphaned = await this.transactionsRepo.getOrphanedTransactionsByMonth(request.userId, request.year, request.month);
       for (const transaction of orphaned) {
         await this.deleteTransactionUseCase.execute({ id: transaction.id.toString(), userId: request.userId });

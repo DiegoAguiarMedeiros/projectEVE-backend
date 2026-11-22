@@ -36,14 +36,14 @@ export class Repository implements Interface {
         const limit = pageSize || undefined;
         const offset = page ? (page) * (pageSize || 10) : 0;
 
-        const allowedColumns = ["description", "amount", "payment_day", "created_at"];
+        const allowedColumns = ["description", "total_income_processed", "day", "month", "year", "processed_at", "created_at"];
         const allowedOrders = ["asc", "desc"];
 
         const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
 
-        const numericColumns = ["amount", "payment_day"];
+        const numericColumns = ["total_income_processed", "day", "month", "year"];
         const orderStatement = numericColumns.includes(safeOrderBy!)
             ? Sequelize.col(safeOrderBy!)
             : safeOrderBy;
@@ -63,13 +63,13 @@ export class Repository implements Interface {
         const limit = pageSize || undefined;
         const offset = page ? (page) * (pageSize || 10) : 0;
 
-        const allowedColumns = ["description", "amount", "payment_day", "created_at"];
+        const allowedColumns = ["description", "total_income_processed", "day", "month", "year", "processed_at", "created_at"];
         const allowedOrders = ["asc", "desc"];
 
         const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
-        const numericColumns = ["amount", "payment_day"];
+        const numericColumns = ["total_income_processed", "day", "month", "year"];
         const orderStatement = numericColumns.includes(safeOrderBy!)
             ? Sequelize.col(safeOrderBy!)
             : safeOrderBy;
@@ -87,6 +87,16 @@ export class Repository implements Interface {
         return data.map((e: any) => Mapper.toDomain(e));
     }
 
+    async countAllByYearMonth(id: string, year: number, month: number): Promise<number> {
+        return await this.model.count({
+            where: {
+                user_id: id,
+                month,
+                year,
+            },
+        });
+    }
+
     async getById(id: string, userId: string): Promise<ProcessedIncomes | null> {
         const data = await this.model.findOne({
             where: {
@@ -95,7 +105,8 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
 
     async getOnlyById(id: string): Promise<ProcessedIncomes | null> {
@@ -105,7 +116,8 @@ export class Repository implements Interface {
             },
             raw: true,
         });
-        return Mapper.toDomain(data) ?? null;
+        if (!data) return null;
+        return Mapper.toDomain(data);
     }
 
 

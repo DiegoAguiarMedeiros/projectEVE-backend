@@ -88,7 +88,6 @@ export abstract class AbstractRedisClient {
       const data = await this.client.del(key)
         .catch((err) => reject(err)) || null;
       if (data != null) {
-        this.client.expire(key, this.tokenExpiryTime)
         return resolve(data);
       } else {
         return reject('error')

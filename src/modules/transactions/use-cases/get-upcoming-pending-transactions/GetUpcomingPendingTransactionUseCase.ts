@@ -15,7 +15,9 @@ export class GetUpcomingPendingTransactionUseCase implements UseCase<{ id: strin
     async execute({ id, page, pageSize, orderBy, order, year, month }: { id: string; page: number; pageSize: number, orderBy: string, order: string, year?: number, month?: number }): Promise<GetUpcomingPendingTransactionResponse> {
 
         const data = await this.repo.getUpcomingPendingTransaction(id, page, pageSize, orderBy, order, year, month);
-        const totalItems = (await this.repo.getUpcomingPendingTransaction(id, undefined, undefined, undefined, undefined, year, month)).length;
+        const totalItems = this.repo.countUpcomingPendingTransaction
+            ? await this.repo.countUpcomingPendingTransaction(id, year, month)
+            : (await this.repo.getUpcomingPendingTransaction(id, undefined, undefined, undefined, undefined, year, month)).length;
     
         const totalPages = Math.ceil(totalItems / pageSize);
         const paginationResult = Pagination.create<Transactions>({

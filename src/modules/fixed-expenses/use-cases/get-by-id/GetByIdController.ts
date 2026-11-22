@@ -3,7 +3,8 @@ import { GetByIdUseCase } from "./GetByIdUseCase";
 import { BaseController } from "../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/models/DecodedExpressRequest";
 import { FixedExpense } from "../../domain/FixedExpense";
-import { GetByIdDTO } from "../../dtos";
+import { FixedExpenseDTO, GetByIdDTO } from "../../dtos";
+import { FixedExpenseMap as Mapper } from "../../mappers";
 
 
 export class GetByIdController extends BaseController {
@@ -33,8 +34,8 @@ export class GetByIdController extends BaseController {
                                 error.getErrorValue().message === undefined ? String(error.getErrorValue()) : error.getErrorValue().message);
                 }
             } else {
-                const dto: FixedExpense = result.value.getValue();
-                return this.ok<FixedExpense>(res, dto);
+                const entity: FixedExpense = result.value.getValue();
+                return this.ok<FixedExpenseDTO>(res, Mapper.toDTO(entity));
             }
 
         } catch (err) {

@@ -57,7 +57,10 @@ Debts.init({
     tableName: 'debts',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-    timestamps: true
+    timestamps: true,
+    indexes: [
+        { fields: ['envelope_id'] },
+    ],
 });
 
 
