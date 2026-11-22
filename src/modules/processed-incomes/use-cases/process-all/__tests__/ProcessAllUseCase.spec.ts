@@ -105,6 +105,16 @@ describe('ProcessAllUseCase', () => {
       expect(result.value).toBeInstanceOf(ProcessAllErrors.NoIncomesFound);
     });
 
+    it('deve retornar EnvelopesNotDistributed quando soma dos envelopes for diferente de 100%', async () => {
+      envelopesRepo.getAll.mockResolvedValue([
+        { percentage: { value: 50 } },
+        { percentage: { value: 49.99 } },
+      ]);
+      const result = await useCase.execute(makeRequest());
+      expect(result.isLeft()).toBe(true);
+      expect(result.value).toBeInstanceOf(ProcessAllErrors.EnvelopesNotDistributed);
+    });
+
     it('deve retornar UnexpectedError quando repo lança exceção', async () => {
       incomesRepo.getAll.mockRejectedValue(new Error('DB offline'));
       const result = await useCase.execute(makeRequest());
@@ -123,6 +133,18 @@ describe('ProcessAllUseCase', () => {
     });
 
     it('deve processar incomes com sucesso', async () => {
+      const result = await useCase.execute(makeRequest());
+      expect(result.isRight()).toBe(true);
+    });
+
+    it('deve processar incomes com sucesso quando soma dos envelopes tem imprecisão de ponto flutuante (ex: 99.99999999999999)', async () => {
+      envelopesRepo.getAll.mockResolvedValue([
+        { percentage: { value: 3.412 } },
+        { percentage: { value: 51.163 } },
+        { percentage: { value: 34.302 } },
+        { percentage: { value: 4.571 } },
+        { percentage: { value: 6.55199999999999 } },
+      ]);
       const result = await useCase.execute(makeRequest());
       expect(result.isRight()).toBe(true);
     });

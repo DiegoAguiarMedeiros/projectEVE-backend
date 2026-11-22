@@ -66,7 +66,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         envelopeId = envelopeIdOrError.getValue();
       } else {
         const allEnvelopes = await this.envelopesRepo.getAll(request.userId);
-        const totalPercentage = allEnvelopes.reduce((sum, e) => sum + e.percentage.value, 0);
+        const totalPercentage = Math.round(allEnvelopes.reduce((sum, e) => sum + e.percentage.value, 0) * 100) / 100;
         if (totalPercentage !== 100) {
           return left(new CreateErrors.EnvelopesNotDistributed()) as CreateResponse;
         }

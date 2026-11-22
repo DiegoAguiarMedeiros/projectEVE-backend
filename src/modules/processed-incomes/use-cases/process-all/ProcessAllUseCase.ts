@@ -53,7 +53,7 @@ export class ProcessAllUseCase implements UseCase<ProcessAllDTO, Promise<Process
 
     try {
       const allEnvelopes = await this.envelopesRepo.getAll(request.userId);
-      const totalPercentage = allEnvelopes.reduce((sum, e) => sum + e.percentage.value, 0);
+      const totalPercentage = Math.round(allEnvelopes.reduce((sum, e) => sum + e.percentage.value, 0) * 100) / 100;
       if (totalPercentage !== 100) {
         return left(new ProcessAllErrors.EnvelopesNotDistributed()) as ProcessAllResponse;
       }

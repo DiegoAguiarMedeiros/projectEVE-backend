@@ -80,6 +80,21 @@ describe('CreateProcessedIncomeUseCase', () => {
       expect(pi.shouldAddFixedExpenses).toBe(true);
     });
 
+    it('deve criar processed income dividido com sucesso quando soma dos envelopes tem imprecisão de ponto flutuante', async () => {
+      envelopesRepo.getAll.mockResolvedValue([
+        { percentage: { value: 3.412 } },
+        { percentage: { value: 51.163 } },
+        { percentage: { value: 34.302 } },
+        { percentage: { value: 4.571 } },
+        { percentage: { value: 6.55199999999999 } },
+      ]);
+      repo.getAllByYearMonth.mockResolvedValue([]);
+      repo.create.mockResolvedValue(undefined);
+      const result = await useCase.execute(makeRequest({ isSplitted: true }));
+      expect(result.isRight()).toBe(true);
+      expect(repo.create).toHaveBeenCalledTimes(1);
+    });
+
     it('deve definir shouldAddFixedExpenses=false quando já há processamento no mês', async () => {
       const existingWithFixed = { shouldAddFixedExpenses: true };
       repo.getAllByYearMonth.mockResolvedValue([existingWithFixed]);

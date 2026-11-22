@@ -51,9 +51,10 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
                     data.request.userId.toString(),
                     data.request.id.toString()
                 );
-                if (currentTotal + percentage.value > 100) {
+                const totalWithNew = Math.round((currentTotal + percentage.value) * 100) / 100;
+                if (totalWithNew > 100) {
                     return left(
-                        new UpdateErrors.ExceedsTotalPercentageError(currentTotal + percentage.value)
+                        new UpdateErrors.ExceedsTotalPercentageError(totalWithNew)
                     ) as UpdateResponse;
                 }
 

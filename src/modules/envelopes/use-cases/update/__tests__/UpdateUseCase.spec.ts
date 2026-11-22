@@ -107,6 +107,15 @@ describe('UpdateEnvelopeUseCase', () => {
       expect(repo.update).toHaveBeenCalledTimes(1);
     });
 
+    it('deve aceitar atualização quando soma excede 100 apenas por imprecisão de ponto flutuante', async () => {
+      repo.getById.mockResolvedValue(makeEnvelope());
+      repo.getTotalPercentage.mockResolvedValue(93.44999999999999);
+      repo.update.mockResolvedValue(true);
+      const result = await useCase.execute(makeRequest({ fieldUpdate: { color: '#00ff00', percentage: 6.55000000000002 } }));
+      expect(result.isRight()).toBe(true);
+      expect(repo.update).toHaveBeenCalledTimes(1);
+    });
+
     it('deve pular verificação de percentagem total para envelope "debts"', async () => {
       repo.getById.mockResolvedValue(makeEnvelope('debts'));
       repo.update.mockResolvedValue(true);
