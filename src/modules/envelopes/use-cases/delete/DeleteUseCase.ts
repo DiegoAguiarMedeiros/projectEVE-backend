@@ -6,6 +6,8 @@ import { UseCase } from "../../../../shared/core/UseCase";
 import { Interface as IEnvelopeRepo} from "../../repos/Interface";
 import { DeleteDTO } from "../../dtos";
 
+const PROTECTED_ENVELOPES = ['debts', 'goals'];
+
 export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>> {
     private repo: IEnvelopeRepo;
 
@@ -24,9 +26,14 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
                 ) as DeleteResponse;
             }
 
-            return left(
-                new DeleteErrors.CanNotBeDeleted(request.id)
-            ) as DeleteResponse;
+            if (PROTECTED_ENVELOPES.includes(envelope.name.value)) {
+                return left(
+                    new DeleteErrors.CanNotBeDeleted(request.id)
+                ) as DeleteResponse;
+            }
+
+            await this.repo.delete(request.id);
+            return right(Result.ok<void>()) as DeleteResponse;
 
         } catch (err) {
             return left(new AppError.UnexpectedError(err)) as DeleteResponse;

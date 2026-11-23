@@ -5,6 +5,7 @@ import { CreateErrors } from "./CreateErrors";
 
 export type CreateResponse = Either<
   CreateErrors.NameTakenError |
+  CreateErrors.ExceedsTotalPercentageError |
   AppError.UnexpectedError |
   Result<any>,
   Result<void>

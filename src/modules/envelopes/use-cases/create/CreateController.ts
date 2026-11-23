@@ -22,9 +22,9 @@ export class CreateController extends BaseController {
     const dto: CreateDTO = {
       name: TextUtils.sanitize(req.body.name),
       userId: id,
-      color: "",
-      order: req.body.order,
-      percentage: 0
+      color: req.body.color || "#1877F2",
+      order: req.body.order ?? 99,
+      percentage: req.body.percentage ?? 0,
     }
 
     try {
@@ -35,7 +35,8 @@ export class CreateController extends BaseController {
 
         switch (error.constructor) {
           case CreateErrors.NameTakenError:
-            return this.conflict(res, error.getErrorValue())
+          case CreateErrors.ExceedsTotalPercentageError:
+            return this.conflict(res, error.getErrorValue().message)
           default:
             return this.fail(res, error.getErrorValue());
         }

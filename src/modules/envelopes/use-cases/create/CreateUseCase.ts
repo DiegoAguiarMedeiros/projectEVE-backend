@@ -27,7 +27,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const userIdOrError = Id.create(new UniqueEntityID(request.userId));
     const colorOrError = Color.create({ color: request.color });
     const percentageOrError = Percentage.create({ percentage: request.percentage });
-    const orderOrError = Balance.create({ balance: request.order });
+    const orderOrError = Balance.create({ balance: request.order ?? 99 });
 
 
     const dtoResult = Result.combine([
@@ -51,6 +51,16 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         return left(
           new CreateErrors.NameTakenError(request.name)
         ) as CreateResponse;
+      }
+
+      if (percentage.value > 0) {
+        const currentTotal = await this.repo.getTotalPercentage(request.userId.toString());
+        const totalWithNew = Math.round((currentTotal + percentage.value) * 100) / 100;
+        if (totalWithNew > 100) {
+          return left(
+            new CreateErrors.ExceedsTotalPercentageError(totalWithNew)
+          ) as CreateResponse;
+        }
       }
 
       const EnvelopesOrError: Result<Envelopes> = Envelopes.create({

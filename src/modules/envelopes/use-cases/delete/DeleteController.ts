@@ -31,9 +31,9 @@ export class DeleteController extends BaseController {
 
                 switch (error.constructor) {
                     case DeleteErrors.NotFound:
-                        return this.conflict(res, error.getErrorValue())
+                        return this.conflict(res, error.getErrorValue().message)
                     case DeleteErrors.CanNotBeDeleted:
-                        return this.conflict(res, error.getErrorValue())
+                        return this.conflict(res, error.getErrorValue().message)
                     default:
                         return this.fail(res, error.getErrorValue());
                 }

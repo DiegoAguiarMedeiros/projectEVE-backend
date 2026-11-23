@@ -6,14 +6,14 @@ export namespace DeleteErrors {
     export class NotFound extends Result<UseCaseError> {
         constructor(id: string) {
             super(false, {
-                message: `Envelope id: ${id} was not found!`
+                message: `errors.envelopes.not_found`
             } as UseCaseError)
         }
     }
     export class CanNotBeDeleted extends Result<UseCaseError> {
         constructor(id: string) {
             super(false, {
-                message: `Envelope id: ${id} can not be deleted!`
+                message: `errors.envelopes.cannot_be_deleted`
             } as UseCaseError)
         }
     }

@@ -67,6 +67,15 @@ describe('CreateEnvelopeUseCase', () => {
       expect(repo.create).not.toHaveBeenCalled();
     });
 
+    it('deve retornar ExceedsTotalPercentageError quando soma ultrapassa 100%', async () => {
+      repo.checkName.mockResolvedValue(false);
+      repo.getTotalPercentage.mockResolvedValue(80);
+      const result = await useCase.execute(makeRequest({ percentage: 30 }));
+      expect(result.isLeft()).toBe(true);
+      expect(result.value).toBeInstanceOf(CreateErrors.ExceedsTotalPercentageError);
+      expect(repo.create).not.toHaveBeenCalled();
+    });
+
     it('deve retornar UnexpectedError quando repo lança exceção', async () => {
       repo.checkName.mockRejectedValue(new Error('DB offline'));
       const result = await useCase.execute(makeRequest());
@@ -78,6 +87,7 @@ describe('CreateEnvelopeUseCase', () => {
   describe('success', () => {
     it('deve criar envelope com sucesso', async () => {
       repo.checkName.mockResolvedValue(false);
+      repo.getTotalPercentage.mockResolvedValue(50);
       repo.create.mockResolvedValue(undefined);
       const result = await useCase.execute(makeRequest());
       expect(result.isRight()).toBe(true);
@@ -86,6 +96,7 @@ describe('CreateEnvelopeUseCase', () => {
 
     it('deve criar envelope com os valores corretos', async () => {
       repo.checkName.mockResolvedValue(false);
+      repo.getTotalPercentage.mockResolvedValue(50);
       repo.create.mockResolvedValue(undefined);
       await useCase.execute(makeRequest());
       const [envelope] = repo.create.mock.calls[0];
