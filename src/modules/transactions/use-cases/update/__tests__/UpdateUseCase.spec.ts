@@ -129,6 +129,34 @@ describe('UpdateUseCase', () => {
       expect(envelopeRepo.getAmount).not.toHaveBeenCalled();
     });
 
+    it('deve manter referenceYear e referenceMonth do envelope ao editar data da compra', async () => {
+      const transaction = makeTransactionStub({
+        status: 'transaction.status.pending',
+        type: 'Debit',
+        amount: 100,
+        date: new Date('2026-11-20T12:00:00'),
+        referenceYear: 2026,
+        referenceMonth: 12,
+      });
+      repo.getById.mockResolvedValue(transaction);
+      envelopeRepo.getAmount.mockResolvedValue(500);
+      repo.update.mockResolvedValue(true);
+
+      const result = await useCase.execute({
+        request: { id: 'tx-uuid', userId: 'user-123' },
+        fieldUpdate: {
+          date: '2026-11-21' as any,
+          status: 'transaction.status.completed' as const,
+          type: 'Debit' as const,
+        } as any,
+      });
+
+      expect(result.isRight()).toBe(true);
+      expect(transaction.referenceYear).toBe(2026);
+      expect(transaction.referenceMonth).toBe(12);
+      expect(envelopeRepo.getAmount).toHaveBeenCalledWith('env-uuid', 2026, 12);
+    });
+
     it('deve atualizar apenas os campos fornecidos (description)', async () => {
       const transaction = makeTransactionStub({ description: 'Descrição antiga' });
       repo.getById.mockResolvedValue(transaction);

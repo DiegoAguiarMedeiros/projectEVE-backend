@@ -32,8 +32,8 @@ export class DeleteUseCase implements UseCase<DeleteDTO, Promise<DeleteResponse>
             }
 
             if (transaction.status === 'transaction.status.completed') {
-                const year = transaction.date.getFullYear();
-                const month = transaction.date.getMonth() + 1;
+                const year = transaction.referenceYear;
+                const month = transaction.referenceMonth;
                 const amount = Number(transaction.amount.value);
                 if (amount > 0) {
                     const delta = transaction.type === "Debit" ? amount : -amount;

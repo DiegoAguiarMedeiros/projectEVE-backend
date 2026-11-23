@@ -51,7 +51,17 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
 
             const description: Description = DescriptionOrError.getValue();
             const amount: Balance = AmountOrError.getValue();
-            const date: Date = data.fieldUpdate.date ? data.fieldUpdate.date : transaction.date;
+            const date: Date = data.fieldUpdate.date
+                ? (typeof data.fieldUpdate.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.fieldUpdate.date)
+                    ? new Date(`${data.fieldUpdate.date}T12:00:00`)
+                    : new Date(data.fieldUpdate.date))
+                : transaction.date;
+            const referenceYear: number = data.fieldUpdate.referenceYear != null
+                ? Number(data.fieldUpdate.referenceYear)
+                : transaction.referenceYear;
+            const referenceMonth: number = data.fieldUpdate.referenceMonth != null
+                ? Number(data.fieldUpdate.referenceMonth)
+                : transaction.referenceMonth;
             const status: TransactionsStatus = data.fieldUpdate.status ? data.fieldUpdate.status : transaction.status;
 
             const oldAmount = transaction.amount;
@@ -64,10 +74,7 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
                     : Number(amount.value);
 
                 if (additionalDeduction > 0) {
-                    const txDate = new Date(date);
-                    const year = txDate.getFullYear();
-                    const month = txDate.getMonth() + 1;
-                    const currentBalance = await this.envelopeRepo.getAmount(transaction.envelopeId.value, year, month);
+                    const currentBalance = await this.envelopeRepo.getAmount(transaction.envelopeId.value, referenceYear, referenceMonth);
                     const available = currentBalance !== null ? Number(currentBalance) : 0;
 
                     if (additionalDeduction > available) {
@@ -79,6 +86,8 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             if (data.fieldUpdate.description) transaction.updateDescription(description)
             if (data.fieldUpdate.amount) transaction.updateAmount(amount)
             if (data.fieldUpdate.date) transaction.updateDate(date)
+            if (data.fieldUpdate.referenceYear != null) transaction.updateReferenceYear(referenceYear)
+            if (data.fieldUpdate.referenceMonth != null) transaction.updateReferenceMonth(referenceMonth)
             if (data.fieldUpdate.status) transaction.updateStatus(status)
             if (data.fieldUpdate.paymentMethod) transaction.updatePaymentMethod(data.fieldUpdate.paymentMethod)
             if (data.fieldUpdate.creditCardId !== undefined) {

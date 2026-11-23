@@ -25,6 +25,8 @@ export class UpdateController extends BaseController {
                 description: req.body.description,
                 amount: req.body.amount,
                 paymentDay: req.body.paymentDay,
+                paymentMethod: req.body.paymentMethod,
+                creditCardId: req.body.creditCardId,
             }
         }
 

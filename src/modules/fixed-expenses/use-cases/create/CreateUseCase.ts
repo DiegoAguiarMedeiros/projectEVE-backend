@@ -49,6 +49,11 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
     const paymentDay: PaymentDay = PaymentDayOrError.getValue();
+    const paymentMethod = request.paymentMethod ?? 'envelope.transaction.payment_method.Cash';
+    const creditCardId =
+      paymentMethod === 'envelope.transaction.payment_method.CreditCard' && request.creditCardId
+        ? Id.create(new UniqueEntityID(request.creditCardId)).getValue()
+        : undefined;
 
     try {
 
@@ -57,6 +62,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         description,
         amount,
         paymentDay,
+        paymentMethod,
+        creditCardId,
       });
 
       if (fixedExpenseOrError.isFailure) {

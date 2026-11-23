@@ -118,10 +118,8 @@ export class Repository implements Interface {
                     attributes: [],
                     where: {
                         status: 'transaction.status.completed',
-                        date: {
-                            [Op.gte]: new Date(year, month - 1, 1),
-                            [Op.lt]: new Date(year, month, 1),
-                        },
+                        reference_year: year,
+                        reference_month: month,
                     },
                 }
             ],
@@ -167,10 +165,8 @@ export class Repository implements Interface {
                     attributes: [],
                     where: {
                         status: 'transaction.status.completed',
-                        date: {
-                            [Op.gte]: new Date(year, month - 1, 1),
-                            [Op.lt]: new Date(year, month, 1),
-                        },
+                        reference_year: year,
+                        reference_month: month,
                     },
                 }
             ],

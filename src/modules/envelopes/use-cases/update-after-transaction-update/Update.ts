@@ -34,7 +34,7 @@ export class Update implements UseCase<UpdateDTO, Promise<Response>> {
 
       if (!transaction) return left(new UpdateErrors.TransactionNotFound(transactionId));
 
-      const envelopesAmount = await this.envelopeRepo.getAmount(transaction.envelopeId.value, transaction.date.getFullYear(), transaction.date.getMonth() + 1);
+      const envelopesAmount = await this.envelopeRepo.getAmount(transaction.envelopeId.value, transaction.referenceYear, transaction.referenceMonth);
 
       if (envelopesAmount !== null) {
         const wasCompleted = oldStatus === 'transaction.status.completed';
@@ -55,8 +55,8 @@ export class Update implements UseCase<UpdateDTO, Promise<Response>> {
           await this.updateEnvelopeAmount.execute({
             envelopeId: transaction.envelopeId.value,
             amount: Number(envelopesAmount) + delta,
-            year: transaction.date.getFullYear(),
-            month: transaction.date.getMonth() + 1,
+            year: transaction.referenceYear,
+            month: transaction.referenceMonth,
           });
         }
       }

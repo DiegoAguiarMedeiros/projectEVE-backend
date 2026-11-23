@@ -7,7 +7,7 @@ import { Id } from "../../../shared/domain/Id";
 import { PaymentDay } from "../../../shared/domain/PaymentDay";
 import { AggregateRoot } from "../../../shared/domain/AggregateRoot";
 import { UniqueEntityID } from "../../../shared/domain/UniqueEntityID";
-import { TransactionsType } from "../../transactions/domain/TransactionsType";
+import { PaymentMethod } from "../../transactions/domain/PaymentMethod";
 
 
 interface FixedExpenseProps {
@@ -15,6 +15,9 @@ interface FixedExpenseProps {
   description: Description;
   amount: Balance;
   paymentDay: PaymentDay;
+  paymentMethod?: PaymentMethod;
+  creditCardId?: Id;
+  creditCardName?: string;
 }
 
 
@@ -43,6 +46,21 @@ export class FixedExpense extends AggregateRoot<FixedExpenseProps> {
   }
   public updatepaymentDay(paymentDay: PaymentDay): void {
     this.props.paymentDay = paymentDay;
+  }
+  get paymentMethod(): PaymentMethod {
+    return this.props.paymentMethod ?? 'envelope.transaction.payment_method.Cash';
+  }
+  public updatePaymentMethod(paymentMethod: PaymentMethod): void {
+    this.props.paymentMethod = paymentMethod;
+  }
+  get creditCardId(): Id | undefined {
+    return this.props.creditCardId;
+  }
+  public updateCreditCardId(creditCardId: Id | undefined): void {
+    this.props.creditCardId = creditCardId;
+  }
+  get creditCardName(): string | undefined {
+    return this.props.creditCardName;
   }
 
   private constructor(props: FixedExpenseProps, id?: UniqueEntityID) {

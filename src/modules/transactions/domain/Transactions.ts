@@ -17,6 +17,8 @@ export interface TransactionsProps {
   description: Description;
   amount: Balance;
   date: Date;
+  referenceYear?: number;
+  referenceMonth?: number;
   type: TransactionsType;
   paymentMethod: PaymentMethod;
   status: TransactionsStatus;
@@ -66,6 +68,18 @@ export class Transactions extends AggregateRoot<TransactionsProps> {
   }
   public updateDate(date: Date): void {
     this.props.date = date;
+  }
+  get referenceYear(): number {
+    return this.props.referenceYear ?? this.props.date.getFullYear();
+  }
+  public updateReferenceYear(referenceYear: number): void {
+    this.props.referenceYear = referenceYear;
+  }
+  get referenceMonth(): number {
+    return this.props.referenceMonth ?? (this.props.date.getMonth() + 1);
+  }
+  public updateReferenceMonth(referenceMonth: number): void {
+    this.props.referenceMonth = referenceMonth;
   }
   get paymentMethod(): PaymentMethod {
     return this.props.paymentMethod;

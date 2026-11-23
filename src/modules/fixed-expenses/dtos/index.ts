@@ -1,20 +1,25 @@
+import { PaymentMethod } from "../../transactions/domain/PaymentMethod";
+
 export interface FixedExpenseDTO {
   id: string;
   envelopeId: string;
   description: string;
   amount: number;
   paymentDay: number;
+  paymentMethod?: PaymentMethod;
+  creditCardId?: string;
+  creditCardName?: string;
 }
 
 export interface FixedExpenseUpdateFiledDTO extends Omit<
-  FixedExpenseDTO, 'id'
+  FixedExpenseDTO, 'id' | 'creditCardName'
 > { }
 
-export interface FixedExpenseIdDTO extends Omit<
-  FixedExpenseDTO, 'envelopeId' | 'description' | 'amount' | 'paymentDay' 
-> { }
+export interface FixedExpenseIdDTO {
+  id: string;
+}
 
-export interface CreateDTO extends Omit<FixedExpenseDTO, 'id'> {
+export interface CreateDTO extends Omit<FixedExpenseDTO, 'id' | 'creditCardName'> {
   userId: string;
 }
 

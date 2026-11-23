@@ -74,6 +74,21 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
             const paymentDay: PaymentDay = PaymentDayOrError.getValue();
             if (data.fieldUpdate.paymentDay) fixedExpense.updatepaymentDay(paymentDay)
 
+            if (data.fieldUpdate.paymentMethod) {
+                fixedExpense.updatePaymentMethod(data.fieldUpdate.paymentMethod);
+                if (data.fieldUpdate.paymentMethod !== 'envelope.transaction.payment_method.CreditCard') {
+                    fixedExpense.updateCreditCardId(undefined);
+                }
+            }
+
+            if (data.fieldUpdate.creditCardId !== undefined) {
+                const isCreditCard = fixedExpense.paymentMethod === 'envelope.transaction.payment_method.CreditCard';
+                const creditCardId = isCreditCard && data.fieldUpdate.creditCardId
+                    ? Id.create(new UniqueEntityID(data.fieldUpdate.creditCardId)).getValue()
+                    : undefined;
+                fixedExpense.updateCreditCardId(creditCardId);
+            }
+
             const updateDebt = await this.repo.update(data.request.id.toString(), fixedExpense);
             if (updateDebt) return right(Result.ok<void>()) as UpdateResponse;
 

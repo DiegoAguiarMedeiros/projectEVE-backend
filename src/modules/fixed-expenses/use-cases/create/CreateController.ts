@@ -23,7 +23,9 @@ export class CreateController extends BaseController {
       envelopeId: req.body.envelopeId,
       amount: req.body.amount,
       paymentDay: req.body.paymentDay,
-      userId:id,
+      paymentMethod: req.body.paymentMethod,
+      creditCardId: req.body.creditCardId,
+      userId: id,
     }
     try {
       const result = await this.useCase.execute(dto);

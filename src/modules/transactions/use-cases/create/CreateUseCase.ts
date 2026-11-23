@@ -43,8 +43,12 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
     const envelopeId: Id = EnvelopeIdOrError.getValue();
     const description: Description = DescriptionOrError.getValue();
     const amount: Balance = AmountOrError.getValue();
-    const transactionDate: Date = new Date(request.date);
+    const transactionDate: Date = typeof request.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(request.date)
+      ? new Date(`${request.date}T12:00:00`)
+      : new Date(request.date);
     const date: Date = transactionDate;
+    const referenceYear: number = request.referenceYear != null ? Number(request.referenceYear) : transactionDate.getFullYear();
+    const referenceMonth: number = request.referenceMonth != null ? Number(request.referenceMonth) : transactionDate.getMonth() + 1;
     const type: TransactionsType = request.type;
     const status: TransactionsStatus = request.status;
     const paymentMethod: PaymentMethod = request.paymentMethod;
@@ -71,6 +75,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         description,
         amount,
         date,
+        referenceYear,
+        referenceMonth,
         type,
         status,
         paymentMethod,
@@ -89,9 +95,7 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
 
       if (request.type === 'Debit' && request.status === 'transaction.status.completed' && Number(request.amount) > 0) {
-        const year = transactionDate.getFullYear();
-        const month = transactionDate.getMonth() + 1;
-        const currentBalance = await this.envelopeRepo.getAmount(request.envelopeId, year, month);
+        const currentBalance = await this.envelopeRepo.getAmount(request.envelopeId, referenceYear, referenceMonth);
         const available = currentBalance !== null ? Number(currentBalance) : 0;
 
         if (Number(request.amount) > available) {
@@ -106,8 +110,8 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
         await this.envelopeRepo.adjustAmount(
           request.envelopeId,
           delta,
-          transactionDate.getFullYear(),
-          transactionDate.getMonth() + 1
+          referenceYear,
+          referenceMonth
         );
       }
 

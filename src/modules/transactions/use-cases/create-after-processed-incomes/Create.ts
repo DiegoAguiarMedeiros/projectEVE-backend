@@ -107,9 +107,14 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
               description: fixedExpense.description.value,
               amount: fixedExpense.amount.value,
               date: new Date(processedIncomes.year.value, processedIncomes.month.value - 1, validDay),
+              referenceYear: processedIncomes.year.value,
+              referenceMonth: processedIncomes.month.value,
               type: "Debit",
               status: "transaction.status.pending",
-              paymentMethod: 'envelope.transaction.payment_method.Cash',
+              paymentMethod: fixedExpense.paymentMethod,
+              creditCardId: fixedExpense.paymentMethod === 'envelope.transaction.payment_method.CreditCard'
+                ? fixedExpense.creditCardId?.value
+                : undefined,
               userId: processedIncomes.userId.value
             });
           }
@@ -179,9 +184,14 @@ export class Create implements UseCase<CreateDTO, Promise<Response>> {
               description: fixedExpense.description.value,
               amount: fixedExpense.amount.value,
               date: new Date(processedIncomes.year.value, processedIncomes.month.value - 1, validDay),
+              referenceYear: processedIncomes.year.value,
+              referenceMonth: processedIncomes.month.value,
               type: "Debit",
               status: "transaction.status.pending",
-              paymentMethod: 'envelope.transaction.payment_method.Cash',
+              paymentMethod: fixedExpense.paymentMethod,
+              creditCardId: fixedExpense.paymentMethod === 'envelope.transaction.payment_method.CreditCard'
+                ? fixedExpense.creditCardId?.value
+                : undefined,
               userId: processedIncomes.userId.value
             });
           }

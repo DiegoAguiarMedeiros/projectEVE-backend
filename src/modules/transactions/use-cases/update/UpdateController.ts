@@ -24,6 +24,8 @@ export class UpdateController extends BaseController {
                 description: req.body.description,
                 amount: req.body.amount,
                 date: req.body.date,
+                referenceYear: req.body.referenceYear,
+                referenceMonth: req.body.referenceMonth,
                 type: req.body.type,
                 status: req.body.status,
                 paymentMethod: req.body.paymentMethod,

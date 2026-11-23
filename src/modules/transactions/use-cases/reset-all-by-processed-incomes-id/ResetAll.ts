@@ -31,15 +31,15 @@ export class ResetAll implements UseCase<ResetAllDTO, Promise<Response>> {
       // Reverse envelope balance for completed transactions
       for (const transaction of transactions) {
         if (transaction.status === 'transaction.status.completed') {
-          const year = transaction.date.getFullYear();
-          const month = transaction.date.getMonth() + 1;
-          const envelopeAmount = await this.envelopeRepo.getAmount(transaction.envelopeId.value, year, month);
+          const txYear = transaction.referenceYear;
+          const txMonth = transaction.referenceMonth;
+          const envelopeAmount = await this.envelopeRepo.getAmount(transaction.envelopeId.value, txYear, txMonth);
 
           if (envelopeAmount !== null) {
             const restored = transaction.type === 'Debit'
               ? Number(envelopeAmount) + Number(transaction.amount.value)
               : Number(envelopeAmount) - Number(transaction.amount.value);
-            await this.envelopeRepo.addAmount(transaction.envelopeId.value, restored, year, month);
+            await this.envelopeRepo.addAmount(transaction.envelopeId.value, restored, txYear, txMonth);
           }
         }
       }
@@ -58,8 +58,8 @@ export class ResetAll implements UseCase<ResetAllDTO, Promise<Response>> {
       const independentDebtTransactions = await this.transactionsRepo.getDebtTransactionsByMonth(userId, year, month);
       for (const transaction of independentDebtTransactions) {
         if (transaction.status === 'transaction.status.completed') {
-          const txYear = transaction.date.getFullYear();
-          const txMonth = transaction.date.getMonth() + 1;
+          const txYear = transaction.referenceYear;
+          const txMonth = transaction.referenceMonth;
           const envelopeAmount = await this.envelopeRepo.getAmount(transaction.envelopeId.value, txYear, txMonth);
           if (envelopeAmount !== null) {
             const restored = transaction.type === 'Debit'

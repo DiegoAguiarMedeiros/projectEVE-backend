@@ -13,6 +13,8 @@ interface TransactionStubOverrides {
   description?: string;
   amount?: number;
   date?: Date;
+  referenceYear?: number;
+  referenceMonth?: number;
   type?: TransactionsType;
   paymentMethod?: PaymentMethod;
   status?: TransactionsStatus;
@@ -26,6 +28,8 @@ export const makeTransactionStub = (overrides: TransactionStubOverrides = {}): T
     description: Description.create({ description: overrides.description ?? 'Test transaction' }).getValue(),
     amount: Balance.create({ balance: overrides.amount ?? 100 }).getValue(),
     date: overrides.date ?? new Date('2026-03-01'),
+    ...(overrides.referenceYear !== undefined ? { referenceYear: overrides.referenceYear } : {}),
+    ...(overrides.referenceMonth !== undefined ? { referenceMonth: overrides.referenceMonth } : {}),
     type: (overrides.type ?? 'Debit') as TransactionsType,
     paymentMethod: (overrides.paymentMethod ?? 'envelope.transaction.payment_method.Pix') as PaymentMethod,
     status: (overrides.status ?? 'transaction.status.pending') as TransactionsStatus,

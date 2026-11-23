@@ -13,6 +13,8 @@ export interface TransactionsDTO {
   description: string;
   amount: number;
   date: Date;
+  referenceYear?: number;
+  referenceMonth?: number;
   paymentMethod: PaymentMethod;
   type: TransactionsType;
   status: TransactionsStatus;

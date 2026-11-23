@@ -106,18 +106,13 @@ export class Repository implements Interface {
         const safeOrderBy = allowedColumns.includes(orderBy || "") ? orderBy : "created_at";
         const safeOrder = allowedOrders.includes(order || "") ? order : "desc";
 
-        // Cria início e fim do mês usando dayjs (ou new Date manualmente)
-        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
-
         // Build where clause for transactions
         // Show Debit transactions (all) + Credit transactions without processedIncomesId (manual)
         // Excludes salary credit transactions (Credit with processedIncomesId)
         // Excludes reallocation transactions
         const whereClause: any = {
-            date: {
-                [Op.between]: [startDate, endDate],
-            },
+            reference_year: year,
+            reference_month: month,
             payment_method: {
                 [Op.ne]: 'envelope.transaction.payment_method.Reallocation',
             },
@@ -169,13 +164,9 @@ export class Repository implements Interface {
         month: number,
         type?: string
     ): Promise<number> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
-
         const whereClause: any = {
-            date: {
-                [Op.between]: [startDate, endDate],
-            },
+            reference_year: year,
+            reference_month: month,
             payment_method: {
                 [Op.ne]: 'envelope.transaction.payment_method.Reallocation',
             },
@@ -218,9 +209,6 @@ export class Repository implements Interface {
     }
 
     async deleteOrphanedByUserAndMonth(userId: string, year: number, month: number): Promise<void> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
-
         const envelopes = await this.models.Envelopes.findAll({
             attributes: ['id'],
             where: { user_id: userId },
@@ -242,7 +230,8 @@ export class Repository implements Interface {
                     ? { [Op.not]: null, [Op.notIn]: validIds }
                     : { [Op.not]: null },
                 envelope_id: { [Op.in]: envelopeIds },
-                date: { [Op.between]: [startDate, endDate] },
+                reference_year: year,
+                reference_month: month,
             },
         });
     }
@@ -283,9 +272,6 @@ export class Repository implements Interface {
 
 
     async getIncomesMonthOverview(year: number, month: number, userId: string): Promise<number> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
-
         return await this.model.sum('amount', {
             include: [
                 {
@@ -301,18 +287,14 @@ export class Repository implements Interface {
                 type: "Credit",
                 status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
-                date: {
-                    [Op.between]: [startDate, endDate],
-                },
+                reference_year: year,
+                reference_month: month,
             },
         });
     }
 
 
     async getGoalsMonthOverview(year: number, month: number, userId: string): Promise<number> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
-
         const goalsInclude = [
             {
                 model: this.models.Envelopes,
@@ -321,7 +303,6 @@ export class Repository implements Interface {
                 where: { user_id: userId, name: "goals" }
             }
         ];
-        const dateWhere = { [Op.between]: [startDate, endDate] };
 
         const creditSum = await this.model.sum('amount', {
             include: goalsInclude,
@@ -329,7 +310,8 @@ export class Repository implements Interface {
                 type: "Credit",
                 status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
-                date: dateWhere,
+                reference_year: year,
+                reference_month: month,
             },
         });
 
@@ -339,15 +321,14 @@ export class Repository implements Interface {
                 type: "Debit",
                 status: "transaction.status.completed",
                 payment_method: 'envelope.transaction.payment_method.Reallocation',
-                date: dateWhere,
+                reference_year: year,
+                reference_month: month,
             },
         });
 
         return (creditSum || 0) - (debitReallocSum || 0);
     }
     async getGoalsCumulativeAmount(year: number, month: number, userId: string): Promise<number> {
-        const endDate = dayjs(`${year}-${String(month).padStart(2,'0')}-01`).endOf("month").toDate();
-
         const goalsInclude = [
             {
                 model: this.models.Envelopes,
@@ -356,7 +337,12 @@ export class Repository implements Interface {
                 where: { user_id: userId, name: "goals" }
             }
         ];
-        const dateWhere = { [Op.lte]: endDate };
+        const cumulativeWhere = {
+            [Op.or]: [
+                { reference_year: { [Op.lt]: year } },
+                { reference_year: year, reference_month: { [Op.lte]: month } },
+            ],
+        };
 
         const creditSum = await this.model.sum('amount', {
             include: goalsInclude,
@@ -364,7 +350,7 @@ export class Repository implements Interface {
                 type: "Credit",
                 status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
-                date: dateWhere,
+                ...cumulativeWhere,
             },
         });
 
@@ -374,7 +360,7 @@ export class Repository implements Interface {
                 type: "Debit",
                 status: "transaction.status.completed",
                 payment_method: 'envelope.transaction.payment_method.Reallocation',
-                date: dateWhere,
+                ...cumulativeWhere,
             },
         });
 
@@ -382,9 +368,6 @@ export class Repository implements Interface {
     }
 
     async getExpensesMonthOverview(year: number, month: number, userId: string): Promise<number> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
-
         return await this.model.sum('amount', {
             include: [
                 {
@@ -401,18 +384,17 @@ export class Repository implements Interface {
                 type: "Debit",
                 status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
-                date: {
-                    [Op.between]: [startDate, endDate],
-                },
+                reference_year: year,
+                reference_month: month,
             },
         });
     }
     async getIncomesByYear(year: number, userId: string): Promise<number[]> {
-        const { fn, col, literal } = this.model.sequelize;
+        const { fn, col } = this.model.sequelize;
 
         const data = await this.model.findAll({
             attributes: [
-                [fn("EXTRACT", literal("MONTH FROM date")), "month"],
+                [col("reference_month"), "month"],
                 [fn("SUM", col("amount")), "amount"]
             ],
             include: [
@@ -429,22 +411,22 @@ export class Repository implements Interface {
                 type: "Credit",
                 status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
-                date: { [Op.between]: [`${year}-01-01`, `${year}-12-31`] }
+                reference_year: year
             },
-            group: [literal("EXTRACT(MONTH FROM date)")],
+            group: [col("reference_month")],
             raw: true,
-            order: [literal("EXTRACT(MONTH FROM date) ASC")]
+            order: [[col("reference_month"), "ASC"]]
         });
         return Mapper.toAnalyticsEnvelopesByYear(data);
     }
 
 
     async getGoalsByYear(year: number, userId: string): Promise<number[]> {
-        const { fn, literal } = this.model.sequelize;
+        const { col, literal } = this.model.sequelize;
 
         const data = await this.model.findAll({
             attributes: [
-                [fn("EXTRACT", literal("MONTH FROM date")), "month"],
+                [col("reference_month"), "month"],
                 [literal(`SUM(CASE WHEN "Transactions"."type" = 'Credit' AND "Transactions"."payment_method" != 'envelope.transaction.payment_method.Reallocation' THEN "Transactions"."amount" WHEN "Transactions"."type" = 'Debit' AND "Transactions"."payment_method" = 'envelope.transaction.payment_method.Reallocation' THEN -"Transactions"."amount" ELSE 0 END)`), "amount"]
             ],
             include: [
@@ -460,21 +442,21 @@ export class Repository implements Interface {
             ],
             where: {
                 status: "transaction.status.completed",
-                date: { [Op.between]: [`${year}-01-01`, `${year}-12-31`] }
+                reference_year: year
             },
-            group: [literal("EXTRACT(MONTH FROM date)")],
+            group: [col("reference_month")],
             raw: true,
-            order: [literal("EXTRACT(MONTH FROM date) ASC")]
+            order: [[col("reference_month"), "ASC"]]
         });
 
         return Mapper.toAnalyticsEnvelopesByYear(data);
     }
     async getExpensesByYear(year: number, userId: string): Promise<number[]> {
-        const { fn, col, literal } = this.model.sequelize;
+        const { fn, col } = this.model.sequelize;
 
         const data = await this.model.findAll({
             attributes: [
-                [fn("EXTRACT", literal("MONTH FROM date")), "month"],
+                [col("reference_month"), "month"],
                 [fn("SUM", col("amount")), "amount"]
             ],
             include: [
@@ -492,11 +474,11 @@ export class Repository implements Interface {
                 type: "Debit",
                 status: "transaction.status.completed",
                 payment_method: { [Op.ne]: 'envelope.transaction.payment_method.Reallocation' },
-                date: { [Op.between]: [`${year}-01-01`, `${year}-12-31`] }
+                reference_year: year
             },
-            group: [literal("EXTRACT(MONTH FROM date)")],
+            group: [col("reference_month")],
             raw: true,
-            order: [literal("EXTRACT(MONTH FROM date) ASC")]
+            order: [[col("reference_month"), "ASC"]]
         });
         return Mapper.toAnalyticsEnvelopesByYear(data);
     }
@@ -517,7 +499,7 @@ export class Repository implements Interface {
         const in7Days = dayjs().add(15, "day").endOf("day").toDate();
 
         const dateFilter = (year && month)
-            ? { date: { [Op.between]: [dayjs(`${year}-${month}-01`).startOf("month").toDate(), dayjs(`${year}-${month}-01`).endOf("month").toDate()] } }
+            ? { reference_year: year, reference_month: month }
             : { [Op.or]: [{ date: { [Op.lte]: today } }, { date: { [Op.between]: [today, in7Days] } }] };
 
         const data = await this.model.findAll({
@@ -558,7 +540,7 @@ export class Repository implements Interface {
         const in7Days = dayjs().add(15, "day").endOf("day").toDate();
 
         const dateFilter = (year && month)
-            ? { date: { [Op.between]: [dayjs(`${year}-${month}-01`).startOf("month").toDate(), dayjs(`${year}-${month}-01`).endOf("month").toDate()] } }
+            ? { reference_year: year, reference_month: month }
             : { [Op.or]: [{ date: { [Op.lte]: today } }, { date: { [Op.between]: [today, in7Days] } }] };
 
         return await this.model.count({
@@ -582,15 +564,13 @@ export class Repository implements Interface {
     }
 
     async existsByDescriptionAndMonth(userId: string, description: string, year: number, month: number): Promise<boolean> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf("month").toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf("month").toDate();
-
         const count = await this.model.count({
             where: {
                 description,
                 type: "Debit",
                 processed_incomes_id: { [Op.is]: null },
-                date: { [Op.between]: [startDate, endDate] },
+                reference_year: year,
+                reference_month: month,
             },
             include: [
                 {
@@ -614,10 +594,8 @@ export class Repository implements Interface {
                 envelope_id: envelopeId,
                 type: 'Debit',
                 status: 'transaction.status.pending',
-                date: {
-                    [Op.gte]: new Date(year, month - 1, 1),
-                    [Op.lt]: new Date(year, month, 1),
-                },
+                reference_year: year,
+                reference_month: month,
             },
             raw: true,
         });
@@ -637,9 +615,6 @@ export class Repository implements Interface {
     }
 
     async getDebtTransactionsByMonth(userId: string, year: number, month: number): Promise<Transactions[]> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf('month').toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf('month').toDate();
-
         const envelopes = await this.models.Envelopes.findAll({
             attributes: ['id'],
             where: { user_id: userId },
@@ -653,7 +628,8 @@ export class Repository implements Interface {
                 debt_id: { [Op.not]: null },
                 processed_incomes_id: { [Op.is]: null },
                 envelope_id: { [Op.in]: envelopeIds },
-                date: { [Op.between]: [startDate, endDate] },
+                reference_year: year,
+                reference_month: month,
             },
         });
 
@@ -661,9 +637,6 @@ export class Repository implements Interface {
     }
 
     async getOrphanedTransactionsByMonth(userId: string, year: number, month: number): Promise<Transactions[]> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf('month').toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf('month').toDate();
-
         const envelopes = await this.models.Envelopes.findAll({
             attributes: ['id'],
             where: { user_id: userId },
@@ -684,7 +657,8 @@ export class Repository implements Interface {
                     ? { [Op.not]: null, [Op.notIn]: validIds }
                     : { [Op.not]: null },
                 envelope_id: { [Op.in]: envelopeIds },
-                date: { [Op.between]: [startDate, endDate] },
+                reference_year: year,
+                reference_month: month,
             },
         });
 
@@ -692,9 +666,6 @@ export class Repository implements Interface {
     }
 
     async resetDebtsByMonth(userId: string, year: number, month: number): Promise<void> {
-        const startDate = dayjs(`${year}-${month}-01`).startOf('month').toDate();
-        const endDate = dayjs(`${year}-${month}-01`).endOf('month').toDate();
-
         const envelopes = await this.models.Envelopes.findAll({
             attributes: ['id'],
             where: { user_id: userId },
@@ -710,7 +681,8 @@ export class Repository implements Interface {
                     debt_id: { [Op.not]: null },
                     processed_incomes_id: { [Op.is]: null },
                     envelope_id: { [Op.in]: envelopeIds },
-                    date: { [Op.between]: [startDate, endDate] },
+                    reference_year: year,
+                    reference_month: month,
                 },
             },
         );

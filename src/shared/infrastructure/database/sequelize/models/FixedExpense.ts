@@ -1,10 +1,12 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/config';
 import Envelope from './Envelopes';
+import CreditCards from './CreditCards';
 
 class FixedExpenses extends Model {
     static associate(models: any) {
         FixedExpenses.belongsTo(models.Envelopes, { foreignKey: 'envelope_id' });
+        FixedExpenses.belongsTo(models.CreditCards, { foreignKey: 'credit_card_id', as: 'CreditCard' });
     }
 }
 
@@ -40,6 +42,29 @@ FixedExpenses.init({
             min: 1,
             max: 31,
         }
+    },
+    payment_method: {
+        type: DataTypes.ENUM(
+            'envelope.transaction.payment_method.CreditCard',
+            'envelope.transaction.payment_method.DebitCard',
+            'envelope.transaction.payment_method.Cash',
+            'envelope.transaction.payment_method.BankTransfer',
+            'envelope.transaction.payment_method.Pix',
+            'envelope.transaction.payment_method.Reallocation',
+            'envelope.transaction.payment_method.Ticket'
+        ),
+        allowNull: false,
+        defaultValue: 'envelope.transaction.payment_method.Cash'
+    },
+    credit_card_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+            model: CreditCards,
+            key: 'id'
+        },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE'
     }
 }, {
     sequelize,

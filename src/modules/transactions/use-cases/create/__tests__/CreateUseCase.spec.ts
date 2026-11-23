@@ -175,6 +175,30 @@ describe('CreateUseCase', () => {
       expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', -50, 2026, 3);
     });
 
+    it('deve usar referenceYear e referenceMonth do envelope ao criar compra com data de outro mês', async () => {
+      envelopeRepo.getById.mockResolvedValue({ id: 'env-uuid' });
+      envelopeRepo.getAmount.mockResolvedValueOnce(500);
+      transactionsRepo.create.mockResolvedValue(undefined);
+
+      const result = await useCase.execute(makeRequest({
+        type: 'Debit',
+        amount: 100,
+        date: '2026-11-20' as any,
+        referenceYear: 2026,
+        referenceMonth: 12,
+        status: 'transaction.status.completed',
+      }));
+
+      expect(result.isRight()).toBe(true);
+      if (result.isRight()) {
+        const created = result.value.getValue();
+        expect(created.referenceYear).toBe(2026);
+        expect(created.referenceMonth).toBe(12);
+      }
+      expect(envelopeRepo.getAmount).toHaveBeenCalledWith('env-uuid', 2026, 12);
+      expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', -100, 2026, 12);
+    });
+
     it('deve criar Credit e ajustar envelope amount atomicamente com delta positivo quando status=completed', async () => {
       envelopeRepo.getById.mockResolvedValue({ id: 'env-uuid' });
       transactionsRepo.create.mockResolvedValue(undefined);

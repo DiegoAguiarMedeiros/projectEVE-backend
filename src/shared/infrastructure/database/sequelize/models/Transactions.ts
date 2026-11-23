@@ -70,6 +70,14 @@ Transactions.init({
         type: DataTypes.DATEONLY,
         allowNull: false
     },
+    reference_year: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    reference_month: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     type: {
         type: DataTypes.ENUM('Credit', 'Debit'),
         allowNull: false,
@@ -99,6 +107,7 @@ Transactions.init({
     timestamps: true,
     indexes: [
         { fields: ['envelope_id', 'date', 'status'] },
+        { fields: ['envelope_id', 'reference_year', 'reference_month', 'status'] },
         { fields: ['processed_incomes_id'] },
         { fields: ['debt_id'] },
         { fields: ['credit_card_id'] },

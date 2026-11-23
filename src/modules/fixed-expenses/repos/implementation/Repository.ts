@@ -16,7 +16,7 @@ export class Repository implements Interface {
   async update(id: string, data: FixedExpense): Promise<boolean> {
     const rawData = await Mapper.toPersistence(data);
     const [updatedRows] = await this.model.update(
-      rawData,
+      { ...rawData, credit_card_id: rawData.credit_card_id === undefined ? null : rawData.credit_card_id },
       {
         where: {
           id,
@@ -49,11 +49,22 @@ export class Repository implements Interface {
           [Op.in]: envelopeIds,
         },
       },
+      include: [
+        {
+          model: this.models.CreditCards,
+          as: 'CreditCard',
+          attributes: ['name'],
+          required: false,
+        },
+      ],
       limit: limit,
       offset: offset,
       order: [[safeOrderBy, safeOrder]],
     });
-    return data.map((e: any) => Mapper.toDomain(e));
+    return data.map((e: any) => {
+      const raw = e.get({ plain: true });
+      return Mapper.toDomain({ ...raw, credit_card_name: raw.CreditCard?.name ?? null });
+    });
   }
 
   async countAll(id: string): Promise<number> {
@@ -88,9 +99,18 @@ export class Repository implements Interface {
           [Op.in]: envelopeIds,
         },
       },
+      include: [
+        {
+          model: this.models.CreditCards,
+          as: 'CreditCard',
+          attributes: ['name'],
+          required: false,
+        },
+      ],
     });
     if (!data) return null;
-    return Mapper.toDomain(data);
+    const raw = data.get({ plain: true });
+    return Mapper.toDomain({ ...raw, credit_card_name: raw.CreditCard?.name ?? null });
   }
 
   async create(investment: FixedExpense): Promise<void> {

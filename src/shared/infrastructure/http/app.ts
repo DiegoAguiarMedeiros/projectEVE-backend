@@ -16,6 +16,12 @@ import models from '../database/sequelize/models'; // caminho para o index.ts do
 
 (async () => {
   await models.sequelize.sync({ alter: true });
+  await models.sequelize.query(
+    `UPDATE transactions
+     SET reference_year = EXTRACT(YEAR FROM date)::int,
+         reference_month = EXTRACT(MONTH FROM date)::int
+     WHERE reference_year IS NULL OR reference_month IS NULL`
+  );
   const port = process.env.PORT || 3000;
   const host = process.env.HOST || '192.168.15.7';
   const app = express();

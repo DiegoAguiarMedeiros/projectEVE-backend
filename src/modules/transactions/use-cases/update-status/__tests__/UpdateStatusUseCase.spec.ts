@@ -123,6 +123,26 @@ describe('UpdateStatusUseCase', () => {
       expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', -100, 2026, 3);
     });
 
+    it('deve usar referenceYear e referenceMonth do envelope ao marcar compra de outro mês como paga', async () => {
+      const transaction = makeTransactionStub({
+        status: 'transaction.status.pending',
+        type: 'Debit',
+        amount: 150,
+        date: new Date('2026-11-20T12:00:00'),
+        referenceYear: 2026,
+        referenceMonth: 12,
+      });
+      transactionsRepo.getById.mockResolvedValue(transaction);
+      transactionsRepo.updateStatus.mockResolvedValue(true);
+      envelopeRepo.getAmount.mockResolvedValue(300);
+
+      const result = await useCase.execute(makeRequest('transaction.status.completed'));
+
+      expect(result.isRight()).toBe(true);
+      expect(envelopeRepo.getAmount).toHaveBeenCalledWith('env-uuid', 2026, 12);
+      expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', -150, 2026, 12);
+    });
+
     it('deve creditar no envelope quando Credit muda para completed', async () => {
       const transaction = makeTransactionStub({
         status: 'transaction.status.pending',
