@@ -40,4 +40,12 @@ export namespace UpdateErrors {
         }
     }
 
+    export class ExceedsEnvelopeBudget extends Result<UseCaseError> {
+        constructor() {
+            super(false, {
+                message: `errors.transactions.exceeds_budget`
+            } as UseCaseError)
+        }
+    }
+
 }

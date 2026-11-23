@@ -11,10 +11,11 @@ const makeTransactionsRepo = (): jest.Mocked<Pick<ITransactionsRepo, 'getById' |
   updateStatus: jest.fn(),
 });
 
-const makeEnvelopeRepo = (): jest.Mocked<Pick<IEnvelopeRepo, 'getAmount' | 'addAmount' | 'createAmount'>> => ({
+const makeEnvelopeRepo = (): jest.Mocked<Pick<IEnvelopeRepo, 'getAmount' | 'addAmount' | 'createAmount' | 'adjustAmount'>> => ({
   getAmount: jest.fn(),
   addAmount: jest.fn(),
   createAmount: jest.fn(),
+  adjustAmount: jest.fn(),
 });
 
 const makeDebtRepo = (): jest.Mocked<Pick<IDebtRepo, 'updateInstallmentsPaid'>> => ({
@@ -50,6 +51,40 @@ describe('UpdateStatusUseCase', () => {
       expect(transactionsRepo.updateStatus).not.toHaveBeenCalled();
     });
 
+    it('deve retornar ExceedsEnvelopeBudget quando marcar Debit como pago sem saldo suficiente', async () => {
+      const transaction = makeTransactionStub({
+        status: 'transaction.status.pending',
+        type: 'Debit',
+        amount: 200,
+      });
+      transactionsRepo.getById.mockResolvedValue(transaction);
+      envelopeRepo.getAmount.mockResolvedValue(150);
+
+      const result = await useCase.execute(makeRequest('transaction.status.completed'));
+
+      expect(result.isLeft()).toBe(true);
+      expect(result.value).toBeInstanceOf(UpdateStatusErrors.ExceedsEnvelopeBudget);
+      expect(transactionsRepo.updateStatus).not.toHaveBeenCalled();
+      expect(envelopeRepo.adjustAmount).not.toHaveBeenCalled();
+    });
+
+    it('deve retornar ExceedsEnvelopeBudget quando marcar Debit como pago e saldo do envelope é null (0)', async () => {
+      const transaction = makeTransactionStub({
+        status: 'transaction.status.pending',
+        type: 'Debit',
+        amount: 100,
+      });
+      transactionsRepo.getById.mockResolvedValue(transaction);
+      envelopeRepo.getAmount.mockResolvedValue(null);
+
+      const result = await useCase.execute(makeRequest('transaction.status.completed'));
+
+      expect(result.isLeft()).toBe(true);
+      expect(result.value).toBeInstanceOf(UpdateStatusErrors.ExceedsEnvelopeBudget);
+      expect(transactionsRepo.updateStatus).not.toHaveBeenCalled();
+      expect(envelopeRepo.adjustAmount).not.toHaveBeenCalled();
+    });
+
     it('deve retornar UnexpectedError quando repo lança exceção', async () => {
       transactionsRepo.getById.mockRejectedValue(new Error('DB error'));
 
@@ -69,11 +104,10 @@ describe('UpdateStatusUseCase', () => {
       const result = await useCase.execute(makeRequest('transaction.status.completed'));
 
       expect(result.isRight()).toBe(true);
-      expect(envelopeRepo.addAmount).not.toHaveBeenCalled();
-      expect(envelopeRepo.createAmount).not.toHaveBeenCalled();
+      expect(envelopeRepo.adjustAmount).not.toHaveBeenCalled();
     });
 
-    it('deve deduzir do envelope quando Debit muda para completed (envelope existe)', async () => {
+    it('deve deduzir do envelope quando Debit muda para completed com saldo suficiente', async () => {
       const transaction = makeTransactionStub({
         status: 'transaction.status.pending',
         type: 'Debit',
@@ -86,10 +120,10 @@ describe('UpdateStatusUseCase', () => {
       const result = await useCase.execute(makeRequest('transaction.status.completed'));
 
       expect(result.isRight()).toBe(true);
-      expect(envelopeRepo.addAmount).toHaveBeenCalledWith('env-uuid', 400, 2026, 3);
+      expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', -100, 2026, 3);
     });
 
-    it('deve creditar no envelope quando Credit muda para completed (envelope existe)', async () => {
+    it('deve creditar no envelope quando Credit muda para completed', async () => {
       const transaction = makeTransactionStub({
         status: 'transaction.status.pending',
         type: 'Credit',
@@ -97,28 +131,11 @@ describe('UpdateStatusUseCase', () => {
       });
       transactionsRepo.getById.mockResolvedValue(transaction);
       transactionsRepo.updateStatus.mockResolvedValue(true);
-      envelopeRepo.getAmount.mockResolvedValue(200);
 
       const result = await useCase.execute(makeRequest('transaction.status.completed'));
 
       expect(result.isRight()).toBe(true);
-      expect(envelopeRepo.addAmount).toHaveBeenCalledWith('env-uuid', 300, 2026, 3);
-    });
-
-    it('deve criar envelope amount quando Debit muda para completed e alocação não existe', async () => {
-      const transaction = makeTransactionStub({
-        status: 'transaction.status.pending',
-        type: 'Debit',
-        amount: 100,
-      });
-      transactionsRepo.getById.mockResolvedValue(transaction);
-      transactionsRepo.updateStatus.mockResolvedValue(true);
-      envelopeRepo.getAmount.mockResolvedValue(null);
-
-      const result = await useCase.execute(makeRequest('transaction.status.completed'));
-
-      expect(result.isRight()).toBe(true);
-      expect(envelopeRepo.createAmount).toHaveBeenCalledWith('env-uuid', -100, 2026, 3);
+      expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', 100, 2026, 3);
     });
 
     it('deve reverter envelope quando Debit volta de completed para pending', async () => {
@@ -129,12 +146,11 @@ describe('UpdateStatusUseCase', () => {
       });
       transactionsRepo.getById.mockResolvedValue(transaction);
       transactionsRepo.updateStatus.mockResolvedValue(true);
-      envelopeRepo.getAmount.mockResolvedValue(300);
 
       const result = await useCase.execute(makeRequest('transaction.status.pending'));
 
       expect(result.isRight()).toBe(true);
-      expect(envelopeRepo.addAmount).toHaveBeenCalledWith('env-uuid', 400, 2026, 3);
+      expect(envelopeRepo.adjustAmount).toHaveBeenCalledWith('env-uuid', 100, 2026, 3);
     });
 
     it('deve incrementar installmentsPaid quando transação com debtId muda para completed', async () => {

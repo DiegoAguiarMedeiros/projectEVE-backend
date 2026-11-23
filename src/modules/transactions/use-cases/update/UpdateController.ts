@@ -39,11 +39,13 @@ export class UpdateController extends BaseController {
 
                 switch (error.constructor) {
                     case UpdateErrors.AlreadyExist:
-                        return this.conflict(res, error.getErrorValue())
+                        return this.conflict(res, error.getErrorValue().message)
                     case UpdateErrors.NotFound:
-                        return this.conflict(res, error.getErrorValue())
+                        return this.conflict(res, error.getErrorValue().message)
                     case UpdateErrors.CanNotBeChanged:
-                        return this.conflict(res, error.getErrorValue())
+                        return this.conflict(res, error.getErrorValue().message)
+                    case UpdateErrors.ExceedsEnvelopeBudget:
+                        return this.conflict(res, error.getErrorValue().message)
                     default:
                         return this.fail(res, error.getErrorValue());
                 }

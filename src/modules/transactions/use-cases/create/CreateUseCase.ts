@@ -88,16 +88,14 @@ export class CreateUseCase implements UseCase<CreateDTO, Promise<CreateResponse>
 
 
 
-      if (request.type === 'Debit' && !request.debtId) {
+      if (request.type === 'Debit' && request.status === 'transaction.status.completed' && Number(request.amount) > 0) {
         const year = transactionDate.getFullYear();
         const month = transactionDate.getMonth() + 1;
         const currentBalance = await this.envelopeRepo.getAmount(request.envelopeId, year, month);
+        const available = currentBalance !== null ? Number(currentBalance) : 0;
 
-        if (currentBalance !== null) {
-          const pendingDebitsTotal = await this.repo.getTotalPendingDebitsByEnvelope(request.envelopeId, year, month);
-          if (pendingDebitsTotal + Number(request.amount) > Number(currentBalance)) {
-            return left(new CreateErrors.ExceedsEnvelopeBudget());
-          }
+        if (Number(request.amount) > available) {
+          return left(new CreateErrors.ExceedsEnvelopeBudget());
         }
       }
 

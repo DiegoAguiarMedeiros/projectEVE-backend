@@ -7,6 +7,7 @@ export type UpdateStatusResponse = Either<
     UpdateStatusErrors.CanNotBeChanged |
     UpdateStatusErrors.NotFound |
     UpdateStatusErrors.AlreadyExist |
+    UpdateStatusErrors.ExceedsEnvelopeBudget |
     AppError.UnexpectedError |
     Result<any>,
     Result<void>

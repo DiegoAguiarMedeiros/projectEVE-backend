@@ -1,12 +1,17 @@
 import { UpdateUseCase } from '../UpdateUseCase';
 import { UpdateErrors } from '../UpdateErrors';
 import { Interface as ITransactionsRepo } from '../../../repos/Interface';
+import { Interface as IEnvelopeRepo } from '../../../../envelopes/repos/Interface';
 import { AppError } from '../../../../../shared/core/AppError';
 import { makeTransactionStub } from '../../../../../shared/test-utils/makeTransactionStub';
 
 const makeTransactionsRepo = (): jest.Mocked<Pick<ITransactionsRepo, 'getById' | 'update'>> => ({
   getById: jest.fn(),
   update: jest.fn(),
+});
+
+const makeEnvelopeRepo = (): jest.Mocked<Pick<IEnvelopeRepo, 'getAmount'>> => ({
+  getAmount: jest.fn(),
 });
 
 const makeDomainEvents = () => ({
@@ -29,12 +34,14 @@ const makeRequest = (overrides = {}) => ({
 describe('UpdateUseCase', () => {
   let useCase: UpdateUseCase;
   let repo: jest.Mocked<any>;
+  let envelopeRepo: jest.Mocked<any>;
   let domainEvents: ReturnType<typeof makeDomainEvents>;
 
   beforeEach(() => {
     repo = makeTransactionsRepo();
+    envelopeRepo = makeEnvelopeRepo();
     domainEvents = makeDomainEvents();
-    useCase = new UpdateUseCase(repo, domainEvents as any);
+    useCase = new UpdateUseCase(repo, domainEvents as any, envelopeRepo as any);
   });
 
   describe('errors', () => {
@@ -48,9 +55,34 @@ describe('UpdateUseCase', () => {
       expect(repo.update).not.toHaveBeenCalled();
     });
 
+    it('deve retornar ExceedsEnvelopeBudget quando marcar Debit como pago sem saldo suficiente', async () => {
+      const transaction = makeTransactionStub({ status: 'transaction.status.pending', type: 'Debit', amount: 200 });
+      repo.getById.mockResolvedValue(transaction);
+      envelopeRepo.getAmount.mockResolvedValue(100);
+
+      const result = await useCase.execute(makeRequest());
+
+      expect(result.isLeft()).toBe(true);
+      expect(result.value).toBeInstanceOf(UpdateErrors.ExceedsEnvelopeBudget);
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
+    it('deve retornar ExceedsEnvelopeBudget quando aumentar valor de Debit já pago além do saldo disponível', async () => {
+      const transaction = makeTransactionStub({ status: 'transaction.status.completed', type: 'Debit', amount: 100 });
+      repo.getById.mockResolvedValue(transaction);
+      envelopeRepo.getAmount.mockResolvedValue(50);
+
+      const result = await useCase.execute(makeRequest()); // amount: 200, additionalDeduction: 100 > 50
+
+      expect(result.isLeft()).toBe(true);
+      expect(result.value).toBeInstanceOf(UpdateErrors.ExceedsEnvelopeBudget);
+      expect(repo.update).not.toHaveBeenCalled();
+    });
+
     it('deve retornar UpdateError quando repo.update retorna false', async () => {
       const transaction = makeTransactionStub();
       repo.getById.mockResolvedValue(transaction);
+      envelopeRepo.getAmount.mockResolvedValue(500);
       repo.update.mockResolvedValue(false);
 
       const result = await useCase.execute(makeRequest());
@@ -70,9 +102,10 @@ describe('UpdateUseCase', () => {
   });
 
   describe('success', () => {
-    it('deve atualizar transação e despachar eventos de domínio', async () => {
+    it('deve atualizar transação e despachar eventos de domínio quando saldo é suficiente', async () => {
       const transaction = makeTransactionStub();
       repo.getById.mockResolvedValue(transaction);
+      envelopeRepo.getAmount.mockResolvedValue(500);
       repo.update.mockResolvedValue(true);
 
       const result = await useCase.execute(makeRequest());
@@ -80,6 +113,20 @@ describe('UpdateUseCase', () => {
       expect(result.isRight()).toBe(true);
       expect(repo.update).toHaveBeenCalledTimes(1);
       expect(domainEvents.dispatchEventsForAggregate).toHaveBeenCalledTimes(1);
+    });
+
+    it('deve permitir atualizar valor de Debit pending mesmo acima do saldo do envelope', async () => {
+      const transaction = makeTransactionStub({ status: 'transaction.status.pending', type: 'Debit', amount: 100 });
+      repo.getById.mockResolvedValue(transaction);
+      repo.update.mockResolvedValue(true);
+
+      const result = await useCase.execute({
+        request: { id: 'tx-uuid', userId: 'user-123' },
+        fieldUpdate: { amount: 9999, status: 'transaction.status.pending', type: 'Debit' as const } as any,
+      });
+
+      expect(result.isRight()).toBe(true);
+      expect(envelopeRepo.getAmount).not.toHaveBeenCalled();
     });
 
     it('deve atualizar apenas os campos fornecidos (description)', async () => {

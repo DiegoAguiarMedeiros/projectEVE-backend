@@ -18,10 +18,12 @@ import { DomainEvents } from "../../../../shared/domain/events/DomainEvents";
 export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>> {
     private repo: ITransactionsRepo;
     private domainEvents: any;
+    private envelopeRepo: IEnvelopeRepo;
 
-    constructor(repo: ITransactionsRepo, domainEvents: DomainEvents) {
+    constructor(repo: ITransactionsRepo, domainEvents: DomainEvents, envelopeRepo: IEnvelopeRepo) {
         this.repo = repo;
         this.domainEvents = domainEvents;
+        this.envelopeRepo = envelopeRepo;
     }
     async execute(data: UpdateDTO): Promise<Promise<UpdateResponse>> {
         try {
@@ -54,6 +56,25 @@ export class UpdateUseCase implements UseCase<UpdateDTO, Promise<UpdateResponse>
 
             const oldAmount = transaction.amount;
             const oldStatus = transaction.status;
+
+            if (transaction.type === 'Debit' && status === 'transaction.status.completed') {
+                const wasCompleted = oldStatus === 'transaction.status.completed';
+                const additionalDeduction = wasCompleted
+                    ? Number(amount.value) - Number(oldAmount.value)
+                    : Number(amount.value);
+
+                if (additionalDeduction > 0) {
+                    const txDate = new Date(date);
+                    const year = txDate.getFullYear();
+                    const month = txDate.getMonth() + 1;
+                    const currentBalance = await this.envelopeRepo.getAmount(transaction.envelopeId.value, year, month);
+                    const available = currentBalance !== null ? Number(currentBalance) : 0;
+
+                    if (additionalDeduction > available) {
+                        return left(new UpdateErrors.ExceedsEnvelopeBudget()) as UpdateResponse;
+                    }
+                }
+            }
 
             if (data.fieldUpdate.description) transaction.updateDescription(description)
             if (data.fieldUpdate.amount) transaction.updateAmount(amount)

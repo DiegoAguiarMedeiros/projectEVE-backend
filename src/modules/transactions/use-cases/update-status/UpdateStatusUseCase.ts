@@ -35,6 +35,22 @@ export class UpdateStatusUseCase implements UseCase<UpdateStatusDTO, Promise<Upd
             const oldStatus: TransactionsStatus = transaction.status;
             const newStatus: TransactionsStatus = data.fieldUpdate.status ? data.fieldUpdate.status : transaction.status;
 
+            if (
+                oldStatus !== newStatus &&
+                newStatus === 'transaction.status.completed' &&
+                transaction.type === 'Debit' &&
+                Number(transaction.amount.value) > 0
+            ) {
+                const year = transaction.date.getFullYear();
+                const month = transaction.date.getMonth() + 1;
+                const currentBalance = await this.envelopeRepo.getAmount(transaction.envelopeId.value, year, month);
+                const available = currentBalance !== null ? Number(currentBalance) : 0;
+
+                if (Number(transaction.amount.value) > available) {
+                    return left(new UpdateStatusErrors.ExceedsEnvelopeBudget()) as UpdateStatusResponse;
+                }
+            }
+
             await this.repo.updateStatus(transaction.id.toString(), newStatus);
 
             if (oldStatus !== newStatus && transaction.amount.value > 0) {

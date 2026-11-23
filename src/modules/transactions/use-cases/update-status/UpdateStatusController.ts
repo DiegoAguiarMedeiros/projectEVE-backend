@@ -3,7 +3,7 @@ import { UpdateStatusUseCase } from "./UpdateStatusUseCase";
 import { BaseController } from "../../../../shared/infrastructure/http/models/BaseController";
 import { DecodedExpressRequest } from "../../../../shared/infrastructure/http/models/DecodedExpressRequest";
 import { UpdateStatusDTO } from "../../dtos";
-import { UpdateErrors } from "../update/UpdateErrors";
+import { UpdateStatusErrors } from "./UpdateStatusErrors";
 
 export class UpdateStatusController extends BaseController {
     private useCase: UpdateStatusUseCase;
@@ -32,12 +32,14 @@ export class UpdateStatusController extends BaseController {
                 const error = result.value;
 
                 switch (error.constructor) {
-                    case UpdateErrors.AlreadyExist:
-                        return this.conflict(res, error.getErrorValue())
-                    case UpdateErrors.NotFound:
-                        return this.conflict(res, error.getErrorValue())
-                    case UpdateErrors.CanNotBeChanged:
-                        return this.conflict(res, error.getErrorValue())
+                    case UpdateStatusErrors.AlreadyExist:
+                        return this.conflict(res, error.getErrorValue().message)
+                    case UpdateStatusErrors.NotFound:
+                        return this.conflict(res, error.getErrorValue().message)
+                    case UpdateStatusErrors.CanNotBeChanged:
+                        return this.conflict(res, error.getErrorValue().message)
+                    case UpdateStatusErrors.ExceedsEnvelopeBudget:
+                        return this.conflict(res, error.getErrorValue().message)
                     default:
                         return this.fail(res, error.getErrorValue());
                 }
