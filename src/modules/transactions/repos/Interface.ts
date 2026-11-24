@@ -23,6 +23,7 @@ export interface Interface extends ICRUD<Transactions> {
     resetDebtsByMonth(userId: string, year: number, month: number): Promise<void>;
     getOrphanedTransactionsByMonth(userId: string, year: number, month: number): Promise<Transactions[]>;
     deleteOrphanedByUserAndMonth(userId: string, year: number, month: number): Promise<void>;
+    deleteNonDebtByUserAndMonth(userId: string, year: number, month: number): Promise<void>;
     existsByDescriptionAndMonth(userId: string, description: string, year: number, month: number): Promise<boolean>;
     getTotalPendingDebitsByEnvelope(envelopeId: string, year: number, month: number): Promise<number>;
 }

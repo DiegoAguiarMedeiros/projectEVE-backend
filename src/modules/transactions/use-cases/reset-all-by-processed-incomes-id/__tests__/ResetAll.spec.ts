@@ -18,6 +18,10 @@ const makeEnvelopeRepo = () => ({
   addAmount: jest.fn(),
 });
 
+const makeDebtRepo = () => ({
+  updateInstallmentsPaid: jest.fn(),
+});
+
 const makeRequest = (overrides = {}) => ({
   processedIncomesId: 'pi-uuid',
   userId: 'user-123',
@@ -30,11 +34,14 @@ describe('ResetAll', () => {
   let useCase: ResetAll;
   let transactionsRepo: jest.Mocked<any>;
   let envelopeRepo: ReturnType<typeof makeEnvelopeRepo>;
+  let debtRepo: ReturnType<typeof makeDebtRepo>;
 
   beforeEach(() => {
     transactionsRepo = makeTransactionsRepo();
     envelopeRepo = makeEnvelopeRepo();
-    useCase = new ResetAll(transactionsRepo, envelopeRepo as any);
+    debtRepo = makeDebtRepo();
+    debtRepo.updateInstallmentsPaid.mockResolvedValue(undefined);
+    useCase = new ResetAll(transactionsRepo, envelopeRepo as any, debtRepo as any);
   });
 
   describe('errors', () => {
@@ -166,6 +173,7 @@ describe('ResetAll', () => {
       expect(result.isRight()).toBe(true);
       // Debit: 200 + 50 = 250
       expect(envelopeRepo.addAmount).toHaveBeenCalledWith('env-uuid', 250, 2026, 3);
+      expect(debtRepo.updateInstallmentsPaid).toHaveBeenCalledWith('debt-uuid', -1);
     });
   });
 });

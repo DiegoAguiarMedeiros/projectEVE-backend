@@ -2,6 +2,7 @@ import { DeleteByMonthUseCase } from '../DeleteByMonthUseCase';
 import { AppError } from '../../../../../shared/core/AppError';
 import { Interface as IProcessedIncomesRepo } from '../../../repos/Interface';
 import { ProcessedIncomesMap } from '../../../mappers';
+import { makeTransactionStub } from '../../../../../shared/test-utils/makeTransactionStub';
 
 const makeRepo = (): jest.Mocked<Pick<IProcessedIncomesRepo, 'getAllByYearMonth' | 'deleteAll'>> => ({
   getAllByYearMonth: jest.fn(),
@@ -9,6 +10,20 @@ const makeRepo = (): jest.Mocked<Pick<IProcessedIncomesRepo, 'getAllByYearMonth'
 });
 
 const makeResetAll = () => ({ execute: jest.fn() });
+
+const makeTransactionsRepo = () => ({
+  getDebtTransactionsByMonth: jest.fn(),
+  resetDebtsByMonth: jest.fn(),
+  deleteNonDebtByUserAndMonth: jest.fn(),
+});
+
+const makeEnvelopesRepo = () => ({
+  deleteAmountsByUserAndMonth: jest.fn(),
+});
+
+const makeDebtRepo = () => ({
+  updateInstallmentsPaid: jest.fn(),
+});
 
 const makePI = () => ProcessedIncomesMap.toDomain({
   id: 'pi-uuid',
@@ -29,11 +44,28 @@ describe('DeleteByMonthUseCase', () => {
   let useCase: DeleteByMonthUseCase;
   let repo: jest.Mocked<any>;
   let resetAll: ReturnType<typeof makeResetAll>;
+  let transactionsRepo: ReturnType<typeof makeTransactionsRepo>;
+  let envelopesRepo: ReturnType<typeof makeEnvelopesRepo>;
+  let debtRepo: ReturnType<typeof makeDebtRepo>;
 
   beforeEach(() => {
     repo = makeRepo();
     resetAll = makeResetAll();
-    useCase = new DeleteByMonthUseCase(repo as any, resetAll as any);
+    transactionsRepo = makeTransactionsRepo();
+    envelopesRepo = makeEnvelopesRepo();
+    debtRepo = makeDebtRepo();
+    transactionsRepo.getDebtTransactionsByMonth.mockResolvedValue([]);
+    transactionsRepo.resetDebtsByMonth.mockResolvedValue(undefined);
+    transactionsRepo.deleteNonDebtByUserAndMonth.mockResolvedValue(undefined);
+    envelopesRepo.deleteAmountsByUserAndMonth.mockResolvedValue(undefined);
+    debtRepo.updateInstallmentsPaid.mockResolvedValue(undefined);
+    useCase = new DeleteByMonthUseCase(
+      repo as any,
+      resetAll as any,
+      transactionsRepo as any,
+      envelopesRepo as any,
+      debtRepo as any,
+    );
   });
 
   describe('errors', () => {
@@ -46,12 +78,15 @@ describe('DeleteByMonthUseCase', () => {
   });
 
   describe('success', () => {
-    it('deve deletar processed incomes do mês com sucesso', async () => {
+    it('deve deletar processed incomes, transações não-dívida e saldos dos envelopes do mês com sucesso', async () => {
       repo.getAllByYearMonth.mockResolvedValue([makePI()]);
       resetAll.execute.mockResolvedValue(undefined);
       repo.deleteAll.mockResolvedValue(1);
       const result = await useCase.execute({ year: 2026, month: 3, userId: 'user-uuid' });
       expect(result.isRight()).toBe(true);
+      expect(transactionsRepo.deleteNonDebtByUserAndMonth).toHaveBeenCalledWith('user-uuid', 2026, 3);
+      expect(envelopesRepo.deleteAmountsByUserAndMonth).toHaveBeenCalledWith('user-uuid', 2026, 3);
+      expect(repo.deleteAll).toHaveBeenCalledWith(['pi-uuid'], 'user-uuid');
     });
 
     it('deve chamar resetAll para cada item antes de deletar', async () => {
@@ -64,12 +99,22 @@ describe('DeleteByMonthUseCase', () => {
       expect(resetAll.execute).toHaveBeenCalledTimes(2);
     });
 
-    it('deve funcionar com mês sem processamentos', async () => {
+    it('deve limpar transações residuais, saldos e resetar dívidas mesmo quando o mês não tem processamentos', async () => {
+      const completedDebtTx = makeTransactionStub({
+        id: 'tx-debt',
+        status: 'transaction.status.completed',
+        debtId: 'debt-uuid',
+      });
       repo.getAllByYearMonth.mockResolvedValue([]);
-      repo.deleteAll.mockResolvedValue(0);
+      transactionsRepo.getDebtTransactionsByMonth.mockResolvedValue([completedDebtTx]);
       const result = await useCase.execute({ year: 2026, month: 3, userId: 'user-uuid' });
       expect(result.isRight()).toBe(true);
       expect(resetAll.execute).not.toHaveBeenCalled();
+      expect(debtRepo.updateInstallmentsPaid).toHaveBeenCalledWith('debt-uuid', -1);
+      expect(transactionsRepo.resetDebtsByMonth).toHaveBeenCalledWith('user-uuid', 2026, 3);
+      expect(transactionsRepo.deleteNonDebtByUserAndMonth).toHaveBeenCalledWith('user-uuid', 2026, 3);
+      expect(envelopesRepo.deleteAmountsByUserAndMonth).toHaveBeenCalledWith('user-uuid', 2026, 3);
+      expect(repo.deleteAll).not.toHaveBeenCalled();
     });
   });
 });

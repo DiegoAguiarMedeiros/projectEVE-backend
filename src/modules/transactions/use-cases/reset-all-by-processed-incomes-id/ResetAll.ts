@@ -3,6 +3,7 @@ import { Either, Result, left, right } from "../../../../shared/core/Result";
 import { AppError } from "../../../../shared/core/AppError";
 import { Interface as ITransactionRepo } from "../../repos/Interface";
 import { Repository as IEnvelopeRepo } from "../../../envelopes/repos/implementation/Repository";
+import { Interface as IDebtRepo } from "../../../debts/repos/Interface";
 
 interface ResetAllDTO {
   processedIncomesId: string;
@@ -16,10 +17,12 @@ type Response = Either<AppError.UnexpectedError, Result<void>>
 export class ResetAll implements UseCase<ResetAllDTO, Promise<Response>> {
   private transactionsRepo: ITransactionRepo;
   private envelopeRepo: IEnvelopeRepo;
+  private debtRepo?: IDebtRepo;
 
-  constructor(transactionsRepo: ITransactionRepo, envelopeRepo: IEnvelopeRepo) {
+  constructor(transactionsRepo: ITransactionRepo, envelopeRepo: IEnvelopeRepo, debtRepo?: IDebtRepo) {
     this.transactionsRepo = transactionsRepo;
     this.envelopeRepo = envelopeRepo;
+    this.debtRepo = debtRepo;
   }
 
   public async execute(request: ResetAllDTO): Promise<Response> {
@@ -40,6 +43,10 @@ export class ResetAll implements UseCase<ResetAllDTO, Promise<Response>> {
               ? Number(envelopeAmount) + Number(transaction.amount.value)
               : Number(envelopeAmount) - Number(transaction.amount.value);
             await this.envelopeRepo.addAmount(transaction.envelopeId.value, restored, txYear, txMonth);
+          }
+
+          if (transaction.debtId?.value && this.debtRepo) {
+            await this.debtRepo.updateInstallmentsPaid(transaction.debtId.value, -1);
           }
         }
       }
@@ -66,6 +73,10 @@ export class ResetAll implements UseCase<ResetAllDTO, Promise<Response>> {
               ? Number(envelopeAmount) + Number(transaction.amount.value)
               : Number(envelopeAmount) - Number(transaction.amount.value);
             await this.envelopeRepo.addAmount(transaction.envelopeId.value, restored, txYear, txMonth);
+          }
+
+          if (transaction.debtId?.value && this.debtRepo) {
+            await this.debtRepo.updateInstallmentsPaid(transaction.debtId.value, -1);
           }
         }
       }

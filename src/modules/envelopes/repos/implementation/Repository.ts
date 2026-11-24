@@ -268,6 +268,25 @@ export class Repository implements Interface {
         return data ? Number(data.amount) : null;
     }
 
+    async deleteAmountsByUserAndMonth(userId: string, year: number, month: number): Promise<void> {
+        const envelopes = await this.model.findAll({
+            attributes: ['id'],
+            where: { user_id: userId },
+            raw: true,
+        });
+        const envelopeIds = envelopes.map((e: any) => e.id);
+
+        if (envelopeIds.length === 0) return;
+
+        await this.models.EnvelopesAmounts.destroy({
+            where: {
+                envelope_id: { [Op.in]: envelopeIds },
+                year,
+                month,
+            },
+        });
+    }
+
     async delete(id: string): Promise<boolean> {
         const deletedCount = await this.model.destroy({
             where: { id },

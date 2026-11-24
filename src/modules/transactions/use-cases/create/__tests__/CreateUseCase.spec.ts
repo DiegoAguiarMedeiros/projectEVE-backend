@@ -28,6 +28,7 @@ const makeTransactionsRepo = (): jest.Mocked<ITransactionsRepo> => ({
   resetDebtsByMonth: jest.fn(),
   getOrphanedTransactionsByMonth: jest.fn(),
   deleteOrphanedByUserAndMonth: jest.fn(),
+  deleteNonDebtByUserAndMonth: jest.fn(),
   existsByDescriptionAndMonth: jest.fn(),
   getTotalPendingDebitsByEnvelope: jest.fn(),
 });

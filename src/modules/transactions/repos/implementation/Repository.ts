@@ -236,6 +236,25 @@ export class Repository implements Interface {
         });
     }
 
+    async deleteNonDebtByUserAndMonth(userId: string, year: number, month: number): Promise<void> {
+        const envelopes = await this.models.Envelopes.findAll({
+            attributes: ['id'],
+            where: { user_id: userId },
+        });
+        const envelopeIds = envelopes.map((e: any) => e.id);
+
+        if (envelopeIds.length === 0) return;
+
+        await this.model.destroy({
+            where: {
+                envelope_id: { [Op.in]: envelopeIds },
+                reference_year: year,
+                reference_month: month,
+                debt_id: { [Op.is]: null },
+            },
+        });
+    }
+
     async getAllByDebtId(debtId: string): Promise<Transactions[]> {
         const data = await this.model.findAll({
             where: {
